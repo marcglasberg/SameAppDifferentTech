@@ -1,4 +1,4 @@
-# Same Mobile App, Different Tech
+# Same App, Different Tech
 
 This project contains the SAME MOBILE APP implemented with DIFFERENT TECH STACKS.
 
