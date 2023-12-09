@@ -10,7 +10,7 @@ type _Stock = {
 
 export class SimulatedDao extends Dao {
 
-  /// We simulate that the backend has this list of available stocks.
+  // We simulate that the backend has this list of available stocks.
   private stocks: _Stock[] = [
     { ticker: 'IBM', name: 'International Business Machines', price: 132.64 },
     { ticker: 'AAPL', name: 'Apple', price: 183.58 },
