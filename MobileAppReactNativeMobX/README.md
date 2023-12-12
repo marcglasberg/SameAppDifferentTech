@@ -1149,7 +1149,7 @@ and that also serve as documentation.
 
 I won't go into details here, but I'm providing two files with BDD tests, to demonstrate how to create them:
 
-* [bdd.AveragePrice.test.ts](__tests__%2Ftests%2Fbdd.AveragePrice.test.ts)`
+* [bdd.AveragePrice.test.ts](__tests__%2Ftests%2Fbdd.AveragePrice.test.ts)
 * [bdd.BuyAndSell.test.ts](__tests__%2Ftests%2Fbdd.BuyAndSell.test.ts)
 
 These BDD tests use a **BDD Framework for React**, that I have developed myself.
