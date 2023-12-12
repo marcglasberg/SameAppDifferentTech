@@ -898,16 +898,16 @@ and [The Storage class](#the-storage-class).
 ### Testing business and utility classes
 
 The simplest tests are the unit tests that exercise the business classes and utility classes. For
-example, [Stock.test.tsx](__tests__%2Ftests%2FStock.test.tsx) and [utils.test.ts](__tests__%2Ftests%2Futils.test.ts).
+example, [Stock.test.tsx](__tests__%2FStock.test.tsx) and [utils.test.ts](__tests__%2Futils.test.ts).
 
 <br>
 
 ### Testing the store
 
 Then, I test the sub-stores that are part of the main store,
-in [UiStore.test.ts](__tests__%2Ftests%2FUiStore.test.ts),
-[Portfolio.test.tsx](__tests__%2Ftests%2FPortfolio.test.tsx)
-and [AvailableStock.test.tsx](__tests__%2Ftests%2FAvailableStock.test.tsx):
+in [UiStore.test.ts](__tests__%2FUiStore.test.ts),
+[Portfolio.test.tsx](__tests__%2FPortfolio.test.tsx)
+and [AvailableStock.test.tsx](__tests__%2FAvailableStock.test.tsx):
 
 ```
 export class Store {
@@ -920,10 +920,10 @@ export class Store {
 
 ### Testing the app infrastructure
 
-Then I test the infrastructure classes, in [RunConfig.test.tsx](__tests__%2Ftests%2FRunConfig.test.tsx),
-[Storage.test.tsx](__tests__%2Ftests%2FStorage.test.tsx),
-[StorageManager.test.tsx](__tests__%2Ftests%2FStorageManager.test.tsx)
-and [Dao.test.tsx](__tests__%2Ftests%2FDao.test.tsx).
+Then I test the infrastructure classes, in [RunConfig.test.tsx](__tests__%2FRunConfig.test.tsx),
+[Storage.test.tsx](__tests__%2FStorage.test.tsx),
+[StorageManager.test.tsx](__tests__%2FStorageManager.test.tsx)
+and [Dao.test.tsx](__tests__%2FDao.test.tsx).
 
 
 <br>
@@ -1029,7 +1029,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    ```   
 
    Let's see how to test the **container** in
-   file [AvailableStocks.container.test.ts](__tests__%2Ftests%2FAvailableStocks.container.test.ts).
+   file [AvailableStocks.container.test.ts](__tests__%2FAvailableStocks.container.test.ts).
 
    Testing the container is basically testing that the view-model is correct. This is easy to do, as we can
    simply call the `viewModel()` function with different states, and check that the view-model properties
@@ -1149,8 +1149,8 @@ and that also serve as documentation.
 
 I won't go into details here, but I'm providing two files with BDD tests, to demonstrate how to create them:
 
-* [bdd.AveragePrice.test.ts](__tests__%2Ftests%2Fbdd.AveragePrice.test.ts)
-* [bdd.BuyAndSell.test.ts](__tests__%2Ftests%2Fbdd.BuyAndSell.test.ts)
+* [bdd.AveragePrice.test.ts](__tests__%2Fbdd.AveragePrice.test.ts)
+* [bdd.BuyAndSell.test.ts](__tests__%2Fbdd.BuyAndSell.test.ts)
 
 These BDD tests use a **BDD Framework for React**, that I have developed myself.
 
