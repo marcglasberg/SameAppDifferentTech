@@ -867,9 +867,10 @@ We can write a more semantic code, which I believe is easier to read:
 
 To test the app I use:
 
-* Jest
-* BDD Framework (my own library for Behavior-Driven Development)
-* React Native Testing Library (RNTL)
+* <a href="https://www.npmjs.com/package/jest">Jest</a>
+* <a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For Jest</a> (my own
+  library for Behavior-Driven Development)
+* <a href="https://www.npmjs.com/package/@testing-library/react-native">React Native Testing Library</a> (RNTL)
 
 The tests are inside the `__tests__` directory.
 
@@ -1152,7 +1153,8 @@ I won't go into details here, but I'm providing two files with BDD tests, to dem
 * [bdd.AveragePrice.test.ts](__tests__%2Fbdd.AveragePrice.test.ts)
 * [bdd.BuyAndSell.test.ts](__tests__%2Fbdd.BuyAndSell.test.ts)
 
-These BDD tests use a **BDD Framework for React**, that I have developed myself.
+These BDD tests use a **<a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For
+Jest</a>**, that I have developed myself.
 
 Let's see an example of a BDD test description that specifies the behavior of the app when the user buys stocks:
 
