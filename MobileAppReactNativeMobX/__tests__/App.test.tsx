@@ -1,6 +1,6 @@
 import 'react-native';
 import { beforeEach, expect, test } from '@jest/globals';
-import { inject, store } from '../../src/inject';
+import { inject, store } from '../src/inject';
 
 beforeEach(async () => {
   inject({});

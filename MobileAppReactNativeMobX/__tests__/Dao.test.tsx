@@ -1,11 +1,11 @@
 import 'react-native';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { Dao } from '../../src/business/dao/Dao';
-import { inject, storage } from '../../src/inject';
-import Portfolio from '../../src/business/state/Portfolio';
-import Stock from '../../src/business/state/Stock';
-import CashBalance from '../../src/business/state/CashBalance';
-import { SimulatedDao } from '../../src/business/dao/SimulatedDao';
+import { Dao } from '../src/business/dao/Dao';
+import { inject, storage } from '../src/inject';
+import Portfolio from '../src/business/state/Portfolio';
+import Stock from '../src/business/state/Stock';
+import CashBalance from '../src/business/state/CashBalance';
+import { SimulatedDao } from '../src/business/dao/SimulatedDao';
 
 describe('Dao', () => {
   let dao: Dao;

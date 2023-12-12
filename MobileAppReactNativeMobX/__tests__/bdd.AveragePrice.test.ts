@@ -1,9 +1,8 @@
-import { Bdd, Feature, reporter, val } from '../BddFramework/Bdd';
 import 'react-native';
 import { expect } from '@jest/globals';
-import { inject, store } from '../../src/inject';
-import { BuyOrSell } from '../../src/business/state/BuyOrSell';
-import { FeatureFileReporter } from '../BddFramework/FeatureFileReporter';
+import { inject, store } from '../src/inject';
+import { BuyOrSell } from '../src/business/state/BuyOrSell';
+import { Bdd, Feature, FeatureFileReporter, reporter, val } from '@marcglasberg/bdd_framework_for_jest';
 
 reporter(new FeatureFileReporter());
 

@@ -1,6 +1,6 @@
 import 'react-native';
 import { expect, test } from '@jest/globals';
-import { round } from '../../src/business/utils/utils';
+import { round } from '../src/business/utils/utils';
 
 test('round', () => {
   expect(round(1.2345)).toBe(1.23);

@@ -1,7 +1,7 @@
 import 'react-native';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { UiStore } from '../../src/ui/utils/UiStore';
-import Color from '../../src/ui/theme/Color';
+import { UiStore } from '../src/ui/utils/UiStore';
+import Color from '../src/ui/theme/Color';
 import { ScaledSize } from 'react-native';
 
 describe('UiStore', () => {

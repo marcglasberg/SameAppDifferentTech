@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
-import AvailableStock from '../../src/business/state/AvailableStock';
-import { inject, store } from '../../src/inject';
-import { viewModel } from '../../src/ui/cashBalanceAndPortfolio/Portfolio.container';
+import AvailableStock from '../src/business/state/AvailableStock';
+import { inject, store } from '../src/inject';
+import { viewModel } from '../src/ui/cashBalanceAndPortfolio/Portfolio.container';
 
 describe('PortfolioContainer', () => {
 

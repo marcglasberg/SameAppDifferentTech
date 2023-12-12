@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
-import AvailableStocks from '../../src/business/state/AvailableStocks';
-import AvailableStock from '../../src/business/state/AvailableStock';
-import { inject } from '../../src/inject';
+import AvailableStocks from '../src/business/state/AvailableStocks';
+import AvailableStock from '../src/business/state/AvailableStock';
+import { inject } from '../src/inject';
 
 describe('AvailableStocks', () => {
   let availableStocks: AvailableStocks;

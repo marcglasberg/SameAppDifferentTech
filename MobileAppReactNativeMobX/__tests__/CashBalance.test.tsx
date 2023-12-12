@@ -1,6 +1,6 @@
 import 'react-native';
 import { describe, expect, it } from '@jest/globals';
-import CashBalance from '../../src/business/state/CashBalance';
+import CashBalance from '../src/business/state/CashBalance';
 
 describe('CashBalance', () => {
   it('initializes with the correct amount.', () => {

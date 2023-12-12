@@ -1,8 +1,8 @@
 import 'react-native';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { dao, inject, store } from '../../src/inject';
-import { StorageManager } from '../../src/business/dao/StorageManager';
-import Portfolio from '../../src/business/state/Portfolio';
+import { dao, inject, store } from '../src/inject';
+import { StorageManager } from '../src/business/dao/StorageManager';
+import Portfolio from '../src/business/state/Portfolio';
 
 describe('StorageManager', () => {
   let savePortfolioSpy: jest.MockedFunction<any>;

@@ -1,8 +1,8 @@
 import 'react-native';
 import { beforeEach, describe, expect, it } from '@jest/globals';
-import Portfolio from '../../src/business/state/Portfolio';
-import AvailableStock from '../../src/business/state/AvailableStock';
-import { BuyOrSell } from '../../src/business/state/BuyOrSell';
+import Portfolio from '../src/business/state/Portfolio';
+import AvailableStock from '../src/business/state/AvailableStock';
+import { BuyOrSell } from '../src/business/state/BuyOrSell';
 
 describe('Portfolio', () => {
   let portfolio: Portfolio;

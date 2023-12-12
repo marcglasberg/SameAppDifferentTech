@@ -1,6 +1,6 @@
 import 'react-native';
 import { describe, expect, it } from '@jest/globals';
-import { AbTesting } from '../../src/business/RunConfig/ABTesting';
+import { AbTesting } from '../src/business/RunConfig/ABTesting';
 
 describe('AbTesting', () => {
   it('should return firstValueA when A is chosen, ' +

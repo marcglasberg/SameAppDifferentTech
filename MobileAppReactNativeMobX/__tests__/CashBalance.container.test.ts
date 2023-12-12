@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
-import { inject, store } from '../../src/inject';
-import { viewModel } from '../../src/ui/cashBalanceAndPortfolio/CashBalance.container';
+import { inject, store } from '../src/inject';
+import { viewModel } from '../src/ui/cashBalanceAndPortfolio/CashBalance.container';
 
 describe('CashBalanceContainer', () => {
 
