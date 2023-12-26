@@ -1,6 +1,6 @@
 {
   "name": "MobileAppReactNativeMobX",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -20,7 +20,7 @@
     "react-native-vector-icons": "^10.0.1"
   },
   "devDependencies": {
-    "@marcglasberg/bdd_framework_for_jest": "^1.0.2",
+    "easy-bdd-tool-jest": "^1.0.0",
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/preset-typescript": "^7.23.2",

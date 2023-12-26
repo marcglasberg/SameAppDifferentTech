@@ -20,7 +20,7 @@
     "mobx-react-lite": "^4.0.5"
   },
   "devDependencies": {
-    "@marcglasberg/bdd_framework_for_jest": "^1.0.2",
+    "easy-bdd-tool-jest": "^1.0.0",
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
