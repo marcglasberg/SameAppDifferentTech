@@ -59,7 +59,7 @@ export abstract class Dao {
   async loadPortfolio(): Promise<Portfolio> {
     const serializedPortfolio = await storage.getItem('portfolio');
     if (serializedPortfolio === null) {
-      return new Portfolio();
+      return new Portfolio({});
     } else {
       const portfolioData = JSON.parse(serializedPortfolio);
       const stocks = portfolioData.stocks.map((stock: any) => new Stock({
@@ -68,7 +68,7 @@ export abstract class Dao {
         averagePrice: stock.averagePrice,
       }));
       const cashBalance = new CashBalance(portfolioData.cashBalance.amount);
-      return new Portfolio(stocks, cashBalance);
+      return new Portfolio({stocks, cashBalance});
     }
   }
 }

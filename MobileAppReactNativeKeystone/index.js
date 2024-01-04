@@ -8,7 +8,7 @@ import { Storage } from './src/business/dao/Storage';
 import { StorageManager } from './src/business/dao/StorageManager';
 
 inject({
-  store: new Store(),
+  store: new Store({}),
   dao: new SimulatedDao(),
   storage: new Storage(),
   runConfig: developmentConfiguration,

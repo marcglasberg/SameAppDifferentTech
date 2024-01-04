@@ -1,12 +1,13 @@
-export class BuyOrSell {
-  private readonly value: boolean;
+import { Model, model, prop } from 'mobx-keystone';
 
-  private constructor(value: boolean) {
-    this.value = value;
-  }
-
-  static BUY = new BuyOrSell(true);
-  static SELL = new BuyOrSell(false);
+@model('BuyOrSell')
+export class BuyOrSell extends Model({
+  value: prop<boolean>()
+}, {
+  valueType: true
+}) {
+  static BUY: BuyOrSell;
+  static SELL: BuyOrSell;
 
   get isBuy(): boolean {
     return this.value;
@@ -21,3 +22,5 @@ export class BuyOrSell {
   }
 }
 
+BuyOrSell.BUY = new BuyOrSell({ value: true });
+BuyOrSell.SELL = new BuyOrSell({ value: false });

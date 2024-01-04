@@ -30,7 +30,7 @@ const palette = {
   lightGreen: '#30F030',
   green: '#309030',
   blue: '#2196F3',
-  darkBlue: '#263073',
+  darkBlue: '#263073'
 } as const;
 
 // Define types for your theme properties
@@ -65,7 +65,7 @@ const lightTheme: Theme = {
   down: palette.red,
   disabledBackground: palette.base20,
   divider: palette.base30,
-  disabledText: palette.base40,
+  disabledText: palette.base40
 } as const;
 
 const darkTheme: Theme = {
@@ -82,48 +82,32 @@ const darkTheme: Theme = {
   down: palette.red,
   disabledBackground: palette.base50,
   divider: palette.base30,
-  disabledText: palette.base40,
+  disabledText: palette.base40
 } as const;
 
 @model('_Color')
 export class _Color extends Model({
-  transparent: prop<string>(),
-  text: prop<string>(),
-  invertedText: prop<string>(),
-  textDimmed: prop<string>(),
-  appBar: prop<string>(),
-  blueText: prop<string>(),
-  background: prop<string>(),
-  backgroundDimmed: prop<string>(),
-  error: prop<string>(),
-  up: prop<string>(),
-  down: prop<string>(),
-  disabledBackground: prop<string>(),
-  divider: prop<string>(),
-  disabledText: prop<string>(),
+  transparent: prop<string>(() => '' as const),
+  text: prop<string>(() => '' as const),
+  invertedText: prop<string>(() => '' as const),
+  textDimmed: prop<string>(() => '' as const),
+  appBar: prop<string>(() => '' as const),
+  blueText: prop<string>(() => '' as const),
+  background: prop<string>(() => '' as const),
+  backgroundDimmed: prop<string>(() => '' as const),
+  error: prop<string>(() => '' as const),
+  up: prop<string>(() => '' as const),
+  down: prop<string>(() => '' as const),
+  disabledBackground: prop<string>(() => '' as const),
+  divider: prop<string>(() => '' as const),
+  disabledText: prop<string>(() => '' as const)
 }) {
   palette = palette;
 
-  constructor() {
-    super({
-      transparent: '',
-      text: '',
-      invertedText: '',
-      textDimmed: '',
-      appBar: '',
-      blueText: '',
-      background: '',
-      backgroundDimmed: '',
-      error: '',
-      up: '',
-      down: '',
-      disabledBackground: '',
-      divider: '',
-      disabledText: '',
-    });
-
-    this.setLightTheme();
-  }
+  // constructor() {
+  //   super({
+  //   this.setLightTheme();
+  // }
 
   @modelAction
   setTheme(theme: Theme) {
@@ -141,48 +125,7 @@ export class _Color extends Model({
   }
 }
 
-// TODO: REMOVE
-// class _Color implements Theme {
-//
-//   /** You can use the color palette, but prefer the color names below. */
-//   palette = palette;
-//
-//   transparent = '';
-//   text = '';
-//   invertedText = '';
-//   textDimmed = '';
-//   appBar = '';
-//   blueText = '';
-//   background = '';
-//   backgroundDimmed = '';
-//   error = '';
-//   up = '';
-//   down = '';
-//   disabledBackground = '';
-//   divider = '';
-//   disabledText = '';
-//
-//   // Initialize with the light theme by default
-//   constructor() {
-//     makeAutoObservable(this);
-//     this.setLightTheme();
-//   }
-//
-//   setTheme(theme: Theme) {
-//     // Dynamically assign properties from the selected theme to the store.
-//     Object.assign(this, theme);
-//   }
-//
-//   setLightTheme() {
-//     this.setTheme(lightTheme);
-//   }
-//
-//   setDarkTheme() {
-//     this.setTheme(darkTheme);
-//   }
-// }
-
-const Color = new _Color();
+const Color = new _Color({});
 
 /**
  * Usage example:
