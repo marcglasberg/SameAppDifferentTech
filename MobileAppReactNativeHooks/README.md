@@ -1315,7 +1315,7 @@ src/
 ├── features/
 │   ├── cashBalanceAndPortfolio/
 │   │   ├── portfolio/
-│   │   │   ├── Portfolio.ts (Business code)
+│   │   │   ├── Portfolio.tsx (Business code)
 │   │   │   ├── Portfolio.container.tsx (UI code)
 │   │   │   └── Portfolio.view.tsx (UI code)
 ```
@@ -1372,7 +1372,7 @@ src/
 ├── business/
 │   ├── state/ 
 │   │   ├── cashBalanceAndPortfolio/
-│   │   │   └── Portfolio.ts (Business code)
+│   │   │   └── Portfolio.tsx (Business code)
 │
 ├── ui/
 │   ├── cashBalanceAndPortfolio/
