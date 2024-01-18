@@ -1,8 +1,8 @@
 import React from 'react';
 import { GestureResponderEvent, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Sets: Foundation, Ionicons, FontAwesome, FontAwesome5, MaterialIcons, etc.
 import Color from '../theme/Color';
-import { ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetTypes'; // Sets: Foundation, Ionicons, FontAwesome, FontAwesome5, MaterialIcons, etc.
+import { ViewStyle } from 'react-native/Libraries/StyleSheet/StyleSheetTypes';
 
 const CircleButton: React.FC<{
   icon: string;
@@ -21,7 +21,7 @@ const CircleButton: React.FC<{
     shadowOffset: { width: 1, height: 1 }, // This adds a shadow on iOS
     shadowColor: Color.palette.black,
     shadowOpacity: 0.3,
-    shadowRadius: 2,
+    shadowRadius: 2
   };
 
   return (

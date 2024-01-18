@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { AvailableStock } from './AvailableStock';
 import CashBalance from './CashBalance';
 import Stock from './Stock';
-import { round } from '../utils/utils';
+import { print, round } from '../utils/utils';
 import { BuyOrSell } from './BuyOrSell';
 
 class Portfolio {
@@ -49,6 +49,20 @@ class Portfolio {
 
   get isEmpty(): boolean {
     return this.stocks.length === 0;
+  }
+
+  public addCashBalance(howMuch: number): Portfolio {
+    const newCashBalance = this.cashBalance.add(howMuch);
+    return this.withCashBalance(newCashBalance);
+  }
+
+  public removeCashBalance(howMuch: number): Portfolio {
+    const newCashBalance = this.cashBalance.remove(howMuch);
+    return this.withCashBalance(newCashBalance);
+  }
+
+  withCashBalance(newCashBalance: CashBalance): Portfolio {
+    return this.copyWith({ cashBalance: newCashBalance });
   }
 
   withoutStock(ticker: string): Portfolio {

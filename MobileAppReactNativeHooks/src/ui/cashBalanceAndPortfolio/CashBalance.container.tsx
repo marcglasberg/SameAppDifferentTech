@@ -13,7 +13,15 @@ export function viewModel() {
 
   return {
     cashBalance: portfolio.cashBalance,
-    onAdd: () => portfolio.cashBalance.add(100),
-    onRemove: () => portfolio.cashBalance.remove(100)
+
+    onAdd: () => {
+      const newPortfolio = portfolio.addCashBalance(100);
+      setPortfolio(newPortfolio);
+    },
+
+    onRemove: () => {
+      const newPortfolio = portfolio.removeCashBalance(100);
+      setPortfolio(newPortfolio);
+    }
   };
 }

@@ -13,14 +13,14 @@ class CashBalance {
 
   public add(howMuch: number): CashBalance {
     let newAmount = round(this.amount + howMuch);
-    print('Cash balance is now: ' + newAmount);
+    print(`Added ${howMuch}. Cash balance is now: ${newAmount}.`);
     return new CashBalance(newAmount);
   }
 
   public remove(howMuch: number): CashBalance {
     let newAmount = round(this.amount - howMuch);
     if (newAmount < 0) newAmount = 0;
-    print('Cash balance is now: ' + newAmount);
+    print(`Removed ${howMuch}. Cash balance is now: ${newAmount}.`);
     return new CashBalance(newAmount);
   }
 

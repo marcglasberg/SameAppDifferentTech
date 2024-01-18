@@ -19,8 +19,16 @@ export function viewModel(availableStock: AvailableStock) {
     ifBuyDisabled: !portfolio.hasMoneyToBuyStock(availableStock),
     ifSellDisabled: !portfolio.hasStock(availableStock),
     abTesting: runConfig.abTesting,
-    onBuy: () => portfolio.buy(availableStock, 1),
-    onSell: () => portfolio.sell(availableStock, 1)
+
+    onBuy: () => {
+      const newPortfolio = portfolio.buy(availableStock, 1);
+      return setPortfolio(newPortfolio);
+    },
+
+    onSell: () => {
+      const newPortfolio = portfolio.sell(availableStock, 1);
+      return setPortfolio(newPortfolio);
+    }
   };
 }
 
