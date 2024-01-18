@@ -21,13 +21,11 @@ export function viewModel(availableStock: AvailableStock) {
     abTesting: runConfig.abTesting,
 
     onBuy: () => {
-      const newPortfolio = portfolio.buy(availableStock, 1);
-      return setPortfolio(newPortfolio);
+      setPortfolio(prevPortfolio => prevPortfolio.buy(availableStock, 1));
     },
 
     onSell: () => {
-      const newPortfolio = portfolio.sell(availableStock, 1);
-      return setPortfolio(newPortfolio);
+      setPortfolio(prevPortfolio => prevPortfolio.sell(availableStock, 1));
     }
   };
 }

@@ -32,20 +32,31 @@ class AvailableStocks {
     return new AvailableStocks(newStocks);
   }
 
+  withAvailableStock(newAvailableStock: AvailableStock): AvailableStocks {
+    let newList = this.list.map(s => s.ticker === newAvailableStock.ticker ? newAvailableStock : s);
+    return new AvailableStocks(newList);
+  }
+
   /** Continuously get stock price updates from the backend. */
-  startListeningToStockPriceUpdates() {
+  startListeningToStockPriceUpdates(setAvailableStocks: React.Dispatch<React.SetStateAction<AvailableStocks>>) {
     print('Listening to stock price updates...');
 
     dao.listenToStockPriceUpdates(
       (ticker: string, price: number) => {
-        let availableStock = this.findBySymbolOrNull(ticker);
-        if (availableStock) {
+        setAvailableStocks((prevAvailableStocks) => {
+          let availableStock = prevAvailableStocks.findBySymbolOrNull(ticker);
+          if (availableStock) {
+            let avbStockWithUpdatedPrice = availableStock.withCurrentPrice(price);
+            let newAvailableStocks = prevAvailableStocks.withAvailableStock(avbStockWithUpdatedPrice);
 
-          // TODO: MARCELO use newAvailableStock here.
-          let newAvailableStock = availableStock.withCurrentPrice(price);
+            print('Updated ' + ticker + ' price to ' + price + '.');
 
-          print('Updated ' + ticker + ' price to ' + price + '.');
-        }
+            return newAvailableStocks;
+          }
+
+          // If the stock is not found, return the previous state
+          return prevAvailableStocks;
+        });
       }
     );
   }

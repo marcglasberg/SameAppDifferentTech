@@ -34,8 +34,8 @@ const Botao = () => {
   const [student, setStudent] = Student.use();
 
   return (
-    <Button title={'CLICK ME'} onPress={() => {
-      setStudent(student.withName('John').withAge(30));
+    <Button title={`CLICK ME - ${student}`} onPress={() => {
+      setStudent(prevStudent => prevStudent.withName('John').withAge(30));
     }} />
   );
 };
