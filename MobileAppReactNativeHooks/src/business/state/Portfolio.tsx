@@ -2,8 +2,9 @@ import React, { createContext, useContext } from 'react';
 import { AvailableStock } from './AvailableStock';
 import CashBalance from './CashBalance';
 import Stock from './Stock';
-import { print, round } from '../utils/utils';
+import { round } from '../utils/utils';
 import { BuyOrSell } from './BuyOrSell';
+
 
 class Portfolio {
   readonly stocks: Stock[];
@@ -18,20 +19,6 @@ class Portfolio {
   } = {}) {
     this.stocks = stocks;
     this.cashBalance = cashBalance;
-
-    // TODO: MARCELO
-    // // When the Portfolio changes, mark it for later saving to the local disk.
-    // reaction(
-    //   () => [
-    //     this.stocks.map(stock => stock),
-    //     this.cashBalance,
-    //     this.cashBalance.amount],
-    //   () => StorageManager.markPortfolioChanged(),
-    //   {
-    //     // Prevents the reaction from running immediately.
-    //     fireImmediately: false,
-    //   },
-    // );
   }
 
   copyWith({
@@ -227,7 +214,6 @@ class Portfolio {
     const { portfolio, setPortfolio } = useContext(Portfolio.Context);
     return [portfolio, setPortfolio];
   }
-
 }
 
 export default Portfolio;

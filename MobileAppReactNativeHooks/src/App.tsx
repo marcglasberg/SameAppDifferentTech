@@ -16,10 +16,13 @@ import AvailableStocks from './business/state/AvailableStocks';
 
 function App() {
 
+  // The storageManager saves information to the device's local storage.
+  const [storageManager, setStorageManager] = useState(new StorageManager());
+
   // Declare all the state.
-  const [ui, setUi] = useState(new Ui());
-  const [portfolio, setPortfolio] = useState(new Portfolio());
   const [avbStocks, setAvbStocks] = useState(new AvailableStocks([]));
+  const [portfolio, setPortfolio] = useState(new Portfolio());
+  const [ui, setUi] = useState(new Ui());
 
   if (runConfig.playground) {
 
@@ -30,29 +33,35 @@ function App() {
 
     // Otherwise, render the main app content.
     return (
-      <Ui.Context.Provider value={{ ui: ui, setUi: setUi }}>
-        <Portfolio.Context.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
-          <AvailableStocks.Context.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
-            <AppContent />
-          </AvailableStocks.Context.Provider>
-        </Portfolio.Context.Provider>
-      </Ui.Context.Provider>
+      <StorageManager.Context.Provider value={{ storageManager: storageManager, setStorageManager: setStorageManager }}>
+        <AvailableStocks.Context.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
+          <Portfolio.Context.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
+            <Ui.Context.Provider value={{ ui: ui, setUi: setUi }}>
+              <AppContent />
+            </Ui.Context.Provider>
+          </Portfolio.Context.Provider>
+        </AvailableStocks.Context.Provider>
+      </StorageManager.Context.Provider>
     );
   }
 }
 
 const AppContent: React.FC = () => {
 
+  const storageManager = StorageManager.use();
+  const [portfolio, setPortfolio] = Portfolio.use();
   const [ui, setUi] = Ui.use();
 
   // When the app is shutting down, stop the save timer,
   // and save one last time (if necessary).
   useEffect(() => {
 
+    storageManager.processPortfolio(portfolio, setPortfolio).then();
+
     const handleAppShutdown = async () => {
       try {
         console.log('Starting shutdown process...');
-        await StorageManager.stopTimerAndSaves().then();
+        await storageManager.stopTimerAndSave().then();
         console.log('Shutdown process completed.');
       } catch (error) {
         console.error('Error during shutdown:', error);
@@ -69,7 +78,8 @@ const AppContent: React.FC = () => {
     return () => {
       subscription.remove();
     };
-  }, []);
+    // eslint-disable-next-line
+  }, [portfolio]);
 
   return (
     <SafeAreaProvider>
