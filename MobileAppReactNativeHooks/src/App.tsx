@@ -11,7 +11,14 @@ import { AvailableStocksListContainer } from './ui/cashBalanceAndPortfolio/Avail
 import Color from './ui/theme/Color';
 import ConfigButton from './ui/appBar/ConfigButton';
 import { Ui } from './ui/utils/Ui';
-import Portfolio from './business/state/Portfolio';
+import { Portfolio } from './business/state/Portfolio';
+import {
+  AvailableStocksContext,
+  PortfolioContext,
+  UiContext,
+  usePortfolio,
+  useUi
+} from './business/state/PortfolioContext';
 import AvailableStocks from './business/state/AvailableStocks';
 
 function App() {
@@ -20,8 +27,8 @@ function App() {
   const [storageManager, setStorageManager] = useState(new StorageManager());
 
   // Declare all the state.
-  const [avbStocks, setAvbStocks] = useState(new AvailableStocks([]));
   const [portfolio, setPortfolio] = useState(new Portfolio());
+  const [avbStocks, setAvbStocks] = useState(new AvailableStocks([]));
   const [ui, setUi] = useState(new Ui());
 
   if (runConfig.playground) {
@@ -34,13 +41,13 @@ function App() {
     // Otherwise, render the main app content.
     return (
       <StorageManager.Context.Provider value={{ storageManager: storageManager, setStorageManager: setStorageManager }}>
-        <AvailableStocks.Context.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
-          <Portfolio.Context.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
-            <Ui.Context.Provider value={{ ui: ui, setUi: setUi }}>
+        <PortfolioContext.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
+          <AvailableStocksContext.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
+            <UiContext.Provider value={{ ui: ui, setUi: setUi }}>
               <AppContent />
-            </Ui.Context.Provider>
-          </Portfolio.Context.Provider>
-        </AvailableStocks.Context.Provider>
+            </UiContext.Provider>
+          </AvailableStocksContext.Provider>
+        </PortfolioContext.Provider>
       </StorageManager.Context.Provider>
     );
   }
@@ -49,8 +56,8 @@ function App() {
 const AppContent: React.FC = () => {
 
   const storageManager = StorageManager.use();
-  const [portfolio, setPortfolio] = Portfolio.use();
-  const [ui, setUi] = Ui.use();
+  const [portfolio, setPortfolio] = usePortfolio();
+  const [ui, setUi] = useUi();
 
   // When the app is shutting down, stop the save timer,
   // and save one last time (if necessary).
@@ -62,6 +69,7 @@ const AppContent: React.FC = () => {
       try {
         console.log('Starting shutdown process...');
         await storageManager.stopTimerAndSave().then();
+        ui.cleanup();
         console.log('Shutdown process completed.');
       } catch (error) {
         console.error('Error during shutdown:', error);
@@ -79,7 +87,7 @@ const AppContent: React.FC = () => {
       subscription.remove();
     };
     // eslint-disable-next-line
-  }, [portfolio]);
+  }, [portfolio, ui]);
 
   return (
     <SafeAreaProvider>

@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { runConfig } from '../../inject';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { AvailableStockView } from './AvailableStock.view';
-import Portfolio from '../../business/state/Portfolio';
+import { PortfolioContext, Set } from '../../business/state/PortfolioContext';
+import { Portfolio } from '../../business/state/Portfolio';
 
 export const AvailableStockContainer: React.FC<{
   availableStock: AvailableStock
 }> = ({ availableStock }) => {
-  return <AvailableStockView {...viewModel(availableStock)} />;
+  const { portfolio, setPortfolio } = useContext(PortfolioContext);
+  return <AvailableStockView {...viewModel(availableStock, portfolio, setPortfolio)} />;
 };
 
-export function viewModel(availableStock: AvailableStock) {
-
-  const [portfolio, setPortfolio] = Portfolio.use();
+export function viewModel(
+  availableStock: AvailableStock,
+  portfolio: Portfolio,
+  setPortfolio: Set<Portfolio>
+) {
 
   return {
     availableStock,

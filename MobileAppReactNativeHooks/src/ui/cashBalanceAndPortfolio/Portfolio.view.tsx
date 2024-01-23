@@ -1,6 +1,6 @@
 import React from 'react';
 import {Text} from 'react-native';
-import Stock from '../../business/state/Stock';
+import { Stock } from '../../business/state/Stock';
 import {Space} from '../theme/Space';
 import {Column, Row} from '../utils/Layout';
 import {Font} from '../theme/Font';

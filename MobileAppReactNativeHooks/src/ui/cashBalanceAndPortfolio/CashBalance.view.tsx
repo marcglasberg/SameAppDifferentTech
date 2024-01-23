@@ -5,7 +5,7 @@ import CircleButton from '../utils/CircleButton';
 import {Row, Spacer} from '../utils/Layout';
 import {Font} from '../theme/Font';
 import {Space} from '../theme/Space';
-import CashBalance from '../../business/state/CashBalance';
+import { CashBalance } from '../../business/state/CashBalance';
 import Color from '../theme/Color';
 
 export const CashBalanceView: React.FC<{

@@ -71,20 +71,6 @@ class AvailableStocks {
   toString(): string {
     return `AvailableStocks: ${this.list.length === 0 ? 'empty' : this.list}`;
   }
-
-  static readonly Context = createContext<{
-    availableStocks: AvailableStocks;
-    setAvailableStocks: React.Dispatch<React.SetStateAction<AvailableStocks>>
-  }>({
-    availableStocks: new AvailableStocks([]), setAvailableStocks: () => {
-    }
-  });
-
-  static use(): [AvailableStocks, React.Dispatch<React.SetStateAction<AvailableStocks>>] {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { availableStocks, setAvailableStocks } = useContext(AvailableStocks.Context);
-    return [availableStocks, setAvailableStocks];
-  }
 }
 
 export default AvailableStocks;

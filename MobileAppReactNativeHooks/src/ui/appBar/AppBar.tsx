@@ -14,12 +14,12 @@ const AppBar: React.FC<{
   const insets = useSafeAreaInsets();
   const $safeArea: ViewStyle = {
     backgroundColor: Color.appBar,
-    paddingTop: insets.top,
+    paddingTop: insets.top
   };
 
   const $row: ViewStyle = {
     height: 60, paddingLeft: 16, backgroundColor: Color.appBar,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center'
   };
 
   const $title: TextStyle = Font.bold(Color.palette.white);

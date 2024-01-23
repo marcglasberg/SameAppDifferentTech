@@ -2,10 +2,11 @@
 import React, { useEffect } from 'react';
 import AvailableStocksListView from './AvailableStocksList.view';
 import AvailableStocks from '../../business/state/AvailableStocks';
+import { useAvailableStocks } from '../../business/state/PortfolioContext';
 
 export const AvailableStocksListContainer: React.FC<{}> = () => {
 
-  const [availableStocks, setAvailableStocks] = AvailableStocks.use();
+  const [availableStocks, setAvailableStocks] = useAvailableStocks();
 
   /**
    * On mount, we load the available stocks (the ones the user can buy)
@@ -31,12 +32,10 @@ export const AvailableStocksListContainer: React.FC<{}> = () => {
 
     []); // Run on mount only.
 
-  return <AvailableStocksListView {...viewModel()} />;
+  return <AvailableStocksListView {...viewModel(availableStocks)} />;
 };
 
-export function viewModel() {
-
-  const [availableStocks, setAvailableStocks] = AvailableStocks.use();
+export function viewModel(availableStocks: AvailableStocks) {
 
   return {
     availableStocks: availableStocks

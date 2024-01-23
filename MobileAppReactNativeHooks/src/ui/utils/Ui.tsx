@@ -98,23 +98,8 @@ export class Ui {
     return newUi;
   };
 
-  // TODO: The store is never destroyed, so do we need to call this? Maybe in tests, since there we may recreate the state.
   cleanup(): void {
     this.dimensionSubscription?.remove();
-  }
-
-  static readonly Context = createContext<{
-    ui: Ui;
-    setUi: React.Dispatch<React.SetStateAction<Ui>>
-  }>({
-    ui: new Ui(), setUi: () => {
-    }
-  });
-
-  static use(): [Ui, React.Dispatch<React.SetStateAction<Ui>>] {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { ui, setUi } = useContext(Ui.Context);
-    return [ui, setUi];
   }
 }
 

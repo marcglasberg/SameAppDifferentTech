@@ -4,7 +4,6 @@ import { name as appName } from './app.json';
 import { developmentConfiguration, inject } from './src/inject';
 import { SimulatedDao } from './src/business/dao/SimulatedDao';
 import { Storage } from './src/business/dao/Storage';
-import { StorageManager } from './src/business/dao/StorageManager';
 
 inject({
   dao: new SimulatedDao(),

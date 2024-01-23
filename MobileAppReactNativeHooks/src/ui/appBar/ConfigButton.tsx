@@ -1,18 +1,17 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Portfolio from '../../business/state/Portfolio';
-import { Ui } from '../utils/Ui';
+import { useUi } from '../../business/state/PortfolioContext';
 
 const ConfigButton: React.FC<{}> = ({}) => {
 
-  const [ui, setUi] = Ui.use();
+  const [ui, setUi] = useUi();
 
   return (
 
     <TouchableOpacity
       onPress={() => {
-        ui.toggleConfigScreen();
+        setUi(ui.toggleConfigScreen());
       }}
       style={{ padding: 16 }}
     >

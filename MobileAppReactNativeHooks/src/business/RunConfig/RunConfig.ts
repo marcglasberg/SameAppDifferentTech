@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbTesting} from './ABTesting';
+import { AbTesting } from './ABTesting';
 
 /**
  * Holds information about how to run the app. The UI must be updated when

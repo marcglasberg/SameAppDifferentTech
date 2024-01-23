@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Text } from 'react-native';
 
 import { dao, runConfig } from '../../inject';
@@ -12,11 +12,17 @@ import { Column, Row, Spacer } from '../utils/Layout';
 import { AbTesting } from '../../business/RunConfig/ABTesting';
 import { print } from '../../business/utils/utils';
 import { Font } from '../theme/Font';
-import { Ui } from '../utils/Ui';
+import { useUi } from '../../business/state/PortfolioContext';
 
 const ConfigurationScreen: React.FC = () => {
 
-  const [ui, setUi] = Ui.use();
+  const [ui, setUi] = useUi();
+
+  // Note: RunConfig is a global constant, just like the Dao and the Storage (all injected in index.ts).
+  // However, during development we treat it as mutable value, do that we can manipulate it in the config screen.
+  // This is why we use useState here, to force the screen to update when we change the runConfig.
+  // The alternative is to put the RunConfig in a Context/hook, just like the regular app state.
+  const [, forceRender] = useState<any>();
 
   return (
     <Column style={{ flex: 1, backgroundColor: Color.background }}>
@@ -36,7 +42,7 @@ const ConfigurationScreen: React.FC = () => {
                         backgroundColor={'green'}
                         padding={10}
                         onPress={() => {
-                          ui.toggleConfigScreen();
+                          setUi(ui.toggleConfigScreen());
                         }} />
       </Column>
     </Column>
@@ -49,7 +55,7 @@ const ConfigurationScreen: React.FC = () => {
           <Text style={Font.medium()}>{ui.isLightMode ? 'Light' : 'Dark'} mode</Text>
           <AppSwitch
             value={ui.isLightMode}
-            onValueChange={(_) => ui.toggleLightAndDarkMode()}
+            onValueChange={(_) => setUi(ui.toggleLightAndDarkMode())}
           />
         </>
       } />;
@@ -60,7 +66,7 @@ const ConfigurationScreen: React.FC = () => {
       <Space.px16 />
       <Divider />
       <Space.px16 />
-      <Text>Run Configuration</Text>
+      <Text style={Font.small(Color.textDimmed)}>Run Configuration</Text>
       <Space.px12 />
       {runConfigOption1()}
       {runConfigOption2()}
@@ -69,6 +75,7 @@ const ConfigurationScreen: React.FC = () => {
     </>;
   }
 
+
   function runConfigOption1() {
     return <Item
       content={
@@ -76,7 +83,10 @@ const ConfigurationScreen: React.FC = () => {
           <Text style={Font.medium()}>Show Run Configuration</Text>
           <AppSwitch
             value={runConfig.ifShowRunConfigInTheConfigScreen}
-            onValueChange={(_) => runConfig.set({ ifShowRunConfigInTheConfigScreen: !runConfig.ifShowRunConfigInTheConfigScreen })}
+            onValueChange={(_) => {
+              runConfig.set({ ifShowRunConfigInTheConfigScreen: !runConfig.ifShowRunConfigInTheConfigScreen });
+              forceRender({});
+            }}
           />
         </>
       } />;
@@ -94,6 +104,7 @@ const ConfigurationScreen: React.FC = () => {
               value={runConfig.ifPrintsDebugInfoToConsole}
               onValueChange={(_) => {
                 runConfig.set({ ifPrintsDebugInfoToConsole: !runConfig.ifPrintsDebugInfoToConsole });
+                forceRender({});
               }}
             />
           </>
@@ -120,6 +131,7 @@ const ConfigurationScreen: React.FC = () => {
                               else newValue = AbTesting.A;
                               runConfig.set({ abTesting: newValue });
                               print(runConfig.abTesting);
+                              forceRender({});
                             }} />
           </>
         }

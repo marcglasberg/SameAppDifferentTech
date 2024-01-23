@@ -24,7 +24,7 @@ export const AvailableStockView: React.FC<{
        ifSellDisabled,
        abTesting,
        onBuy,
-       onSell,
+       onSell
      }) => {
 
   const animate = () => {

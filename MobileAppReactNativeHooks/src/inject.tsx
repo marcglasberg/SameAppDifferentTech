@@ -3,8 +3,6 @@ import { Dao } from './business/dao/Dao';
 import { SimulatedDao } from './business/dao/SimulatedDao';
 import { Storage } from './business/dao/Storage';
 import { AbTesting } from './business/RunConfig/ABTesting';
-import { Playground } from './ui/cashBalanceAndPortfolio/Playground';
-import React from 'react';
 
 /**
  * This must be called when the app starts, to set up the Store, the Dao,
@@ -44,7 +42,7 @@ export let storage: Storage;
  * RunConfig properties change, but you should only change the RunConfig
  * during development.
  *
- * When creating components, you may define a {@link playground} for that
+ * When creating components, you may define a {@link Playground} for that
  * component. When the app runs, it will run it instead of the regular app.
  */
 export let runConfig: RunConfig;
@@ -67,12 +65,5 @@ export const testConfiguration = new RunConfig({
   playground: null,
   ifShowRunConfigInTheConfigScreen: true,
   ifPrintsDebugInfoToConsole: false,
-  abTesting: AbTesting.A
-});
-
-export const anotherConfiguration = new RunConfig({
-  playground: <Playground />,
-  ifShowRunConfigInTheConfigScreen: true,
-  ifPrintsDebugInfoToConsole: true,
   abTesting: AbTesting.A
 });

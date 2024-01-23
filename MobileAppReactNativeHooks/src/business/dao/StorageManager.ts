@@ -1,7 +1,7 @@
 import { dao } from '../../inject';
 import { print, printError } from '../utils/utils';
 import React, { createContext, useContext } from 'react';
-import Portfolio from '../state/Portfolio';
+import { Portfolio } from '../state/Portfolio';
 import { Persistor } from './Persistor';
 
 /**

@@ -6,20 +6,20 @@ import MaterialButton from '../utils/MaterialButton';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { Column } from '../utils/Layout';
 import { CashBalanceAndPortfolio } from './CashBalanceAndPortfolio';
-import Portfolio from '../../business/state/Portfolio';
 import AvailableStocks from '../../business/state/AvailableStocks';
+import { useAvailableStocks, usePortfolio } from '../../business/state/PortfolioContext';
 
 export const Playground: React.FC<{}> = ({}) => {
 
-  const [portfolio, setPortfolio] = Portfolio.use();
-  const [availableStocks, setAvailableStocks] = AvailableStocks.use();
+  const [portfolio, setPortfolio] = usePortfolio();
+  const [availableStocks, setAvailableStocks] = useAvailableStocks();
 
   return (
     <Column style={{
       backgroundColor: 'ffa',
       flex: 1,
       paddingHorizontal: 12,
-      paddingVertical: 40,
+      paddingVertical: 40
     }}
     >
       <CashBalanceAndPortfolio />

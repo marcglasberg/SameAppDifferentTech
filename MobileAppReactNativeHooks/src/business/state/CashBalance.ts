@@ -1,6 +1,6 @@
 import { print, round } from '../utils/utils';
 
-class CashBalance {
+export class CashBalance {
   readonly amount: number;
 
   constructor(amount: number) {
@@ -32,5 +32,3 @@ class CashBalance {
     return (this === other) || (this.amount === other.amount);
   }
 }
-
-export default CashBalance;

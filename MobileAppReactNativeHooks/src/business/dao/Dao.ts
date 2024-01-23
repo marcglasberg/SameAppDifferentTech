@@ -1,8 +1,8 @@
 import { AvailableStock } from '../state/AvailableStock';
-import Portfolio from '../state/Portfolio';
+import { Portfolio } from '../state/Portfolio';
 import { storage } from '../../inject';
-import CashBalance from '../state/CashBalance';
-import Stock from '../state/Stock';
+import { CashBalance } from '../state/CashBalance';
+import { Stock } from '../state/Stock';
 
 /**
  * The Data Access Object lets the app communicate with the backend.

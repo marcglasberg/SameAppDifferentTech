@@ -1,12 +1,10 @@
-import React, { createContext, useContext } from 'react';
 import { AvailableStock } from './AvailableStock';
-import CashBalance from './CashBalance';
-import Stock from './Stock';
+import { CashBalance } from './CashBalance';
+import { Stock } from './Stock';
 import { round } from '../utils/utils';
 import { BuyOrSell } from './BuyOrSell';
 
-
-class Portfolio {
+export class Portfolio {
   readonly stocks: Stock[];
   readonly cashBalance: CashBalance;
 
@@ -200,20 +198,4 @@ class Portfolio {
         cashBalance: ${this.cashBalance}    
         `;
   }
-
-  static readonly Context = createContext<{
-    portfolio: Portfolio;
-    setPortfolio: React.Dispatch<React.SetStateAction<Portfolio>>
-  }>({
-    portfolio: new Portfolio(), setPortfolio: () => {
-    }
-  });
-
-  static use(): [Portfolio, React.Dispatch<React.SetStateAction<Portfolio>>] {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { portfolio, setPortfolio } = useContext(Portfolio.Context);
-    return [portfolio, setPortfolio];
-  }
 }
-
-export default Portfolio;

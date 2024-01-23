@@ -1,6 +1,6 @@
 
 /** Stocks the user owns. */
-class Stock {
+export class Stock {
   readonly ticker: string;
   readonly howManyShares: number;
   readonly averagePrice: number;
@@ -37,5 +37,3 @@ class Stock {
     return `${this.ticker}: ${this.howManyShares} shares`;
   }
 }
-
-export default Stock;
