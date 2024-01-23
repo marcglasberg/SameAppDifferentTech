@@ -29,18 +29,26 @@ export class Persistor<T> {
    * Processes a save operation.
    * If the state has changed and a save operation is not in progress, it updates the last saved state to the
    * current state, sets the isBusy flag to true, and executes the save function.
+   *
+   * An eventual save error will be thrown to the caller.
+   *
    * @param {() => Promise<void>} saveFunction - The function that saves the state.
    */
   processSave(saveFunction: (current: T, lastSaved: T | null) => Promise<void>) {
+
     if (this.hasChangedAndIsNotBusy()) {
-      this.lastSaved = this.current;
+
       this.isBusy = true;
+
       (async () => {
+
         try {
           if (this.current != null) {
             await saveFunction(this.current, this.lastSaved);
           }
+          // Note: Save error will be caught by StorageManager.localSavePortfolio().
         } finally {
+          this.lastSaved = this.current;
           this.isBusy = false;
         }
       })();

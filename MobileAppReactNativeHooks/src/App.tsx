@@ -18,8 +18,8 @@ import {
   UiContext,
   usePortfolio,
   useUi
-} from './business/state/PortfolioContext';
-import AvailableStocks from './business/state/AvailableStocks';
+} from './business/state/HooksAndContext';
+import { AvailableStocks } from './business/state/AvailableStocks';
 
 function App() {
 

@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import AvailableStocksListView from './AvailableStocksList.view';
-import AvailableStocks from '../../business/state/AvailableStocks';
-import { useAvailableStocks } from '../../business/state/PortfolioContext';
+import { AvailableStocks } from '../../business/state/AvailableStocks';
+import { useAvailableStocks } from '../../business/state/HooksAndContext';
 
 export const AvailableStocksListContainer: React.FC<{}> = () => {
 

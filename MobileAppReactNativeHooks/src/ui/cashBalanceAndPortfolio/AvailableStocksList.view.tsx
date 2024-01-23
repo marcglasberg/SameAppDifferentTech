@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { AvailableStockContainer } from './AvailableStock.container';
-import AvailableStocks from '../../business/state/AvailableStocks';
+import { AvailableStocks } from '../../business/state/AvailableStocks';
 
 // Alternative with Hooks:
 // import { AvailableStockWithHooks } from './alternative_implementations/hooks/AvailableStock.hook';

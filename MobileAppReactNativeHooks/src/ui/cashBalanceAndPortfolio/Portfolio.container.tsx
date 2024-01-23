@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { PortfolioView } from './Portfolio.view';
 import { Portfolio } from '../../business/state/Portfolio';
-import { PortfolioContext, Set } from '../../business/state/PortfolioContext';
+import { PortfolioContext, UseSet } from '../../business/state/HooksAndContext';
 
 export const PortfolioContainer: React.FC
   = () => {
@@ -11,7 +11,7 @@ export const PortfolioContainer: React.FC
 
 export function viewModel(
   portfolio: Portfolio,
-  setPortfolio: Set<Portfolio>
+  setPortfolio: UseSet<Portfolio>
 ) {
   return {
     portfolioIsEmpty: portfolio.isEmpty,

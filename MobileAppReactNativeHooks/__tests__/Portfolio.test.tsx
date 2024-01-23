@@ -13,6 +13,10 @@ describe('Portfolio', () => {
     availableStock = new AvailableStock('AAPL', 'Apple', 150);
   });
 
+  it('Portfolio starts with zero cash balance.', () => {
+    expect(portfolio.cashBalance.amount).toBe(0);
+  });
+
   it('should add stock to portfolio.', () => {
     portfolio = portfolio.withAddedStock(availableStock, 10);
     expect(portfolio.howManyStocks('AAPL')).toBe(10);

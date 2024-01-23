@@ -12,7 +12,7 @@ import { Column, Row, Spacer } from '../utils/Layout';
 import { AbTesting } from '../../business/RunConfig/ABTesting';
 import { print } from '../../business/utils/utils';
 import { Font } from '../theme/Font';
-import { useUi } from '../../business/state/PortfolioContext';
+import { useUi } from '../../business/state/HooksAndContext';
 
 const ConfigurationScreen: React.FC = () => {
 

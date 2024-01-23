@@ -3,6 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { CashBalance } from '../src/business/state/CashBalance';
 
 describe('CashBalance', () => {
+
   it('initializes with the correct amount.', () => {
     const cashBalance = new CashBalance(100);
     expect(cashBalance.amount).toBe(100);

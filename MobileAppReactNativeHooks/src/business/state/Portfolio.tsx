@@ -195,7 +195,6 @@ export class Portfolio {
   toString(): string {
     return `                   
         stocks: ${this.stocks}    
-        cashBalance: ${this.cashBalance}    
-        `;
+        cashBalance: ${this.cashBalance}`;
   }
 }

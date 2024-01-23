@@ -3,6 +3,7 @@ import { print, printError } from '../utils/utils';
 import React, { createContext, useContext } from 'react';
 import { Portfolio } from '../state/Portfolio';
 import { Persistor } from './Persistor';
+import { UseSet } from '../state/HooksAndContext';
 
 /**
  * The StorageManager is the high-level code that actually loads the state when the app opens,
@@ -23,6 +24,10 @@ export class StorageManager {
     this.portfolioPersistor = new Persistor<Portfolio>();
   }
 
+  intervalIsOn(): boolean {
+    return this.intervalId !== null;
+  }
+
   /**
    * Processes the storage management of the Portfolio:
    *
@@ -39,7 +44,7 @@ export class StorageManager {
    * too little. But you can change the 2 sec interval, depending on the requirements of your app.
    */
   async processPortfolio(portfolio: Portfolio,
-                         setPortfolio: React.Dispatch<React.SetStateAction<Portfolio>>
+                         setPortfolio: UseSet<Portfolio>
   ) {
 
     this.portfolioPersistor.current = portfolio;
@@ -52,7 +57,7 @@ export class StorageManager {
 
     // 1. On its first invocation, loads the Portfolio from the local disk of the device.
     if (this.portfolioPersistor.isFirstInvocation()) {
-      this.portfolioPersistor.loadIt(loadPortfolio, 'Portfolio').then();
+      await this.portfolioPersistor.loadIt(loadPortfolio, 'Portfolio');
     }
 
     // Note: We could have more LOAD processes here. For example:
@@ -62,7 +67,8 @@ export class StorageManager {
     if (this.intervalId == null) {
 
       this.intervalId = setInterval(async () => {
-        this.portfolioPersistor.processSave(this.savePortfolio);
+
+        this.portfolioPersistor.processSave(this.localSavePortfolio);
 
         // Note: We could have more SAVE processes here. For example:
         // this.otherManager.processSave(this.saveOther);
@@ -71,18 +77,19 @@ export class StorageManager {
     }
   }
 
-  private async savePortfolio(current: Portfolio, lastSaved: Portfolio | null) {
+  private async localSavePortfolio(current: Portfolio, lastSaved: Portfolio | null) {
 
     // Note: Here I'm saving the entire portfolio, but in a more complex scenario I could
     // save only the diff, by comparing current to lastSaved.
 
-    try {
-      print('Saving Portfolio...');
-      await dao.savePortfolio(current);
-    } catch (error) {
-      // Should instead handle the error appropriately.
-      printError('Failed to save portfolio', error);
-    }
+    if (current !== lastSaved)
+      try {
+        print('Saving Portfolio...');
+        await dao.savePortfolio(current);
+      } catch (error) {
+        // Should instead handle the error appropriately.
+        printError('Failed to save portfolio', error);
+      }
   }
 
   /**
@@ -97,7 +104,7 @@ export class StorageManager {
       print('Save interval cancelled.');
       this.intervalId = null;
 
-      this.portfolioPersistor.processSave(this.savePortfolio);
+      this.portfolioPersistor.processSave(this.localSavePortfolio);
 
       // Note: We could have more SAVE processes here. For example:
       // this.otherManager.processSave(this.saveOther);

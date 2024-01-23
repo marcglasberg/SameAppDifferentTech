@@ -1,13 +1,19 @@
 import { AvailableStock } from './AvailableStock';
 import { dao } from '../../inject';
 import { print } from '../utils/utils';
-import React, { createContext, useContext } from 'react';
+import { UseSet } from './HooksAndContext';
 
-class AvailableStocks {
+export class AvailableStocks {
   readonly list: AvailableStock[];
 
   constructor(list: AvailableStock[]) {
     this.list = list;
+  }
+
+  /** Loads the current list of available stocks from the backend. */
+  static async loadAvailableStocks(): Promise<AvailableStocks> {
+    const newStocks = await dao.readAvailableStocks();
+    return new AvailableStocks(newStocks);
   }
 
   findBySymbolOrNull(ticker: string): AvailableStock | null {
@@ -26,19 +32,13 @@ class AvailableStocks {
     this.list.forEach(callback);
   }
 
-  /** Loads the current list of available stocks from the backend. */
-  static async loadAvailableStocks(): Promise<AvailableStocks> {
-    const newStocks = await dao.readAvailableStocks();
-    return new AvailableStocks(newStocks);
-  }
-
   withAvailableStock(newAvailableStock: AvailableStock): AvailableStocks {
     let newList = this.list.map(s => s.ticker === newAvailableStock.ticker ? newAvailableStock : s);
     return new AvailableStocks(newList);
   }
 
   /** Continuously get stock price updates from the backend. */
-  startListeningToStockPriceUpdates(setAvailableStocks: React.Dispatch<React.SetStateAction<AvailableStocks>>) {
+  startListeningToStockPriceUpdates(setAvailableStocks: UseSet<AvailableStocks>) {
     print('Listening to stock price updates...');
 
     dao.listenToStockPriceUpdates(
@@ -72,5 +72,3 @@ class AvailableStocks {
     return `AvailableStocks: ${this.list.length === 0 ? 'empty' : this.list}`;
   }
 }
-
-export default AvailableStocks;

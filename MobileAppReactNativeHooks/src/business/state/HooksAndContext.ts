@@ -1,13 +1,13 @@
 import React, { createContext, useContext } from 'react';
 import { Portfolio } from './Portfolio';
-import AvailableStocks from './AvailableStocks';
+import { AvailableStocks } from './AvailableStocks';
 import { Ui } from '../../ui/utils/Ui';
 
-export type Set<T> = React.Dispatch<React.SetStateAction<T>>;
+export type UseSet<T> = ((value: T | ((prevState: T) => T)) => void);
 
 export const PortfolioContext = createContext<{
   portfolio: Portfolio;
-  setPortfolio: Set<Portfolio>
+  setPortfolio: UseSet<Portfolio>
 }>({
   portfolio: new Portfolio(), setPortfolio: () => {
   }

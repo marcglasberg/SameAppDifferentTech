@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { CashBalanceView } from './CashBalance.view';
 import { Portfolio } from '../../business/state/Portfolio';
-import { PortfolioContext, Set } from '../../business/state/PortfolioContext';
+import { PortfolioContext, UseSet } from '../../business/state/HooksAndContext';
 
 export const CashBalanceContainer
   = () => {
@@ -11,7 +11,7 @@ export const CashBalanceContainer
 
 export function viewModel(
   portfolio: Portfolio,
-  setPortfolio: Set<Portfolio>
+  setPortfolio: UseSet<Portfolio>
 ) {
 
   return {

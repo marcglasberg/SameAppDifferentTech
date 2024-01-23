@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { runConfig } from '../../inject';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { AvailableStockView } from './AvailableStock.view';
-import { PortfolioContext, Set } from '../../business/state/PortfolioContext';
+import { PortfolioContext, UseSet } from '../../business/state/HooksAndContext';
 import { Portfolio } from '../../business/state/Portfolio';
 
 export const AvailableStockContainer: React.FC<{
@@ -15,7 +15,7 @@ export const AvailableStockContainer: React.FC<{
 export function viewModel(
   availableStock: AvailableStock,
   portfolio: Portfolio,
-  setPortfolio: Set<Portfolio>
+  setPortfolio: UseSet<Portfolio>
 ) {
 
   return {

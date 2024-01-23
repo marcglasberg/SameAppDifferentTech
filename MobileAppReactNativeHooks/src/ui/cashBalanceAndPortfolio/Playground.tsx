@@ -6,8 +6,8 @@ import MaterialButton from '../utils/MaterialButton';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { Column } from '../utils/Layout';
 import { CashBalanceAndPortfolio } from './CashBalanceAndPortfolio';
-import AvailableStocks from '../../business/state/AvailableStocks';
-import { useAvailableStocks, usePortfolio } from '../../business/state/PortfolioContext';
+import { AvailableStocks } from '../../business/state/AvailableStocks';
+import { useAvailableStocks, usePortfolio } from '../../business/state/HooksAndContext';
 
 export const Playground: React.FC<{}> = ({}) => {
 

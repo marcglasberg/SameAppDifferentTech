@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useUi } from '../../business/state/PortfolioContext';
+import { useUi } from '../../business/state/HooksAndContext';
 
 const ConfigButton: React.FC<{}> = ({}) => {
 
