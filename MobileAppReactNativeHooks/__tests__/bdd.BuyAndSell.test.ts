@@ -1,10 +1,19 @@
 import 'react-native';
-import { expect } from '@jest/globals';
-import { inject, store } from '../src/inject';
-import CashBalance from '../src/business/state/CashBalance';
+import { beforeEach, expect } from '@jest/globals';
+import { inject } from '../src/inject';
+import { CashBalance } from '../src/business/state/CashBalance';
 import { Bdd, Feature, FeatureFileReporter, reporter, row, val } from 'easy-bdd-tool-jest';
+import { AvailableStocks } from '../src/business/state/AvailableStocks';
+import { Portfolio } from '../src/business/state/Portfolio';
 
 reporter(new FeatureFileReporter());
+
+let availableStocks: AvailableStocks;
+
+beforeEach(async () => {
+  inject({});
+  availableStocks = await AvailableStocks.loadAvailableStocks();
+});
 
 const feature = new Feature('Buying and Selling Stocks');
 
@@ -18,21 +27,18 @@ Bdd(feature)
   .and('The cash-balance is now 90 dollars.')
   .run(async (ctx) => {
 
-    inject({});
-    await store.availableStocks.loadAvailableStocks();
-
     // Given:
-    store.portfolio.cashBalance.setAmount(120.00);
-    const ibm = store.availableStocks.findBySymbol('IBM');
-    ibm.setCurrentPrice(30.00);
-    store.portfolio.clearStock('IBM');
+    let portfolio = new Portfolio({ cashBalance: new CashBalance(120) });
+
+    const ibm = availableStocks.findBySymbol('IBM').withCurrentPrice(30.00);
+    portfolio = portfolio.withoutStock('IBM');
 
     // When:
-    store.portfolio.buy(ibm, 1);
+    portfolio = portfolio.buy(ibm, 1);
 
     // Then:
-    expect(store.portfolio.howManyStocks('IBM')).toBe(1);
-    expect(store.portfolio.cashBalance).toEqual(new CashBalance(90.00));
+    expect(portfolio.howManyStocks('IBM')).toBe(1);
+    expect(portfolio.cashBalance).toEqual(new CashBalance(90.00));
   });
 
 Bdd(feature)
@@ -43,14 +49,14 @@ Bdd(feature)
     'Available Stocks',
     row(val('Ticker', 'AAPL'), val('Price', 50.25)),
     row(val('Ticker', 'IBM'), val('Price', 30.00)),
-    row(val('Ticker', 'GOOG'), val('Price', 60.75)),
+    row(val('Ticker', 'GOOG'), val('Price', 60.75))
   )
   .and('The user Portfolio contains:')
   .table(
     'Portfolio',
     row(val('Ticker', 'AAPL'), val('Quantity', 5)),
     row(val('Ticker', 'IBM'), val('Quantity', 3)),
-    row(val('Ticker', 'GOOG'), val('Quantity', 12)),
+    row(val('Ticker', 'GOOG'), val('Quantity', 12))
   )
   .when('The user sells 1 IBM.')
   .then('The user now has 2 IBM.')
@@ -58,11 +64,8 @@ Bdd(feature)
   .and('The cash-balance is now 150 dollars.')
   .run(async (ctx) => {
 
-    inject({});
-    await store.availableStocks.loadAvailableStocks();
-
     // Given:
-    store.portfolio.cashBalance.setAmount(120.00);
+    let portfolio = new Portfolio({ cashBalance: new CashBalance(120) });
 
     // We read and create the info from the "Available Stocks" table:
 
@@ -72,8 +75,8 @@ Bdd(feature)
       const ticker: string = row.val('Ticker');
       const price: number = row.val('Price');
 
-      const stock = store.availableStocks.findBySymbol(ticker);
-      stock.setCurrentPrice(price);
+      const stock = availableStocks.findBySymbol(ticker);
+      availableStocks = availableStocks.withAvailableStock(stock.withCurrentPrice(price));
     }
 
     // We read and create the info from the "Portfolio" table:
@@ -83,18 +86,18 @@ Bdd(feature)
     for (const row of portfolioTable) {
       const ticker: string = row.val('Ticker');
       const quantity: number = row.val('Quantity');
-      store.portfolio.setStockInPortfolio(ticker, quantity, 100);
+      portfolio = portfolio.withStock(ticker, quantity, 100);
     }
 
     // When:
-    const ibm = store.availableStocks.findBySymbol('IBM');
-    store.portfolio.sell(ibm, 1);
+    const ibm = availableStocks.findBySymbol('IBM');
+    portfolio = portfolio.sell(ibm, 1);
 
     // Then:
-    expect(store.portfolio.howManyStocks('IBM')).toBe(2);
-    expect(store.portfolio.howManyStocks('AAPL')).toBe(5);
-    expect(store.portfolio.howManyStocks('GOOG')).toBe(12);
-    expect(store.portfolio.cashBalance).toEqual(new CashBalance(150.00));
+    expect(portfolio.howManyStocks('IBM')).toBe(2);
+    expect(portfolio.howManyStocks('AAPL')).toBe(5);
+    expect(portfolio.howManyStocks('GOOG')).toBe(12);
+    expect(portfolio.cashBalance).toEqual(new CashBalance(150.00));
 
     // The code below shows the alternative hard-coded implementation:
     // inject({});

@@ -8,7 +8,6 @@ describe('AvailableStocks', () => {
 
   beforeEach(async () => {
     inject({});
-    availableStocks = new AvailableStocks([]);
     availableStocks = await AvailableStocks.loadAvailableStocks();
   });
 

@@ -1,8 +1,11 @@
 import 'react-native';
 import { expect } from '@jest/globals';
-import { inject, store } from '../src/inject';
+import { inject } from '../src/inject';
 import { BuyOrSell } from '../src/business/state/BuyOrSell';
 import { Bdd, Feature, FeatureFileReporter, reporter, val } from 'easy-bdd-tool-jest';
+import { Portfolio } from '../src/business/state/Portfolio';
+import { CashBalance } from '../src/business/state/CashBalance';
+import { AvailableStocks } from '../src/business/state/AvailableStocks';
 
 reporter(new FeatureFileReporter());
 
@@ -23,7 +26,7 @@ Bdd(feature)
     val('BuyOrSell', BuyOrSell.BUY),
     val('How many', 2),
     val('Price', 50.00),
-    val('Average Price', 91.67),
+    val('Average Price', 91.67)
   )
   //
   // Avg price =  (1600 - 3 * 30) / (8 - 3) = 302.00 dollars.
@@ -33,7 +36,7 @@ Bdd(feature)
     val('BuyOrSell', BuyOrSell.SELL),
     val('How many', 3),
     val('Price', 30.00),
-    val('Average Price', 302.00),
+    val('Average Price', 302.00)
   )
   .run(async (ctx) => {
 
@@ -48,20 +51,19 @@ Bdd(feature)
     const averagePrice: number = ctx.example.val('Average Price');
 
     // Sets up everything and just make sure we have money to buy whatever we need.
-    store.portfolio.cashBalance.setAmount(100000.00);
+    let portfolio = new Portfolio({ cashBalance: new CashBalance(100000.00) });
 
     // Given:
-    await store.availableStocks.loadAvailableStocks();
-    expect(store.availableStocks.findBySymbolOrNull('IBM')).not.toBeNull();
-    const availableStock = store.availableStocks.findBySymbol('IBM');
-    availableStock.setCurrentPrice(atPrice);
-    store.portfolio.setStockInPortfolio('IBM', quantity, atPrice);
+    let availableStocks = await AvailableStocks.loadAvailableStocks();
+    expect(availableStocks.findBySymbolOrNull('IBM')).not.toBeNull();
+    let availableStock = availableStocks.findBySymbol('IBM').withCurrentPrice(atPrice);
+    portfolio = portfolio.withStock('IBM', quantity, atPrice);
 
     // When:
-    availableStock.setCurrentPrice(price);
-    store.portfolio.buyOrSell(buyOrSell, availableStock, howMany);
+    availableStock = availableStock.withCurrentPrice(price);
+    portfolio = portfolio.buyOrSell(buyOrSell, availableStock, howMany);
 
     // Then:
-    expect(store.portfolio.howManyStocks('IBM')).toBe(quantity + (buyOrSell.isBuy ? howMany : -howMany));
-    expect(store.portfolio.getStock('IBM').averagePrice).toBe(averagePrice);
+    expect(portfolio.howManyStocks('IBM')).toBe(quantity + (buyOrSell.isBuy ? howMany : -howMany));
+    expect(portfolio.getStock('IBM').averagePrice).toBe(averagePrice);
   });
