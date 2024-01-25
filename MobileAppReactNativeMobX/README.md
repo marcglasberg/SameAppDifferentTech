@@ -169,17 +169,17 @@ Then, provide the store to the component tree:
 
 ```tsx
 import React from 'react';
-import { Store } from './store';
-import { StoreContext } from './StoreContext';
+import {Store} from './store';
+import {StoreContext} from './StoreContext';
 
 const store = new Store();
 
 function App() {
-  return (
-    <StoreContext.Provider value={store}>
-      { /* rest of your app */}
-    </StoreContext.Provider>
-  );
+    return (
+        <StoreContext.Provider value={store}>
+            { /* rest of your app */}
+        </StoreContext.Provider>
+    );
 }
 
 export default App;
@@ -282,11 +282,6 @@ Always return rich objects that are easy to use by the rest of the app.
 
 This makes it very easy to mock or simulate the DAO,
 because creating an object is simpler than composing JSON information.
-
-> Note: If your application uses server-side rendering (SSR) you will need another way to inject the DAO, so that
-> you can have different DAOs for different users. While there are many ways to do that, I'd suggest putting the
-> dao object inside the MobX Store. Your code would then become:
-> `let portfolio = await store.dao.loadPortfolio();`.
 
 ## Difference between mocking and simulating the DAO
 
@@ -414,11 +409,11 @@ This is the code:
 
 ```tsx
 <Text style={runConfig.abTesting.choose($priceA, $priceB)}>
-  {availableStock.currentPriceStr}
+    {availableStock.currentPriceStr}
 </Text>;
 
-const $priceA: TextStyle = { fontSize: 23, color: Color.blueText, fontWeight: 'bold' };
-const $priceB: TextStyle = { fontSize: 16, color: Color.text, fontWeight: 'normal' };
+const $priceA: TextStyle = {fontSize: 23, color: Color.blueText, fontWeight: 'bold'};
+const $priceB: TextStyle = {fontSize: 16, color: Color.text, fontWeight: 'normal'};
 ```
 
 As MobX observes the `RunConfig`, its `choose` method is re-evaluated whenever the `abTesting` flag changes.
@@ -437,13 +432,13 @@ You can use it to develop and test that component in isolation.
 For instance, `anotherConfiguration` is defined in the [inject.tsx](src%2Finject.tsx) file like this:
 
 ```tsx
-import { Playground } from './ui/cashBalanceAndPortfolio/Playground';
+import {Playground} from './ui/cashBalanceAndPortfolio/Playground';
 
 export const anotherConfiguration = new RunConfig({
-  playground: <Playground />,
-  ifShowRunConfigInTheConfigScreen: false,
-  ifPrintsDebugInfoToConsole: false,
-  abTesting: AbTesting.A,
+    playground: <Playground/>,
+    ifShowRunConfigInTheConfigScreen: false,
+    ifPrintsDebugInfoToConsole: false,
+    abTesting: AbTesting.A,
 });
 ```
 
@@ -522,7 +517,7 @@ beforeEach(async () => {
 The `StorageManager` class is the high-level code that actually loads the state when the app opens,
 and then continuously keeps track and saves the ongoing state changes.
 It uses the `storage` object to actually perform the load/save/delete operations,
-which might have been configured, as explained above, \
+which might have been configured, as explained above,
 to save to disk (in production) or to memory (in development and tests).
 
 Depending on the app, your storage needs will be different. For example:
@@ -868,8 +863,8 @@ We can write a more semantic code, which I believe is easier to read:
 To test the app I use:
 
 * <a href="https://www.npmjs.com/package/jest">Jest</a>
-* <a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For Jest</a> (my own
-  library for Behavior-Driven Development)
+* <a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For Jest</a> (my own library for
+  Behavior-Driven Development)
 * <a href="https://www.npmjs.com/package/@testing-library/react-native">React Native Testing Library</a> (RNTL)
 
 The tests are inside the `__tests__` directory.
@@ -933,7 +928,7 @@ and [Dao.test.tsx](__tests__%2FDao.test.tsx).
 
 Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory.
 
-This folder contains a `mixed` directory containing "mixed" components which are **not used** in the app:
+It contains a `mixed` directory containing "mixed" components which are **not used** in the app:
 
 * [AvailableStock.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FAvailableStock.mixed.tsx)
 * [AvailableStocksList.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FAvailableStocksList.mixed.tsx)
@@ -1109,7 +1104,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 ### Using hooks
 
 Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory again.
-This folder contains a `hooks` directory containing
+It contains a `hooks` directory containing
 file [AvailableStock.hook.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fhooks%2FAvailableStock.hook.tsx)
 which is **not used** in the app.
 
@@ -1153,8 +1148,8 @@ I won't go into details here, but I'm providing two files with BDD tests, to dem
 * [bdd.AveragePrice.test.ts](__tests__%2Fbdd.AveragePrice.test.ts)
 * [bdd.BuyAndSell.test.ts](__tests__%2Fbdd.BuyAndSell.test.ts)
 
-These BDD tests use a **<a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For
-Jest</a>**, that I have developed myself.
+These BDD tests use a **<a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For Jest</a>**,
+that I have developed myself.
 
 Let's see an example of a BDD test description that specifies the behavior of the app when the user buys stocks:
 

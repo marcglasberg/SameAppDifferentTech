@@ -3,7 +3,7 @@
 This project contains the SAME MOBILE APP implemented with DIFFERENT TECH STACKS.
 
 **React Native:**
-* React Native with no third-party state management (hooks only)
+* <a href='./MobileAppReactNativeHooks/README.md'>React Native with no third-party state management (hooks only)</a>
 * <a href='./MobileAppReactNativeMobX/README.md'>React Native with MobX</a>
 * <a href='./MobileAppReactNativeKeystone/README.md'>React Native with MobX Keystone</a>
 * React Native with Redux Toolkit

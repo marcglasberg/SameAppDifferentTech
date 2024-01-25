@@ -50,7 +50,7 @@ export class StorageManager {
     this.portfolioPersistor.current = portfolio;
 
     async function loadPortfolio() {
-      let loaded = await dao.loadPortfolio();
+      const loaded = await dao.loadPortfolio();
       setPortfolio(loaded);
       return loaded;
     }

@@ -116,40 +116,6 @@ const [portfolio, setPortfolio] = Portfolio.use();
 <Text>{`Cash Balance: ${portfolio.cashBalance}`}</Text>
 ```
 
-
-xxxxxxxxxxxx
-
-
-### Using the Store in tests
-
-The following code shows how to create and use the global `store` **in tests**:
-
-```
-beforeEach(async () => {
-  inject({});
-});
-
-test('The cash balance starts as zero, and can be added.', (): void => {
-  expect(store.portfolio.cashBalance.amount).toBe(0);
-  store.portfolio.cashBalance.add(100);
-  expect(store.portfolio.cashBalance.amount).toBe(100);
-});
-```
-
-When you use `inject({})` as shown above, it creates a new store (please check the [inject.tsx](src/inject.tsx) file).
-This is the same as doing: `inject({ store: new Store() })`.
-
-If every test in a file needs the store to begin with a certain initial state,
-you can create a store in `beforeEach` and change it. For example:
-
-``` 
-beforeEach(async () => {
-  let store = new Store();
-  store.portfolio.cashBalance.setAmount(1000);
-  inject({ store: store });
-});
-```
-
 # Initializing the app
 
 In the [index.js](index.js) file, we inject a few dependencies using the `inject` function.
@@ -157,6 +123,8 @@ In the [index.js](index.js) file, we inject a few dependencies using the `inject
 The inject function can be found in the [inject.tsx](src/inject.tsx) file.
 This simple function stores the injected dependencies in global variables,
 enabling access from anywhere within the app.
+Note it's generally acceptable to use global singletons in code architecture,
+as long as they are constant and immutable.
 
 ```
 inject({  
@@ -218,7 +186,7 @@ by just importing it:
 ```
 import { dao } from '../../inject';
 
-let portfolio: Portfolio = await dao.loadPortfolio();
+const portfolio = await dao.loadPortfolio();
 ```
 
 In this code, the DAO returns the portfolio as an object of type `Portfolio`, and not as JSON.
@@ -227,11 +195,6 @@ Always return rich objects that are easy to use by the rest of the app.
 
 This makes it very easy to mock or simulate the DAO,
 because creating an object is simpler than composing JSON information.
-
-> Note: If your application uses server-side rendering (SSR) you will need another way to inject the DAO, so that
-> you can have different DAOs for different users. While there are many ways to do that, I'd suggest putting the
-> dao object inside the MobX Store. Your code would then become:
-> `let portfolio = await store.dao.loadPortfolio();`.
 
 ## Difference between mocking and simulating the DAO
 
@@ -358,18 +321,17 @@ I programmed the stock price's font size and color to be large and blue in A, an
 This is the code:
 
 ```tsx
-<Text style={runConfig.abTesting.choose($priceA, $priceB)}>
-  {availableStock.currentPriceStr}
-</Text>;
+const $priceA = Font.big(Color.blueText);
+const $priceB = Font.small();
 
-const $priceA: TextStyle = { fontSize: 23, color: Color.blueText, fontWeight: 'bold' };
-const $priceB: TextStyle = { fontSize: 16, color: Color.text, fontWeight: 'normal' };
+<Text style={abTesting.choose($priceA, $priceB)}>
+  {availableStock.currentPriceStr}
+</Text>
 ```
 
-As MobX observes the `RunConfig`, its `choose` method is re-evaluated whenever the `abTesting` flag changes.
-This method takes two parameters: `$priceA` (price style for A) and `$priceB` (price style for B).
-It returns the first parameter if the `RunConfig.abTesting` flag is set to `A`, and the second parameter if it's set
-to `B`.
+The `abTesting.choose()` method takes two parameters: `$priceA` (price style for A) and `$priceB` (price style for B).
+It returns the first parameter if the `RunConfig.abTesting` flag is set to `A`,
+and the second parameter if it's set to `B`.
 
 Check file [ABTesting.ts](src/business/RunConfig/ABTesting.ts) to see how this is implemented.
 
@@ -467,7 +429,7 @@ beforeEach(async () => {
 The `StorageManager` class is the high-level code that actually loads the state when the app opens,
 and then continuously keeps track and saves the ongoing state changes.
 It uses the `storage` object to actually perform the load/save/delete operations,
-which might have been configured, as explained above, \
+which might have been configured, as explained above,
 to save to disk (in production) or to memory (in development and tests).
 
 Depending on the app, your storage needs will be different. For example:
@@ -498,9 +460,27 @@ file is this:
    This is the only time when information is loaded.
 
    ```
-   static async init() {
+   async processPortfolio(...) {
       ...
-      await StorageManager.loadPortfolio();
+      async function loadPortfolio() {
+        const loaded = await dao.loadPortfolio();
+        setPortfolio(loaded);
+        return loaded;
+      }
+    
+      if (this.portfolioPersistor.isFirstInvocation()) {
+        await this.portfolioPersistor.loadIt(loadPortfolio, 'Portfolio');
+      }
+   ```
+
+4. The `processPortfolio()` method is called by the `useEffect` in the `AppContent` widget (in [App.tsx](src/App.tsx)):
+
+   ```   
+   const AppContent: React.FC = () => {     
+     const [portfolio, setPortfolio] = usePortfolio();
+     ...
+     useEffect(() => {
+       storageManager.processPortfolio(portfolio, setPortfolio);   
    ```
 
 2. It then sets up a 2-second interval to periodically check if the state has been modified,
@@ -511,52 +491,47 @@ file is this:
    is that we want to avoid too many saves making the app slow. We therefore "aggregate" all state changes
    that happened in the last 2 seconds, and save them all at once.
 
-   ```
-   if (StorageManager.intervalId !== null) ... { 
-      return; 
-   }   
-   
-   StorageManager.intervalId = setInterval(async () => {
-      ...
-      await StorageManager.savePortfolio();
-      ...      
-    }, 2000); // 2 seconds interval.
+   ```typescript
+   if (this.intervalId == null) {
+     this.intervalId = setInterval(async () => {
+       this.portfolioPersistor.processSave(this.localSavePortfolio);
+     }, 2000);
+   }
    ```
 
-3. It uses a flag named `isBusy` to avoid concurrent load and save operations and to prevent overlapping save
-   operations during subsequent interval triggers.
+3. It uses a `Persistor` class ([Persistor.ts](src/business/dao/Persistor.ts))
+   with fields `lastSaved`, `current` and `isBusy` to avoid saving unchanged state,
+   to avoid concurrent load and save operations,
+   and to prevent overlapping save operations during subsequent interval triggers.
 
+   ```typescript            
+   export class Persistor<T> {
+      lastSaved: T | null = null;
+      current: T | null = null;
+      isBusy: boolean = false;
+
+      processSave(saveFunction: (current: T, lastSaved: T | null) => Promise<void>) {
+       if ((this.lastSaved !== this.current) && !this.isBusy) {
+         this.isBusy = true;
+         (async () => {
+           try {
+             if (this.current != null) {
+               await saveFunction(this.current, this.lastSaved);
+             }          
+           } finally {
+             this.lastSaved = this.current;
+             this.isBusy = false;
+           }
+         })();
+       }
+      }
+   }
    ```
-   if (StorageManager.isBusy) ... {      
-      return;
-    }
 
-    StorageManager.isBusy = true;
-    try {
-      await StorageManager.loadPortfolio();
-    } ...
-    } finally {
-      StorageManager.isBusy = false;
-    }
-   ```
-
-4. The `StoreManager` detects changes in state through the MobX store. Whenever there's a change, the function
-   `StorageManager.markPortfolioChanged()` is called. This function sets a boolean flag to `true`,
-   indicating that the state needs to be saved.
-
-   ```  
-   class Portfolio {
-   ... 
-      
-   reaction(
-      () => [ this.stocks.map(stock => stock), this.cashBalance, this.cashBalance.amount],
-      () => StorageManager.markPortfolioChanged(),
-      ... 
-   ``` 
 
 5. In [App.tsx](src/App.tsx) there is a mechanism implemented with the `handleAppShutdown()` function,
    where a save is triggered immediately when the app is shutting down, ignoring the 2-second interval.
-   This is important to make sure no state is lost.
+   This is important to make sure no state is lost: `storageManager.stopTimerAndSave()`.
 
 # Theming the app
 
@@ -581,37 +556,43 @@ _2 Easy Ways to Add Dark Mode in a React Native Application_</a>.
 By following the article, you'll end up having to add this line to all components that need to access the colors:
 
 ```
+
 const colors = useTheme().colors;
+
 ```                                            
 
-While this approach is acceptable, given our use of MobX, we will adopt a different strategy to observe theme changes.
+While this approach is acceptable, given the theme is almost constant (only changing when the user changes the theme),
+I'll consider the theme constant,
+and then use extraordinary measures to force the screen to rebuild if the theme changes.
 
 Please check file [Color.ts](src/ui/theme/Color.ts).
 We first define a palette, containing all the colors defined by the designers in the app's design system:
 
-```
+```typescript
 const palette = {
   white: '#fff',
   black: '#000',
   background: '#fff',
   backgroundSemiTransparent: 'rgba(255, 255, 255, 0.55)',
   ...
+};
 ```
 
 Then, we create a `Theme` type where we name all the colors that we use in the app:
 
-```
+```typescript
 type Theme = {
   text: string;
   invertedText: string;
   error: string;
   divider: string;
   ...
+}
 ```
 
 Then, we create light and dark themes:
 
-```
+```typescript
 const lightTheme: Theme = {
   text: palette.foreground,
   invertedText: palette.background,
@@ -625,72 +606,64 @@ const darkTheme: Theme = {
   error: palette.red,
   ...
 } as const;
+
 ```
 
-Finally, `Color` is observed by MobX and gives us access to the colors,
-and to methods to change the theme.
+Finally, `Color` gives us access to the colors, and to methods to change the theme.
 
 In the UI code, we may simply import the `Color` and use it. For example:
 
 ```
+
 import Color from '../theme/Color';
 ...
 
-const AppBar ... = observer(({ title, actionButton }) => {
-  
-  const $safeArea: ViewStyle = { backgroundColor: Color.appBar, ... };
-  const $row: ViewStyle = { backgroundColor: Color.appBar, ... };
-  const $title: TextStyle = {color: Color.palette.white, ... };
+const $safeArea: ViewStyle = { backgroundColor: Color.appBar, ... };
+const $row: ViewStyle = { backgroundColor: Color.appBar, ... };
+const $title: TextStyle = {color: Color.palette.white, ... };
 
-  return (
-    <SafeAreaView style={$safeArea}>
+return (
+  <SafeAreaView style={$safeArea}>
     <Row style={$row}>
-    <Text style={$title}>{title}</Text>
-    ...
+      <Text style={$title}>{title}</Text>
+...
 ```
 
 In the business code, we may simply call `Color.setLightTheme()` and `.setDarkTheme()`, as needed:
 
-```
-public toggleLightAndDarkMode() {
-   this.isLightMode = !this.isLightMode;
-   
-   if (this.isLightMode) Color.setLightTheme();
-   else Color.setDarkTheme();
+```typescript
+function toggleLightAndDarkMode(): Ui {
+  const newUi = this.copyWith({ isLightMode: !this.isLightMode });
+
+  if (newUi.isLightMode) Color.setLightTheme();
+  else Color.setDarkTheme();
+
+  return newUi;
 }
 ```
 
 ## Styles
-
-As the styles need to use `Color`, they should be created inside an observed component, so that they may rebuild when
-the theme changes.
 
 I like to define the styles in the components themselves, and not in a separate file, and name them
 with a `$` prefix. This makes it easy to find them in the code, and avoids name conflicts.
 It also makes it easy for one style to use another, so that you can build your styles in a modular way.
 For example:
 
-```
-const MyComponent = observer(() => {  
-
-   const $button: ViewStyle = { fontSize: 20, padding: 16, justifyContent: 'center' };
-   const $upButton: ViewStyle = { ...$button, backgroundColor: Colors.up };
-   const $downButton: ViewStyle = { ...$button, backgroundColor: Colors.down };
-   ...
+```typescript
+const $button: ViewStyle = { fontSize: 20, padding: 16, justifyContent: 'center' };
+const $upButton: ViewStyle = { ...$button, backgroundColor: Colors.up };
+const $downButton: ViewStyle = { ...$button, backgroundColor: Colors.down };
 ```
 
-Note: If instead of doing what I described above you prefer using `StyleSheet.create()`, you will still need to
-generate it inside the observed component:
+Note: Instead of doing what I described above, you may prefer using `StyleSheet.create()`:
 
 ```
-const MyComponent = observer(() => {
-   const styles = getStyles();
-   return ...
+const MyComponent = () => {
+  const styles = getStyles();
+  return ...
 );
 
-const getStyles = () => StyleSheet.create({
-  button: {
-  ...  
+const getStyles = () => StyleSheet.create({ button: { ... } });
 ```
 
 ## Fonts
@@ -763,7 +736,7 @@ For example:
 ```
 // Wrong: We need to to move the style between the components.
 <Text>Oranges</Text>
-<Text style={{ paddingBottom: Spacing.px12 }}>Apples</Text>
+<Text style={{ paddingBottom: Spacing.px12 }}>Apples</Text>;
 
 // Right: just changed the order.
 <Text>Oranges</Text>
@@ -783,6 +756,7 @@ of `<View>`:
 Then, instead of this:
 
 ```
+
 <View>
    <Text>Some options</Text>
    <View style={{ flexDirection: 'row', backgroundColor: Color.background, flex: 1 }}>
@@ -813,8 +787,8 @@ We can write a more semantic code, which I believe is easier to read:
 To test the app I use:
 
 * <a href="https://www.npmjs.com/package/jest">Jest</a>
-* <a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For Jest</a> (my own
-  library for Behavior-Driven Development)
+* <a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For Jest</a> (my own library for
+  Behavior-Driven Development)
 * <a href="https://www.npmjs.com/package/@testing-library/react-native">React Native Testing Library</a> (RNTL)
 
 The tests are inside the `__tests__` directory.
@@ -830,37 +804,24 @@ beforeEach(() => {
 
 This injects:
 
-* A store with default state
 * A simulated DAO
 * An in-memory storage
 * A run-configuration appropriate for tests
 
 I won't explain these here, since I have already done so above. Please refer
-to [Using the Store in tests](#using-the-store-in-tests), [The DAO](#the-dao), [The RunConfig](#the-runconfig),
-and [The Storage class](#the-storage-class).
+to [The DAO](#the-dao), [The RunConfig](#the-runconfig), and [The Storage class](#the-storage-class).
 
 <br>
 
-### Testing business and utility classes
+### Testing business, utility, and state classes
 
-The simplest tests are the unit tests that exercise the business classes and utility classes. For
-example, [Stock.test.tsx](__tests__/Stock.test.tsx) and [utils.test.ts](__tests__/utils.test.ts).
+The simplest tests are the unit tests that exercise the business classes and utility classes.
+For example, [Stock.test.tsx](__tests__/Stock.test.tsx) and [utils.test.ts](__tests__/utils.test.ts).
 
-<br>
-
-### Testing the store
-
-Then, I test the sub-stores that are part of the main store,
-in [UiStore.test.ts](__tests__/UiStore.test.ts),
+Then, I test the state classes,
+in [Ui.test.ts](__tests__/Ui.test.ts),
 [Portfolio.test.tsx](__tests__/Portfolio.test.tsx)
 and [AvailableStock.test.tsx](__tests__/AvailableStock.test.tsx):
-
-```
-export class Store {
-   ui: UiStore = new UiStore();
-   portfolio: Portfolio = new Portfolio();
-   availableStocks: AvailableStocks = new AvailableStocks([]);
-```
 
 <br>
 
@@ -878,17 +839,15 @@ and [Dao.test.tsx](__tests__/Dao.test.tsx).
 
 Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory.
 
-This folder contains a `mixed` directory containing "mixed" components which are **not used** in the app:
+It contains a `mixed` directory containing two "mixed" components which are **not used** in the app:
 
 * [AvailableStock.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStock.mixed.tsx)
-* [AvailableStocksList.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStocksList.mixed.tsx)
-* [CashBalance.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/CashBalance.mixed.tsx)
 * [Portfolio.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/Portfolio.mixed.tsx)
 
 They are provided here as examples,
 for comparison with the "container/view" components we actually use in the app.
 
-These mixed components access the MobX store directly from inside the UI code.
+These mixed components have hooks inside the UI code.
 They **mix** accessing the state from inside the UI code.
 
 For example, consider the component called `AvailableStock` which displays one of the
@@ -906,12 +865,12 @@ which accesses the store directly within the UI code, for example, here:
 
 ```
 <MaterialButton label="BUY"
-   backgroundColor={Color.up}
-   disabled={!store.portfolio.hasMoneyToBuyStock(availableStock)} // Here!
-   onPress={() => {
-      animateAddition(); 
-      store.portfolio.buy(availableStock, 1); // Here!
-      }} 
+    backgroundColor={Color.up}
+    disabled={!portfolio.hasMoneyToBuyStock(availableStock)}
+    onPress={() => {
+        animateAddition();
+        setPortfolio(portfolio.buy(availableStock, 1));
+    }} /> 
 />
 ```
 
@@ -933,15 +892,7 @@ and a "view" that gets all its information from the container.
 The combination of **container** and **view** is called the "container/view pattern",
 or "container/presentational pattern", or "smart/dumb pattern".
 
-The MobX documentation explicitly says you
-<a href="https://mobx.js.org/the-gist-of-mobx.html#33-reactive-react-components">don't need to use</a> the
-container/view pattern:
-
-> When using MobX there are no smart or dumb components. All components
-> render smartly, but are defined in a dumb manner. MobX will simply make
-> sure the components are always re-rendered whenever needed, and never more than that.
-
-While it's true that MobX doesn't need this pattern to know when to rebuild/redraw the component,
+While we don't strictly need this pattern to create the component,
 the separation of concerns is still useful, in my opinion, because it makes the code easier to test and to understand.
 
 1. The Container
@@ -951,26 +902,29 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    Its goal is simply to access the store, create a data structure called the "view-model" with all the necessary
    information, and pass it down to the "view component".
 
-   ```                                  
+   ```                                      
    // The container component.
    export const AvailableStockContainer: React.FC<{ availableStock: AvailableStock }> 
-         = observer(({ availableStock }) => {
+      = ({ availableStock }) => {
    
-     // Call the function to create the view-model, 
-     // and pass it to the view component.
-     return <AvailableStockView {...viewModel(availableStock)} />;
-   });
-
-   // Function to create the view-model.   
-   export function viewModel(availableStock: AvailableStock) {
-     return {
-       availableStock,
-       ifBuyDisabled: !store.portfolio.hasMoneyToBuyStock(availableStock),
-       ifSellDisabled: !store.portfolio.hasStock(availableStock),
-       abTesting: runConfig.abTesting,
-       onBuy: () => store.portfolio.buy(availableStock, 1),
-       onSell: () => store.portfolio.sell(availableStock, 1),
-     };
+        const { portfolio, setPortfolio } = useContext(PortfolioContext);
+        return <AvailableStockView {...viewModel(availableStock, portfolio, setPortfolio)} />;
+        };
+                                        
+   // Function to create the view-model.
+   export function viewModel(
+       availableStock: AvailableStock,
+       portfolio: Portfolio,
+       setPortfolio: UseSet<Portfolio>
+   ) {        
+       return {
+           availableStock,
+           ifBuyDisabled: !portfolio.hasMoneyToBuyStock(availableStock),
+           ifSellDisabled: !portfolio.hasStock(availableStock),
+           abTesting: runConfig.abTesting,
+           onBuy: () => { setPortfolio(prevPortfolio => prevPortfolio.buy(availableStock, 1)); },
+           onSell: () => { setPortfolio(prevPortfolio => prevPortfolio.sell(availableStock, 1)); }
+       };
    }
    ```   
 
@@ -992,8 +946,9 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
    ```typescript
    // The BUY button is disabled, since we cannot buy stock when there is no money.
-   store.portfolio.cashBalance.setAmount(0);
-   let vm = viewModel(ibm);
+   let portfolio = new Portfolio();
+   let ibm = new AvailableStock('IBM', 'I. B. Machines', 150.00);
+   let vm = viewModel(ibm, portfolio, setPortfolio);
    expect(vm.ifBuyDisabled).toBe(true);
    ```
 
@@ -1002,15 +957,15 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
    ```typescript
    // Cash balance is 1000. There are no IBM stocks.
+   let portfolio = new Portfolio().withCashBalance(new CashBalance(1000));
    expect(store.portfolio.howManyStocks(ibm.ticker)).toBe(0);
-   store.portfolio.cashBalance.setAmount(1000);
    
-   const vm = viewModel(ibm);
+   const vm = viewModel(ibm, portfolio, setPortfolio);
    vm.onBuy(); // Buy 1 share of IBM stock.
    
    // Cash balance decreased by the price of 1 IBM stock. Portfolio now contains 1 IBM stock.
-   expect(store.portfolio.cashBalance.amount).toBe(1000 - ibm.currentPrice);
-   expect(store.portfolio.howManyStocks(ibm.ticker)).toBe(1);
+   expect(portfolio.cashBalance.amount).toBe(1000 - ibm.currentPrice);
+   expect(portfolio.howManyStocks(ibm.ticker)).toBe(1);
    ```
 
 
@@ -1054,8 +1009,9 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 ### Using hooks
 
 Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory again.
-This folder contains a `hooks` directory containing
-file [AvailableStock.hook.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/hooks/AvailableStock.hook.tsx)
+It contains a `hooks` directory containing
+another example
+file [AvailableStock.hook.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/hooks/AvailableStock.hook.tsx),
 which is **not used** in the app.
 
 Compare it with files [AvailableStock.container.tsx](src/ui/cashBalanceAndPortfolio/AvailableStock.container.tsx)
@@ -1098,8 +1054,8 @@ I won't go into details here, but I'm providing two files with BDD tests, to dem
 * [bdd.AveragePrice.test.ts](__tests__/bdd.AveragePrice.test.ts)
 * [bdd.BuyAndSell.test.ts](__tests__/bdd.BuyAndSell.test.ts)
 
-These BDD tests use a **<a href="https://www.npmjs.com/package/@marcglasberg/bdd_framework_for_jest">BDD Framework For
-Jest</a>**, that I have developed myself.
+These BDD tests use a **<a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For Jest</a>**,
+that I have developed myself.
 
 Let's see an example of a BDD test description that specifies the behavior of the app when the user buys stocks:
 
@@ -1119,6 +1075,13 @@ Scenario: Buying stocks
 The following is the implementation of the test:
 
 ```
+let availableStocks: AvailableStocks;
+
+beforeEach(async () => {
+  inject({});
+  availableStocks = await AvailableStocks.loadAvailableStocks();
+});
+
 const feature = new Feature('Buying and Selling Stocks');
 
 Bdd(feature)
@@ -1131,29 +1094,26 @@ Bdd(feature)
  .and('The cash-balance is now 90 dollars.')
     .run(async (ctx) => {
 
-    inject({});
-    await store.availableStocks.loadAvailableStocks();
-
     // Given:
-    store.portfolio.cashBalance.setAmount(120.00);
-    const ibm = store.availableStocks.findBySymbol('IBM');
-    ibm.setCurrentPrice(30.00);
-    store.portfolio.clearStock('IBM');
+    let portfolio = new Portfolio({ cashBalance: new CashBalance(120) });
+
+    const ibm = availableStocks.findBySymbol('IBM').withCurrentPrice(30.00);
+    portfolio = portfolio.withoutStock('IBM');
 
     // When:
-    store.portfolio.buy(ibm, 1);
+    portfolio = portfolio.buy(ibm, 1);
 
     // Then:
-    expect(store.portfolio.howManyStocks('IBM')).toBe(1);
-    expect(store.portfolio.cashBalance).toEqual(new CashBalance(90.00));
+    expect(portfolio.howManyStocks('IBM')).toBe(1);
+    expect(portfolio.cashBalance).toEqual(new CashBalance(90.00));
 });
 ```
 
 Please note, the above BDD test runs against the **simulated backend**.
 This means it runs as fast as a unit test.
 
-If you want to run it against the **real backend**, you can do so by injecting the real DAO instead of the simulated
-one, like so:
+If you want to run it against the **real backend**,
+you can do so by injecting the real DAO instead of the simulated one, like so:
 
 ```
 inject({dao: new RealDao()});

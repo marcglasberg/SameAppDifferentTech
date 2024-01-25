@@ -1,4 +1,3 @@
-import React, { createContext, useContext } from 'react';
 import { Dimensions, EmitterSubscription, ScaledSize } from 'react-native';
 import Color from '../theme/Color';
 import { print } from '../../business/utils/utils';
