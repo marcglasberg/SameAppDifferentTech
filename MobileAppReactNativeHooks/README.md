@@ -54,11 +54,9 @@ This is the app:
 
 The app state is composed of objects of the following classes:
 
-<ul>
-    <li>`Portfolio` contains the cash balance and the list of stocks owned by the user.</li>
-    <li>`AvailableStocks` contains the list of stocks that are available for purchase.</li>
-    <li>`Ui` contains state related to the user interface.</li>
-</ul>
+* `Portfolio` contains the cash balance and the list of stocks owned by the user.
+* `AvailableStocks` contains the list of stocks that are available for purchase.
+* `Ui` contains state related to the user interface.
 
 In [App.tsx](src/App.tsx) I declare the state, as follows:
 
