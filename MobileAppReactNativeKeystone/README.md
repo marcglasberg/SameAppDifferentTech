@@ -13,8 +13,9 @@ I gave up implementing this, as I don't think Keystone is mature enough
 In my opinion it's not worth building any complex project with state management solutions
 that are unable to provide clear error messages.
 
-By using MobX Keystone, for most errors, the app just crashes with a bad error message
-that doesn't explain the problem, or it does but doesn't say where the problem is.
+When using MobX Keystone, 
+for most errors the app just crashes with a bad error message that doesn't explain the problem, 
+or it explains the problem but doesn't say where the problem is located.
 
 There's at least one issue complaining about this, open since November 2022:
 
@@ -88,8 +89,8 @@ ERROR  Invariant Violation: "MobileAppReactNativeKeystone" has not been register
 ```
 
 Clearly, the `@model decorator` is there.
-The error message doesn't say that at all, but the problem is, actually, 
-that you can't define static properties inline, in a class that extends `Model`. 
+The error message doesn't say that at all, but the problem is, actually,
+that you can't define static properties inline, in a class that extends `Model`.
 
 The solution is to move the static properties outside the class, like this:
 
