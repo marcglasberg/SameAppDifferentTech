@@ -60,7 +60,7 @@ The app state is composed of objects of the following classes:
 
 In [App.tsx](src/App.tsx) I defined the state, as follows:
 
-```
+```typescript
 const [portfolio, setPortfolio] = useState(new Portfolio());
 const [avbStocks, setAvbStocks] = useState(new AvailableStocks([]));
 const [ui, setUi] = useState(new Ui());
@@ -69,9 +69,9 @@ const [ui, setUi] = useState(new Ui());
 And in [Context.ts](src/business/state/Context.ts) I defined
 `PortfolioContext`, `AvailableStocksContext` and `UiContext`:
 
-```
-export const PortfolioContext 
-   = createContext<{ portfolio: Portfolio; setPortfolio: UseSet<Portfolio> }>({ ... });
+```typescript
+export const PortfolioContext
+  = createContext<{ portfolio: Portfolio; setPortfolio: UseSet<Portfolio> }>({ ... });
 
 ...
 ```
@@ -79,7 +79,7 @@ export const PortfolioContext
 Then, I wrapped the root of the component tree (`<AppContent />`) with the context providers,
 to pass down this state to all components that need it:
 
-```
+```tsx
 <PortfolioContext.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
   <AvailableStocksContext.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
     <UiContext.Provider value={{ ui: ui, setUi: setUi }}>
@@ -92,8 +92,8 @@ to pass down this state to all components that need it:
 ## How to access the State
 
 In [Hooks.ts](src/business/state/Hooks.ts) I defined hooks `usePortfolio`, `useAvailableStocks`, `useUi`:
-                       
-```
+
+```typescript
 export function usePortfolio(): {
   portfolio: Portfolio,
   setPortfolio: React.Dispatch<React.SetStateAction<Portfolio>>
@@ -103,14 +103,12 @@ export function usePortfolio(): {
 
 ...
 ```
+
 And then I can then use them from any component:
 
-```
-import { Portfolio } from '../../business/state/Portfolio';
-...
-
+```tsx
 const { portfolio, setPortfolio } = usePortfolio();
-<Text>{`Cash Balance: ${portfolio.cashBalance}`}</Text>
+<Text>{`Cash Balance: ${portfolio.cashBalance}`}</Text>;
 ```
 
 # Initializing the app
@@ -123,8 +121,8 @@ enabling access from anywhere within the app.
 Note it's generally acceptable to use global singletons in code architecture,
 as long as they are constant and immutable.
 
-```
-inject({  
+```typescript
+inject({
   dao: new SimulatedDao(),
   storage: Storage.newInMemoryInstance(),
   runConfig: testConfiguration,
@@ -166,12 +164,15 @@ Here's what it gives us:
 
 In the [Dao.ts](src/business/dao/Dao.ts) file, we define the `Dao` as an abstract class or interface:
 
-```
+```typescript
 export abstract class Dao {
   abstract readAvailableStocks(): Promise<AvailableStock[]>;
+
   abstract listenToStockPriceUpdates(onUpdate: (ticker: string, price: number) => void): void;
+
   abstract stopStockPriceUpdates(): void;
-  ...
+
+...
 }
 ```
 
@@ -180,7 +181,7 @@ DAO methods are mostly Promises, because they need to asynchronously fetch data 
 Once we inject the DAO into the app by doing `inject({ dao: ... })`, we can access it from anywhere in the app
 by just importing it:
 
-```
+```typescript
 import { dao } from '../../inject';
 
 const portfolio = await dao.loadPortfolio();
@@ -214,15 +215,15 @@ scenario. We can just use the simulated DAO, and it will behave very similarly t
 When you are ready to switch to the real backend, you can just inject the "real DAO" in the app, instead of
 the "simulated DAO". This is very easy to do, as the rest of the app doesn't need to change at all.
 
-```
+```typescript
 // Injecting the real DAO:
 inject({
-   dao: new RealDao(),
+  dao: new RealDao(),
 });
 
 // Injecting the simulated DAO:
 inject({
-   dao: new SimulatedDao(),
+  dao: new SimulatedDao(),
 });
 ```
 
@@ -242,7 +243,7 @@ and generates random stock price updates every few milliseconds.
 
 We start by creating a `SimulatedDao` class that extends `Dao`:
 
-```
+```typescript
 export class SimulatedDao extends Dao {
 ...
 }
@@ -250,16 +251,19 @@ export class SimulatedDao extends Dao {
 
 As an example, this is how we could implement the `readAvailableStocks()` method to simulate a data fetch:
 
-```
-private stocks: _Stock[] = [
-  { ticker: 'IBM', name: 'International Business Machines', price: 132.64 },
-  { ticker: 'AAPL', name: 'Apple', price: 183.58 },        
-];
+```typescript
+export class SimulatedDao extends Dao {
 
-async readAvailableStocks(): Promise<AvailableStock[]> {  
-  await new Promise(resolve => setTimeout(resolve, 500)); // Delay
-  
-  return this.stocks.map(stock => new AvailableStock(stock.ticker, stock.name, stock.price));
+  private stocks: _Stock[] = [
+    { ticker: 'IBM', name: 'International Business Machines', price: 132.64 },
+    { ticker: 'AAPL', name: 'Apple', price: 183.58 }
+  ];
+
+  async readAvailableStocks(): Promise<AvailableStock[]> {
+    await new Promise(resolve => setTimeout(resolve, 500)); // Delay
+
+    return this.stocks.map(stock => new AvailableStock(stock.ticker, stock.name, stock.price));
+  }
 }
 ```
 
@@ -353,7 +357,7 @@ export const anotherConfiguration = new RunConfig({
 
 Next, open the `index.js` file and change it to `runConfig: anotherConfiguration`:
 
-```
+```typescript
 inject({
   store: new Store(),
   dao: new SimulatedDao(),
@@ -381,22 +385,22 @@ and deletes data in the device's local storage (or in a fake in-memory storage)
 by using `setItem`, `getItem`, and `removeItem`, respectively.
 The app injects the storage as follows:
 
-```
+```typescript
 // Injecting the local disk storage:
 inject({
-   storage: new Storage(),
+  storage: new Storage(),
 });
 
 // Injecting the in-memory storage:
 inject({
-   storage: Storage.newInMemoryInstance(),
+  storage: Storage.newInMemoryInstance(),
 });
 ```
 
 You can then access the storage from anywhere in the app by just importing it and calling its methods.
 For example:
 
-```
+```typescript
 import { storage } from '../../inject';
 
 const serializedPortfolio = JSON.stringify(portfolio);
@@ -415,7 +419,7 @@ If you change the app to use the in-memory storage, then the data will be lost w
 When running tests, however, we always use the in-memory storage, so that each test starts with a clean slate.
 That's why the default for the `inject` function is to use the in-memory storage:
 
-```
+```typescript
 beforeEach(async () => {
   inject({});
 });
@@ -456,7 +460,7 @@ file is this:
 1. The `StorageManager` loads all the state from disk as soon as the app opens.
    This is the only time when information is loaded.
 
-   ```
+   ```typescript
    async processPortfolio(...) {
       ...
       async function loadPortfolio() {
@@ -472,7 +476,7 @@ file is this:
 
 4. The `processPortfolio()` method is called by the `useEffect` in the `AppContent` widget (in [App.tsx](src/App.tsx)):
 
-   ```   
+   ```typescript   
    const AppContent: React.FC = () => {     
      const { portfolio, setPortfolio } = usePortfolio();
      ...
@@ -552,10 +556,8 @@ _2 Easy Ways to Add Dark Mode in a React Native Application_</a>.
 
 By following the article, you'll end up having to add this line to all components that need to access the colors:
 
-```
-
+```typescript
 const colors = useTheme().colors;
-
 ```                                            
 
 While this approach is acceptable, given the theme is almost constant (only changing when the user changes the theme),
@@ -603,27 +605,24 @@ const darkTheme: Theme = {
   error: palette.red,
   ...
 } as const;
-
 ```
 
 Finally, `Color` gives us access to the colors, and to methods to change the theme.
 
 In the UI code, we may simply import the `Color` and use it. For example:
 
-```
-
+```tsx
 import Color from '../theme/Color';
-...
 
 const $safeArea: ViewStyle = { backgroundColor: Color.appBar, ... };
 const $row: ViewStyle = { backgroundColor: Color.appBar, ... };
-const $title: TextStyle = {color: Color.palette.white, ... };
+const $title: TextStyle = { color: Color.palette.white, ... };
 
 return (
   <SafeAreaView style={$safeArea}>
     <Row style={$row}>
       <Text style={$title}>{title}</Text>
-...
+      ...
 ```
 
 In the business code, we may simply call `Color.setLightTheme()` and `.setDarkTheme()`, as needed:
@@ -654,13 +653,15 @@ const $downButton: ViewStyle = { ...$button, backgroundColor: Colors.down };
 
 Note: Instead of doing what I described above, you may prefer using `StyleSheet.create()`:
 
-```
+```tsx
 const MyComponent = () => {
   const styles = getStyles();
-  return ...
-);
+  return
+...
+)
+  ;
 
-const getStyles = () => StyleSheet.create({ button: { ... } });
+  const getStyles = () => StyleSheet.create({ button: { ... } });
 ```
 
 ## Fonts
@@ -675,21 +676,21 @@ In file [Font.ts](src/ui/theme/Font.ts) we define the fonts that we use in the a
 
 We can then use it in our components. For example:
 
-```
+```tsx
 const $ticker = Font.large();
 <Text style={$ticker}>{availableStock.ticker}</Text>
 ```
 
 Or inline:
 
-```
+```tsx
 <Text style={Font.large()}>{availableStock.ticker}</Text>
 ```
 
 The default font color is `Color.text`.
 If the color we want is different, we can pass it to the method. For example:
 
-```
+```tsx
 Font.large(Color.textDimmed);
 ```
 
@@ -699,21 +700,21 @@ Some design systems also specify spacing between UI elements, in logical pixels.
 
 One way to separate two components is to use padding. For example:
 
-```
+```tsx
 <Text style={{ paddingBottom: 12 }}>Apples</Text>
 <Text>Oranges</Text>
 ```
 
 And even define a `Spacing` class to help us stick to the valid values:
 
-```
+```tsx
 <Text style={{ paddingBottom: Spacing.px12 }}>Apples</Text>
 <Text>Oranges</Text>
 ```
 
 However, I think it is easier and more semantic to do it like this:
 
-```
+```tsx
 <Text>Apples</Text>
 <Space.px12 />
 <Text>Oranges</Text>
@@ -730,7 +731,7 @@ In file [Space.tsx](src/ui/theme/Space.tsx) we specify:
 Having `<Space>` components also makes it easier to change the order of elements in the layout.
 For example:
 
-```
+```tsx
 // Wrong: We need to to move the style between the components.
 <Text>Oranges</Text>
 <Text style={{ paddingBottom: Spacing.px12 }}>Apples</Text>;
@@ -752,30 +753,29 @@ of `<View>`:
 
 Then, instead of this:
 
-```
-
+```tsx
 <View>
-   <Text>Some options</Text>
-   <View style={{ flexDirection: 'row', backgroundColor: Color.background, flex: 1 }}>
-      <Option1 />
-      <Option2 />
-   </View>
-   <View style={{ flex: 1 }} />
-   <Text>Footer</Text>
+  <Text>Some options</Text>
+  <View style={{ flexDirection: 'row', backgroundColor: Color.background, flex: 1 }}>
+    <Option1 />
+    <Option2 />
+  </View>
+  <View style={{ flex: 1 }} />
+  <Text>Footer</Text>
 </View>
 ```
 
 We can write a more semantic code, which I believe is easier to read:
 
-```
+```tsx
 <Column>
-   <Text>Some options</Text>
-   <Row style={{ backgroundColor: Color.background, flex: 1 }}>
-      <Option1 />
-      <Option2 />
-   </Row>
-   <Spacer />
-   <Text>Footer</Text>
+  <Text>Some options</Text>
+  <Row style={{ backgroundColor: Color.background, flex: 1 }}>
+    <Option1 />
+    <Option2 />
+  </Row>
+  <Spacer />
+  <Text>Footer</Text>
 </Column>
 ```
 
@@ -793,9 +793,9 @@ The tests are inside the `__tests__` directory.
 Note, in many of those tests I inject the appropriate infrastructure objects by calling `inject` with an empty object
 inside `beforeEach`:
 
-```
+```typescript
 beforeEach(() => {
-   inject({});   
+  inject({});
 });
 ```
 
@@ -860,14 +860,14 @@ File [AvailableStock.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_imple
 defines the `AvailableStock_Mixed` component,
 which accesses the store directly within the UI code, for example, here:
 
-```
+```tsx
 <MaterialButton label="BUY"
-    backgroundColor={Color.up}
-    disabled={!portfolio.hasMoneyToBuyStock(availableStock)}
-    onPress={() => {
-        animateAddition();
-        setPortfolio(portfolio.buy(availableStock, 1));
-    }} /> 
+                backgroundColor={Color.up}
+                disabled={!portfolio.hasMoneyToBuyStock(availableStock)}
+                onPress={() => {
+                  animateAddition();
+                  setPortfolio(portfolio.buy(availableStock, 1));
+                }} />
 />
 ```
 
@@ -899,7 +899,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    Its goal is simply to access the store, create a data structure called the "view-model" with all the necessary
    information, and pass it down to the "view component".
 
-   ```                                      
+   ```typescript                                      
    // The container component.
    export const AvailableStockContainer: React.FC<{ availableStock: AvailableStock }> 
       = ({ availableStock }) => {
@@ -934,7 +934,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
    First, we import the view-model from:
 
-   ```
+   ```typescript
    import { viewModel } from '.../AvailableStock.container';
    ```
 
@@ -972,7 +972,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    contains `AvailableStockView`, which does not access the store directly.
    Instead, it gets all information in its constructor.
 
-   ```
+   ```typescript
    export const AvailableStockView: React.FC<{
      availableStock: AvailableStock;
      ifBuyDisabled: boolean;
@@ -1056,22 +1056,22 @@ that I have developed myself.
 
 Let's see an example of a BDD test description that specifies the behavior of the app when the user buys stocks:
 
-```
+```gherkin
 Feature: Buying and Selling Stocks
 
-Scenario: Buying stocks
+  Scenario: Buying stocks
 
-   Given The user has 120 dollars in cash-balance.
-   And IBM price is 30 dollars.
-   And The user has no IBM stocks.
-   When The user buys 1 IBM.
-   Then The user now has 1 IBM.
-   And The cash-balance is now 90 dollars.
+    Given The user has 120 dollars in cash-balance.
+    And IBM price is 30 dollars.
+    And The user has no IBM stocks.
+    When The user buys 1 IBM.
+    Then The user now has 1 IBM.
+    And The cash-balance is now 90 dollars.
 ```
 
 The following is the implementation of the test:
 
-```
+```typescript
 let availableStocks: AvailableStocks;
 
 beforeEach(async () => {
@@ -1082,14 +1082,14 @@ beforeEach(async () => {
 const feature = new Feature('Buying and Selling Stocks');
 
 Bdd(feature)
- .scenario('Buying stocks.')
- .given('The user has 120 dollars in cash-balance.')
- .and('IBM price is 30 dollars.')
- .and('The user has no IBM stocks.')
- .when('The user buys 1 IBM.')
- .then('The user now has 1 IBM.')
- .and('The cash-balance is now 90 dollars.')
-    .run(async (ctx) => {
+  .scenario('Buying stocks.')
+  .given('The user has 120 dollars in cash-balance.')
+  .and('IBM price is 30 dollars.')
+  .and('The user has no IBM stocks.')
+  .when('The user buys 1 IBM.')
+  .then('The user now has 1 IBM.')
+  .and('The cash-balance is now 90 dollars.')
+  .run(async (ctx) => {
 
     // Given:
     let portfolio = new Portfolio({ cashBalance: new CashBalance(120) });
@@ -1103,7 +1103,7 @@ Bdd(feature)
     // Then:
     expect(portfolio.howManyStocks('IBM')).toBe(1);
     expect(portfolio.cashBalance).toEqual(new CashBalance(90.00));
-});
+  });
 ```
 
 Please note, the above BDD test runs against the **simulated backend**.
@@ -1112,15 +1112,15 @@ This means it runs as fast as a unit test.
 If you want to run it against the **real backend**,
 you can do so by injecting the real DAO instead of the simulated one, like so:
 
-```
-inject({dao: new RealDao()});
+```typescript
+inject({ dao: new RealDao() });
 ```
 
 ### Feature files
 
 The BDD tests also contain the following code:
 
-```
+```typescript
 reporter(new FeatureFileReporter());
 ```
 
