@@ -7,12 +7,12 @@ import { AvailableStock } from '../../business/state/AvailableStock';
 import { Column } from '../utils/Layout';
 import { CashBalanceAndPortfolio } from './CashBalanceAndPortfolio';
 import { AvailableStocks } from '../../business/state/AvailableStocks';
-import { useAvailableStocks, usePortfolio } from '../../business/state/HooksAndContext';
+import { useAvailableStocks, usePortfolio } from '../../business/state/Hooks';
 
 export const Playground: React.FC<{}> = ({}) => {
 
-  const [portfolio, setPortfolio] = usePortfolio();
-  const [availableStocks, setAvailableStocks] = useAvailableStocks();
+  const { portfolio } = usePortfolio();
+  const { availableStocks } = useAvailableStocks();
 
   return (
     <Column style={{

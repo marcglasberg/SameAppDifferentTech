@@ -12,11 +12,11 @@ import { Column, Row, Spacer } from '../utils/Layout';
 import { AbTesting } from '../../business/RunConfig/ABTesting';
 import { print } from '../../business/utils/utils';
 import { Font } from '../theme/Font';
-import { useUi } from '../../business/state/HooksAndContext';
+import { useUi } from '../../business/state/Hooks';
 
 const ConfigurationScreen: React.FC = () => {
 
-  const [ui, setUi] = useUi();
+  const { ui, setUi } = useUi();
 
   // Note: RunConfig is a global constant, just like the Dao and the Storage (all injected in index.ts).
   // However, during development we treat it as mutable value, do that we can manipulate it in the config screen.

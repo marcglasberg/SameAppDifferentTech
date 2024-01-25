@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useUi } from '../../business/state/HooksAndContext';
+import { useUi } from '../../business/state/Hooks';
 
 const ConfigButton: React.FC<{}> = ({}) => {
 
-  const [ui, setUi] = useUi();
+  const { ui, setUi } = useUi();
 
   return (
 

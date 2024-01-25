@@ -1,7 +1,7 @@
 import { AvailableStock } from './AvailableStock';
 import { dao } from '../../inject';
 import { print } from '../utils/utils';
-import { UseSet } from './HooksAndContext';
+import { UseSet } from './Hooks';
 
 export class AvailableStocks {
   readonly list: AvailableStock[];

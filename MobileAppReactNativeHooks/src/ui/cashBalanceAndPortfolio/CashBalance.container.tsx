@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { CashBalanceView } from './CashBalance.view';
 import { Portfolio } from '../../business/state/Portfolio';
-import { PortfolioContext, UseSet } from '../../business/state/HooksAndContext';
+import { usePortfolio, UseSet } from '../../business/state/Hooks';
 
 export const CashBalanceContainer
   = () => {
-  const { portfolio, setPortfolio } = useContext(PortfolioContext);
+  const { portfolio, setPortfolio } = usePortfolio();
   return <CashBalanceView {...viewModel(portfolio, setPortfolio)} />;
 };
 

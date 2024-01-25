@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from '@jest/globals';
 import { inject } from '../src/inject';
 import { viewModel } from '../src/ui/cashBalanceAndPortfolio/CashBalance.container';
 import { Portfolio } from '../src/business/state/Portfolio';
-import { UseSet } from '../src/business/state/HooksAndContext';
+import { UseSet } from '../src/business/state/Hooks';
 import { CashBalance } from '../src/business/state/CashBalance';
 
 describe('CashBalanceContainer', () => {

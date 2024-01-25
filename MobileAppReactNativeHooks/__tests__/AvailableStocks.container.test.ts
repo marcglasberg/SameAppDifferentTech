@@ -4,7 +4,7 @@ import { inject } from '../src/inject';
 import { viewModel } from '../src/ui/cashBalanceAndPortfolio/AvailableStock.container';
 import { Portfolio } from '../src/business/state/Portfolio';
 import { CashBalance } from '../src/business/state/CashBalance';
-import { UseSet } from '../src/business/state/HooksAndContext';
+import { UseSet } from '../src/business/state/Hooks';
 
 describe('AvailableStockContainer', () => {
 

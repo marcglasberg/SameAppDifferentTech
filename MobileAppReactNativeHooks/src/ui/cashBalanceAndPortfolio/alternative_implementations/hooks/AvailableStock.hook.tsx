@@ -1,6 +1,6 @@
 import { runConfig } from '../../../../inject';
 import { AvailableStock } from '../../../../business/state/AvailableStock';
-import React, { useContext } from 'react';
+import React from 'react';
 import { LayoutAnimation, Text } from 'react-native';
 import { Font } from '../../../theme/Font';
 import Color from '../../../theme/Color';
@@ -8,11 +8,11 @@ import { Column, Row } from '../../../utils/Layout';
 import { Space } from '../../../theme/Space';
 import MaterialButton from '../../../utils/MaterialButton';
 import Divider from '../../../utils/Divider';
-import { PortfolioContext } from '../../../../business/state/HooksAndContext';
+import { usePortfolio } from '../../../../business/state/Hooks';
 
 export function useAvailableStock(availableStock: AvailableStock) {
 
-  const { portfolio, setPortfolio } = useContext(PortfolioContext);
+  const { portfolio } = usePortfolio();
 
   return {
     availableStock,

@@ -3,7 +3,7 @@ import { AvailableStock } from '../src/business/state/AvailableStock';
 import { inject } from '../src/inject';
 import { viewModel } from '../src/ui/cashBalanceAndPortfolio/Portfolio.container';
 import { Portfolio } from '../src/business/state/Portfolio';
-import { UseSet } from '../src/business/state/HooksAndContext';
+import { UseSet } from '../src/business/state/Hooks';
 
 describe('PortfolioContainer', () => {
 

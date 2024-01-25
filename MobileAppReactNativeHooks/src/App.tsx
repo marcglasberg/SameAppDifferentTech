@@ -12,13 +12,8 @@ import Color from './ui/theme/Color';
 import ConfigButton from './ui/appBar/ConfigButton';
 import { Ui } from './ui/utils/Ui';
 import { Portfolio } from './business/state/Portfolio';
-import {
-  AvailableStocksContext,
-  PortfolioContext,
-  UiContext,
-  usePortfolio,
-  useUi
-} from './business/state/HooksAndContext';
+import { AvailableStocksContext, PortfolioContext, UiContext } from './business/state/Context';
+import { usePortfolio, useUi } from './business/state/Hooks';
 import { AvailableStocks } from './business/state/AvailableStocks';
 
 function App() {
@@ -56,8 +51,8 @@ function App() {
 const AppContent: React.FC = () => {
 
   const storageManager = StorageManager.use();
-  const [portfolio, setPortfolio] = usePortfolio();
-  const [ui, setUi] = useUi();
+  const { portfolio, setPortfolio } = usePortfolio();
+  const { ui } = useUi();
 
   // When the app is shutting down, stop the save timer,
   // and save one last time (if necessary).

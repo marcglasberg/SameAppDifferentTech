@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { LayoutAnimation, Text } from 'react-native';
 import { runConfig } from '../../../../inject';
 import { Space } from '../../../theme/Space';
@@ -7,7 +7,7 @@ import Divider from '../../../utils/Divider';
 import Color from '../../../theme/Color';
 import { Column, Row } from '../../../utils/Layout';
 import { Font } from '../../../theme/Font';
-import { PortfolioContext } from '../../../../business/state/HooksAndContext';
+import { usePortfolio } from '../../../../business/state/Hooks';
 import { AvailableStock } from '../../../../business/state/AvailableStock';
 
 export const AvailableStock_Mixed: React.FC<{
@@ -18,7 +18,7 @@ export const AvailableStock_Mixed: React.FC<{
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   };
 
-  const { portfolio, setPortfolio } = useContext(PortfolioContext);
+  const { portfolio, setPortfolio } = usePortfolio();
 
   const $ticker = Font.large();
   const $name = Font.small(Color.textDimmed);

@@ -3,7 +3,7 @@ import { print, printError } from '../utils/utils';
 import React, { createContext, useContext } from 'react';
 import { Portfolio } from '../state/Portfolio';
 import { Persistor } from './Persistor';
-import { UseSet } from '../state/HooksAndContext';
+import { UseSet } from '../state/Hooks';
 
 /**
  * The StorageManager is the high-level code that actually loads the state when the app opens,
@@ -121,7 +121,7 @@ export class StorageManager {
 
   static use(): StorageManager {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { storageManager, setStorageManager } = useContext(StorageManager.Context);
+    const { storageManager } = useContext(StorageManager.Context);
     return storageManager;
   }
 }

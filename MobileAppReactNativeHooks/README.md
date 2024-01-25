@@ -58,7 +58,7 @@ The app state is composed of objects of the following classes:
 * `AvailableStocks` contains the list of stocks that are available for purchase.
 * `Ui` contains state related to the user interface.
 
-In [App.tsx](src/App.tsx) I declare the state, as follows:
+In [App.tsx](src/App.tsx) I defined the state, as follows:
 
 ```
 const [portfolio, setPortfolio] = useState(new Portfolio());
@@ -66,51 +66,50 @@ const [avbStocks, setAvbStocks] = useState(new AvailableStocks([]));
 const [ui, setUi] = useState(new Ui());
 ```
 
-Then, I wrap the root of the component tree (`<AppContent />`) with context providers,
+And in [Context.ts](src/business/state/Context.ts) I defined
+`PortfolioContext`, `AvailableStocksContext` and `UiContext`:
+
+```
+export const PortfolioContext 
+   = createContext<{ portfolio: Portfolio; setPortfolio: UseSet<Portfolio> }>({ ... });
+
+...
+```
+
+Then, I wrapped the root of the component tree (`<AppContent />`) with the context providers,
 to pass down this state to all components that need it:
 
 ```
-<Portfolio.Context.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
-  <AvailableStocks.Context.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
-    <Ui.Context.Provider value={{ ui: ui, setUi: setUi }}>
+<PortfolioContext.Provider value={{ portfolio: portfolio, setPortfolio: setPortfolio }}>
+  <AvailableStocksContext.Provider value={{ availableStocks: avbStocks, setAvailableStocks: setAvbStocks }}>
+    <UiContext.Provider value={{ ui: ui, setUi: setUi }}>
       <AppContent />
-    </Ui.Context.Provider>
-  </AvailableStocks.Context.Provider>
-</Portfolio.Context.Provider>
-```
-
-Note: I've defined static variables called `Context`, inside of classes `Portfolio`, `AvailableStocks` and `Ui`.
-This is done simply to "namespace the context", so that I can write `<Portfolio.Context.Provider>`,
-`<AvailableStocks.Context.Provider>` and `<Ui.Context.Provider>` as seen above.
-
-For example, in [Portfolio.ts](src/business/state/Portfolio.tsx) I define:
-
-```
-static readonly Context = createContext({
-  portfolio: new Portfolio(),
-  setPortfolio: () => {}
-});
+    </UiContext.Provider>
+  </AvailableStocksContext.Provider>
+</PortfolioContext.Provider>
 ```
 
 ## How to access the State
 
-I defined hooks as static function called `use` inside each of the state classes.
-For example, in [Portfolio.ts](src/business/state/Portfolio.tsx) I define:
-
-``` 
-static use() {
-  const { portfolio, setPortfolio } = useContext(Portfolio.Context);
-  return [portfolio, setPortfolio];
-}
+In [Hooks.ts](src/business/state/Hooks.ts) I defined hooks `usePortfolio`, `useAvailableStocks`, `useUi`:
+                       
 ```
+export function usePortfolio(): {
+  portfolio: Portfolio,
+  setPortfolio: React.Dispatch<React.SetStateAction<Portfolio>>
+} {
+  return useContext(PortfolioContext);
+}
 
-You can then access it from any component:
+...
+```
+And then I can then use them from any component:
 
 ```
 import { Portfolio } from '../../business/state/Portfolio';
 ...
 
-const [portfolio, setPortfolio] = Portfolio.use();
+const { portfolio, setPortfolio } = usePortfolio();
 <Text>{`Cash Balance: ${portfolio.cashBalance}`}</Text>
 ```
 
@@ -475,7 +474,7 @@ file is this:
 
    ```   
    const AppContent: React.FC = () => {     
-     const [portfolio, setPortfolio] = usePortfolio();
+     const { portfolio, setPortfolio } = usePortfolio();
      ...
      useEffect(() => {
        storageManager.processPortfolio(portfolio, setPortfolio);   

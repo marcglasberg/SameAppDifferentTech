@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Text } from 'react-native';
 import { Stock } from '../../../../business/state/Stock';
 import { Space } from '../../../theme/Space';
 import { Column, Row } from '../../../utils/Layout';
 import { Font } from '../../../theme/Font';
-import { PortfolioContext } from '../../../../business/state/HooksAndContext';
+import { usePortfolio } from '../../../../business/state/Hooks';
 
 export const Portfolio_Mixed = () => {
 
-  const { portfolio, setPortfolio } = useContext(PortfolioContext);
+  const { portfolio } = usePortfolio();
 
   return (
     <Column style={{ paddingVertical: 16, paddingHorizontal: 16, alignItems: 'flex-start' }}>
