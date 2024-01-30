@@ -3,7 +3,6 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/business/state/cash_balance.dart';
-import 'package:mobile_app_flutter_redux/business/state/stock.dart';
 import 'package:mobile_app_flutter_redux/business/utils/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_add_cash.dart';
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_remove_cash.dart';
@@ -99,21 +98,4 @@ class CashBalanceWidget extends StatelessWidget {
       onTap: onAddCash,
     );
   }
-}
-
-class StockInPortfolio extends StatelessWidget {
-  //
-  static const stockStyle = TextStyle(fontSize: 16, color: Colors.black);
-
-  final Stock stock;
-
-  const StockInPortfolio(this.stock, {super.key});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const Pad(top: 6),
-        child: Text(
-            '${stock.ticker} (${stock.howManyShares} shares @ US\$ ${stock.averagePriceStr})',
-            style: stockStyle),
-      );
 }

@@ -2,8 +2,9 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:mobile_app_flutter_redux/business/infra/basic/routes_transitions.dart";
 import "package:mobile_app_flutter_redux/business/infra/basic/screen.dart";
+import "package:mobile_app_flutter_redux/client/infra/base_screen_chooser.dart";
 import "package:mobile_app_flutter_redux/client/utils/errors_and_exceptions.dart";
-import "package:mobile_app_flutter_redux/my_app.dart";
+import "package:mobile_app_flutter_redux/portfolio_and_cash_balance_screen.dart";
 
 class AppRoutes {
   //
@@ -23,19 +24,12 @@ class AppRoutes {
     // args.removeAt(0);
 
     if (settings.name == '/') {
-      return NoAnimationRoute(firstScreen());
+      return NoAnimationRoute(const BaseScreenChooser());
     }
     //
     else {
       throw NotYetImplementedError();
     }
-  }
-
-  static Screen firstScreen() {
-    /// This would be extended in a real app, to return different first screens depending on
-    /// the situation. For example, if the user is not logged in, this could return a login
-    /// screen instead.
-    return const MyApp();
   }
 }
 
@@ -49,3 +43,4 @@ bool ifScreen(String name, Type ScreenRuntimeType) {
 }
 
 Type getReturnType<T extends Type>(T Function(List<String>) method) => T;
+

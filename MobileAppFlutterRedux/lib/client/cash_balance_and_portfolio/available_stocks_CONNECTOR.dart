@@ -1,7 +1,5 @@
-import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter_redux/business/state/stock.dart';
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_fluctuate_stock_price.dart';
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_read_available_stocks.dart';
 
@@ -10,9 +8,9 @@ import '../../business/state/available_stocks.dart';
 import '../../business/utils/app_vm_factory.dart';
 import 'available_stock_widget.dart';
 
-class AvailableStocksXXX_Connector extends StatelessWidget {
+class AvailableStocks_Connector extends StatelessWidget {
   //
-  const AvailableStocksXXX_Connector();
+  const AvailableStocks_Connector();
 
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, _Vm>(
@@ -20,7 +18,7 @@ class AvailableStocksXXX_Connector extends StatelessWidget {
         onInit: _onInit,
         onDispose: _onDispose,
         builder: (context, vm) {
-          return AvailableStocksXXX(
+          return AvailableStocksWidget(
             availableStocks: vm.availableStocks,
           );
         },
@@ -50,14 +48,13 @@ class _Vm extends Vm {
   }) : super(equals: [availableStocks]);
 }
 
-// TODO: MARCELO Chose appropriate name.
-class AvailableStocksXXX extends StatelessWidget {
+class AvailableStocksWidget extends StatelessWidget {
   //
   static const style = TextStyle(fontSize: 20, color: Colors.black);
 
   final AvailableStocks availableStocks;
 
-  const AvailableStocksXXX({
+  const AvailableStocksWidget({
     super.key,
     required this.availableStocks,
   });
@@ -77,21 +74,4 @@ class AvailableStocksXXX extends StatelessWidget {
       ),
     );
   }
-}
-
-class StockInPortfolio extends StatelessWidget {
-  //
-  static const stockStyle = TextStyle(fontSize: 16, color: Colors.black);
-
-  final Stock stock;
-
-  const StockInPortfolio(this.stock, {super.key});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const Pad(top: 6),
-        child: Text(
-            '${stock.ticker} (${stock.howManyShares} shares @ US\$ ${stock.averagePriceStr})',
-            style: stockStyle),
-      );
 }

@@ -5,8 +5,8 @@ import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/avail
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/cash_balance_CONNECTOR.dart';
 import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/portfolio_CONNECTOR.dart';
 
-class MyApp extends StatelessWidget with Screen {
-  const MyApp({super.key});
+class PortfolioAndCashBalanceScreen extends StatelessWidget with Screen {
+  const PortfolioAndCashBalanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           CashBalance_Connector(),
           Portfolio_Connector(),
-          Expanded(child: AvailableStocksXXX_Connector()),
+          Expanded(child: AvailableStocks_Connector()),
         ],
       ),
     );
