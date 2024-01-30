@@ -17,9 +17,8 @@ class AvailableStock {
 
   String get currentPriceStr => 'US\$ ${currentPrice.toStringAsFixed(2)}';
 
-  AvailableStock withCurrentPrice(double price) {
-    return AvailableStock(ticker, name: name, currentPrice: round(price));
-  }
+  AvailableStock withCurrentPrice(double price) =>
+      AvailableStock(ticker, name: name, currentPrice: round(price));
 
   Stock toStock({int shares = 1}) {
     return Stock(

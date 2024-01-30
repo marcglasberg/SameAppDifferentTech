@@ -1,4 +1,3 @@
-import 'available_stock.dart';
 import 'available_stocks.dart';
 import 'portfolio.dart';
 
@@ -7,15 +6,8 @@ class AppState {
   AvailableStocks availableStocks;
 
   static AppState initialState() => AppState(
-        portfolio: Portfolio(),
-        availableStocks: AvailableStocks(list: [
-          AvailableStock('IBM', name: 'International Business Machines', currentPrice: 132.64),
-          AvailableStock('AAPL', name: 'Apple', currentPrice: 183.58),
-          AvailableStock('GOOG', name: 'Alphabet', currentPrice: 126.63),
-          AvailableStock('AMZN', name: 'Amazon', currentPrice: 125.30),
-          AvailableStock('META', name: 'Meta Platforms', currentPrice: 271.39),
-          AvailableStock('INTC', name: 'Intel', currentPrice: 29.86),
-        ]),
+        portfolio: Portfolio.EMPTY,
+        availableStocks: AvailableStocks.EMPTY,
       );
 
   AppState({

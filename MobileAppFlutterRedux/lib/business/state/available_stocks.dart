@@ -1,29 +1,38 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'available_stock.dart';
 
-@immutable
 class AvailableStocks {
-  final List<AvailableStock> list;
+  static const AvailableStocks EMPTY = AvailableStocks(IListConst([]));
 
-  AvailableStocks({
-    required this.list,
-  });
+  final IList<AvailableStock> list;
+
+  const AvailableStocks(this.list);
+
+  AvailableStock? findBySymbolOrNull(String ticker) {
+    return list.firstWhereOrNull((s) => s.ticker == ticker);
+  }
 
   AvailableStock findBySymbol(String ticker) {
-    AvailableStock? stock = list.firstWhereOrNull((s) => s.ticker == ticker);
+    final stock = findBySymbolOrNull(ticker);
     if (stock == null) throw Exception('Stock not found: $ticker');
     return stock;
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is AvailableStocks &&
-              runtimeType == other.runtimeType &&
-              list == other.list;
+  void forEach(void Function(AvailableStock availableStock) callback) {
+    list.forEach(callback);
+  }
+
+  AvailableStocks withAvailableStock(AvailableStock newAvailableStock) {
+    final newList =
+        list.map((s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s).toIList();
+
+    return AvailableStocks(newList);
+  }
 
   @override
-  int get hashCode => list.hashCode;
+  String toString() {
+    return 'AvailableStocks: ${list.isEmpty ? 'empty' : list}';
+  }
 }

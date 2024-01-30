@@ -10,10 +10,12 @@ import 'stock.dart';
 
 @immutable
 class Portfolio {
+  static const Portfolio EMPTY = Portfolio();
+
   final IList<Stock> stocks;
   final CashBalance cashBalance;
 
-  Portfolio({
+  const Portfolio({
     this.stocks = const IListConst([]),
     this.cashBalance = CashBalance.ZERO,
   });

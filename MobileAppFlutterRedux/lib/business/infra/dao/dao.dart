@@ -1,4 +1,6 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:mobile_app_flutter_redux/business/infra/run_config/run_config.dart';
+import 'package:mobile_app_flutter_redux/business/state/available_stock.dart';
 
 Dao get DAO => RunConfig.instance.dao;
 
@@ -8,15 +10,14 @@ abstract class Dao {
   /// This is called in the app's initialization.
   Future<void> init();
 
-  /// Given a [number], returns [Numbers_RESPONSE.description].
-  /// Throw an error if the description cannot be found, or there is a connection error.
-  Future<Numbers_RESPONSE> loadNumberDescription({required int number});
-}
+  // Read the current list of available stocks from the backend.
+  Future<IList<AvailableStock>> readAvailableStocks();
 
-class Numbers_RESPONSE {
-  String description;
+  /// Continuously get stock price updates from the backend.
+  Future<void> startListeningToStockPriceUpdates({required PriceUpdate callback});
 
-  Numbers_RESPONSE({required this.description});
+  /// Stop getting stock price updates from the backend.
+  Future<void> stopListeningToStockPriceUpdates();
 }
 
 /// If the DAO cannot complete because of an error, it must throw this error.
@@ -26,9 +27,7 @@ class DaoGeneralError extends BackendError {
 
 /// If the DAO times out, it must throw this error.
 class DaoTimeoutError extends BackendError {
-  DaoTimeoutError()
-      : super('We could not retrieve the information. '
-            'Please, try again.');
+  DaoTimeoutError() : super('The information could not be retrieved. Please, try again.');
 }
 
 class BackendError extends Error {
@@ -47,3 +46,8 @@ class BackendError extends Error {
   @override
   int get hashCode => msg.hashCode;
 }
+
+typedef PriceUpdate = void Function({
+  required String ticker,
+  required double price,
+});

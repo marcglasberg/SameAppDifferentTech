@@ -78,7 +78,7 @@ class AppPersistor extends Persistor<AppState> {
   /// This means it will delete all the persistence if this read value is corrupted.
   Future<Portfolio> _readPortfolio() async {
 
-    return Portfolio();
+    return Portfolio.EMPTY;
 
     // TODO: MARCELO !!!
     // print('Reading $dbName_descriptionCache.db.');
@@ -117,6 +117,10 @@ class AppPersistor extends Persistor<AppState> {
     required AppState? lastPersistedState,
     required AppState newState,
   }) async {
+
+    // TODO: MARCELO !!!!
+    return;
+
     bool ifPersisted = false;
 
     // ---

@@ -1,19 +1,13 @@
-import 'package:http/http.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:mobile_app_flutter_redux/business/state/available_stock.dart';
+import 'package:mobile_app_flutter_redux/client/utils/errors_and_exceptions.dart';
 
 import '../dao.dart';
 
 mixin GetInitialAppInfo implements Dao {
   //
-  static const notFound = 'not-found';
-
   @override
-  Future<Numbers_RESPONSE> loadNumberDescription({required int number}) async {
-    //
-    String description = await read(Uri.http("numbersapi.com", "$number", {'default': notFound}));
-
-    if (description == notFound)
-      throw DaoGeneralError('We cannot find a description for number $number.');
-    else
-      return Numbers_RESPONSE(description: description);
+  Future<IList<AvailableStock>> readAvailableStocks() async {
+    throw NotYetImplementedError();
   }
 }

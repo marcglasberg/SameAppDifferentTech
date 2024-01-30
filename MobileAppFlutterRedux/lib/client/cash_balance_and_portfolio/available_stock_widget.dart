@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +68,7 @@ class _Vm extends Vm {
         ]);
 }
 
-class AvailableStockWidget extends StatefulWidget {
+class AvailableStockWidget extends StatelessWidget {
   //
   static const tickerStyle = TextStyle(fontSize: 26, color: Colors.black);
   static const nameStyle = TextStyle(fontSize: 16, color: Colors.black54);
@@ -103,34 +100,6 @@ class AvailableStockWidget extends StatefulWidget {
   });
 
   @override
-  State<AvailableStockWidget> createState() => _AvailableStockWidgetState();
-}
-
-class _AvailableStockWidgetState extends State<AvailableStockWidget> {
-  //
-  Timer? timer;
-
-  @override
-  void initState() {
-    super.initState();
-
-    int randomIntBetween900And1100 = Random().nextInt(200) + 900;
-
-    timer = Timer.periodic(Duration(milliseconds: randomIntBetween900And1100), (timer) {
-      setState(() {
-        // TODO: MARCELO !!!
-        // widget.availableStock.fluctuatePrice();
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const Pad(horizontal: 12.0),
@@ -140,17 +109,16 @@ class _AvailableStockWidgetState extends State<AvailableStockWidget> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Text(widget.availableStock.ticker, style: AvailableStockWidget.tickerStyle),
+              Text(availableStock.ticker, style: AvailableStockWidget.tickerStyle),
               const Spacer(),
-              Text(widget.availableStock.currentPriceStr, style: AvailableStockWidget.priceStyle),
+              Text(availableStock.currentPriceStr, style: AvailableStockWidget.priceStyle),
             ],
           ),
           const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                  child: Text(widget.availableStock.name, style: AvailableStockWidget.nameStyle)),
+              Expanded(child: Text(availableStock.name, style: AvailableStockWidget.nameStyle)),
               const SizedBox(width: 8),
               _buyButton(),
               const SizedBox(width: 8),
@@ -166,13 +134,13 @@ class _AvailableStockWidgetState extends State<AvailableStockWidget> {
 
   ElevatedButton _sellButton() => ElevatedButton(
         style: AvailableStockWidget.sellStyle,
-        onPressed: widget.ifHasStockToSell ? widget.onSell : null,
+        onPressed: ifHasStockToSell ? onSell : null,
         child: const Text('SELL'),
       );
 
   ElevatedButton _buyButton() => ElevatedButton(
         style: AvailableStockWidget.buyStyle,
-        onPressed: widget.ifHasMoneyToBuyStock ? widget.onBuy : null,
+        onPressed: ifHasMoneyToBuyStock ? onBuy : null,
         child: const Text('BUY'),
       );
 }
