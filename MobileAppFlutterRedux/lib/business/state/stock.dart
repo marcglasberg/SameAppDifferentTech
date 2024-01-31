@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../utils/map_deserialization_extension.dart';
+
 /// Stocks the user has.
 @immutable
 class Stock {
@@ -16,6 +18,23 @@ class Stock {
   double get costBasis => howManyShares * averagePrice;
 
   String get averagePriceStr => 'US\$ ${averagePrice.toStringAsFixed(2)}';
+
+  @override
+  String toString() => '$howManyShares $ticker @$averagePrice';
+
+  Map<String, dynamic> toJson() => {
+        'ticker': ticker,
+        'howManyShares': howManyShares,
+        'averagePrice': averagePrice,
+      };
+
+  static Stock fromJson(Json json) {
+    return Stock(
+      ticker: json.asString('ticker')!,
+      howManyShares: json.asInt('howManyShares')!,
+      averagePrice: json.asDouble('averagePrice')!,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>

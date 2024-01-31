@@ -2,17 +2,17 @@ import "dart:async";
 import "dart:io";
 
 import 'package:async_redux/async_redux.dart';
-import 'package:async_redux/local_persist.dart';
+import "package:async_redux/local_json_persist.dart";
 import 'package:flutter/foundation.dart';
 import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/business/state/portfolio.dart';
-
-typedef Json = Map<String, dynamic>;
-typedef JsonList = List<dynamic>;
+import 'package:mobile_app_flutter_redux/business/state/ui.dart';
+import 'package:mobile_app_flutter_redux/business/utils/map_deserialization_extension.dart';
 
 class AppPersistor extends Persistor<AppState> {
   //
   static const dbName_Portfolio = "portfolio";
+  static const dbName_Ui = "ui";
 
   /// Read the saved state from the persistence. Should return null if the state is not yet
   /// persisted. This method should be called only once, the app starts, before the store is
@@ -63,52 +63,50 @@ class AppPersistor extends Persistor<AppState> {
     /// We are reading in sequence, but the correct here is reading both in parallel,
     /// by using `Future.wait([...])`
     Portfolio portfolio = await _readPortfolio();
+    Ui ui = await _readUi();
 
     var state = AppState.initialState().copy(
       portfolio: portfolio,
+      ui: ui,
     );
-
-    print('Just read the state from disk: $state.');
-
+    print('State read from disk: $state.');
     return state;
   }
 
-  /// Here I demonstrate throwing an exception if the file does not contain a valid map with
-  /// the correct key/value types (int for the key, and String for the value).
-  /// This means it will delete all the persistence if this read value is corrupted.
+  /// This method throws an exception if the file does not contain a valid Json for the Portfolio.
+  /// If that happens, the caller assumes the file is corrupted, and will treat the error.
   Future<Portfolio> _readPortfolio() async {
+    print('Reading $dbName_Portfolio.db...');
+    LocalJsonPersist localPersist = LocalJsonPersist(dbName_Portfolio);
+    Object? result = await localPersist.load();
+    var portfolio = Portfolio.fromJson(result as Json?);
+    print('Read the Portfolio from disk: $portfolio');
+    return portfolio;
+  }
 
-    return Portfolio.EMPTY;
-
-    // TODO: MARCELO !!!
-    // print('Reading $dbName_descriptionCache.db.');
-    //
-    // LocalPersist localPersist = LocalPersist(dbName_descriptionCache);
-    // List<Object?>? result = await localPersist.load();
-    //
-    // if (result == null) return const IMapConst({});
-    //
-    // if ((result.length != 1) || (result.single is! Map)) throw AppError();
-    //
-    // // JSON keys are be strings, by definition, but our map needs int keys.
-    // var mapOfStringString = result.single as Map<String, dynamic>;
-    // return mapOfStringString
-    //     .map((String key, dynamic value) => MapEntry<int, String>(int.parse(key), value as String))
-    //     .lock;
+  /// This method throws an exception if the file does not contain a valid Json for the Portfolio.
+  /// If that happens, the caller assumes the file is corrupted, and will treat the error.
+  Future<Ui> _readUi() async {
+    print('Reading $dbName_Ui.db...');
+    LocalJsonPersist localPersist = LocalJsonPersist(dbName_Ui);
+    Object? result = await localPersist.load();
+    var ui = Ui.fromJson(result as Json?);
+    print('Read the Ui from disk: $ui');
+    return ui;
   }
 
   @override
   Future<void> deleteState() async {
     print('Deleting the state from disk.');
-    var rootDir = await findRootDireForLocalPersist();
+    var rootDir = await findRootDirForLocalPersist();
     if (rootDir.existsSync()) await rootDir.delete(recursive: true);
   }
 
   /// Return the directory `LocalPersist` saves the files and create subdirectories.
   @visibleForTesting
-  Future<Directory> findRootDireForLocalPersist() async {
+  Future<Directory> findRootDirForLocalPersist() async {
     // Hack to get the dir, since this info is not shared.
-    var fileInRoot = await LocalPersist("file-in-root").file();
+    var fileInRoot = await LocalJsonPersist("file-in-root").file();
     return fileInRoot.parent;
   }
 
@@ -117,26 +115,21 @@ class AppPersistor extends Persistor<AppState> {
     required AppState? lastPersistedState,
     required AppState newState,
   }) async {
-
-    // TODO: MARCELO !!!!
-    return;
-
-    bool ifPersisted = false;
-
-    // ---
-
     /// Here I compare the last saved Portfolio with the current Portfolio in the state.
     /// If the Portfolio changed, I save it to a file. I could have saved it to a database instead.
     if (newState.portfolio != lastPersistedState?.portfolio) {
-      print('Persisting the portfolio to disk.');
-      ifPersisted = true;
-
-      LocalPersist localPersist = LocalPersist(dbName_Portfolio);
-
-      await localPersist.save([newState.portfolio]);
+      print('Persisting the Portfolio to disk: ${newState.portfolio}');
+      var localPersist = LocalJsonPersist(dbName_Portfolio);
+      await localPersist.save(newState.portfolio.toJson());
     }
 
-    if (!ifPersisted) print('It was not necessary to persist the state to disk.');
+    /// Here I compare the last saved Portfolio with the current Portfolio in the state.
+    /// If the Portfolio changed, I save it to a file. I could have saved it to a database instead.
+    if (newState.ui != lastPersistedState?.ui) {
+      print('Persisting the Ui to disk: ${newState.ui}');
+      var localPersist = LocalJsonPersist(dbName_Ui);
+      await localPersist.save(newState.ui.toJson());
+    }
   }
 
   @override

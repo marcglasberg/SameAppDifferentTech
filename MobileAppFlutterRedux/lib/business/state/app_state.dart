@@ -39,6 +39,16 @@ class AppState {
   }
 
   @override
+  String toString() {
+    return 'AppState{\n'
+        '   portfolio: $portfolio,\n'
+        '   availableStocks: $availableStocks,\n'
+        '   screenChoice: $screenChoice,\n'
+        '   ui: $ui\n'
+        '}';
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AppState &&

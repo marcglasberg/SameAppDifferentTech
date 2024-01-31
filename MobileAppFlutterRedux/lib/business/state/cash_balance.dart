@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter_redux/business/utils/map_deserialization_extension.dart';
 
 import '../utils/utils.dart';
 
@@ -12,9 +13,7 @@ class CashBalance {
 
   const CashBalance._(this.amount);
 
-  CashBalance withAmount(double amount) {
-    return CashBalance(round(amount));
-  }
+  CashBalance withAmount(double amount) => CashBalance(round(amount));
 
   CashBalance add(double howMuch) {
     double newAmount = round(amount + howMuch);
@@ -30,9 +29,11 @@ class CashBalance {
   }
 
   @override
-  String toString() {
-    return 'US\$ ${amount.toStringAsFixed(2)}';
-  }
+  String toString() => 'US\$ ${amount.toStringAsFixed(2)}';
+
+  Map<String, dynamic> toJson() => {'amount': amount};
+
+  static CashBalance fromJson(Json json) => CashBalance(json.asDouble('amount')!);
 
   @override
   bool operator ==(Object other) =>

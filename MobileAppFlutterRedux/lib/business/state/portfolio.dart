@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter_redux/business/utils/map_deserialization_extension.dart';
 
 import '../utils/utils.dart';
 import 'available_stock.dart';
@@ -10,12 +11,17 @@ import 'stock.dart';
 
 @immutable
 class Portfolio {
-  static const Portfolio EMPTY = Portfolio();
+  static const Portfolio EMPTY = Portfolio._();
 
   final IList<Stock> stocks;
   final CashBalance cashBalance;
 
-  const Portfolio({
+  Portfolio({
+    Iterable<Stock>? stocks,
+    this.cashBalance = CashBalance.ZERO,
+  }) : stocks = IList.orNull(stocks) ?? const IListConst([]);
+
+  const Portfolio._({
     this.stocks = const IListConst([]),
     this.cashBalance = CashBalance.ZERO,
   });
@@ -170,8 +176,21 @@ class Portfolio {
   }
 
   @override
-  String toString() {
-    return 'stocks: $stocks, cashBalance: $cashBalance';
+  String toString() => 'Portfolio{stocks: $stocks, cashBalance: $cashBalance}';
+
+  Map<String, dynamic> toJson() => {
+        'stocks': stocks.map((stock) => stock.toJson()).toList(),
+        'cashBalance': cashBalance.toJson(),
+      };
+
+  static Portfolio fromJson(Json? json) {
+    if (json == null)
+      return Portfolio.EMPTY;
+    else {
+      IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJson);
+      CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
+      return Portfolio(stocks: stocks, cashBalance: cashBalance);
+    }
   }
 
   @override

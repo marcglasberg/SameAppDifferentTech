@@ -5,9 +5,14 @@ import 'package:themed/themed.dart';
 
 class ToggleLightAndDarkMode_Action extends AppAction {
   //
+  bool forceDarkMode;
+
+  ToggleLightAndDarkMode_Action({this.forceDarkMode = false});
+
   @override
   AppState? reduce() {
-    bool isDarkMode = !state.ui.isDarkMode;
+    //
+    bool isDarkMode = forceDarkMode ? true : !state.ui.isDarkMode;
 
     if (isDarkMode)
       Themed.currentTheme = darkTheme;

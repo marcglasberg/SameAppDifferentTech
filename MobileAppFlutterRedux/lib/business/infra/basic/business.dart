@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobile_app_flutter_redux/business/infra/dao/dao.dart';
 import 'package:mobile_app_flutter_redux/business/infra/persistor/app_persistor.dart';
 import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_balance/ACTION_fluctuate_stock_price.dart';
 
 import '../run_config/run_config.dart';
 
@@ -30,7 +31,7 @@ class Business {
       persistor: persistor,
       wrapError: AppWrapError(),
       wrapReduce: AppWrapReduce(),
-      actionObservers: kReleaseMode ? null : [ConsoleActionObserver()],
+      actionObservers: kReleaseMode ? null : [AppObserver()],
     );
 
     // Initialize the DAO, if necessary.
@@ -63,5 +64,12 @@ class AppWrapReduce extends WrapReduce<AppState> {
     required AppState newState,
   }) {
     return newState;
+  }
+}
+
+class AppObserver extends ConsoleActionObserver<AppState> {
+  @override
+  void observe(ReduxAction<AppState> action, int dispatchCount, {required bool ini}) {
+    if (ini && action is! SetStockPrice_Action) super.observe(action, dispatchCount, ini: ini);
   }
 }
