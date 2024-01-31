@@ -9,6 +9,7 @@ import 'package:mobile_app_flutter_redux/business/state/portfolio.dart';
 import 'package:mobile_app_flutter_redux/business/state/ui.dart';
 import 'package:mobile_app_flutter_redux/business/utils/map_deserialization_extension.dart';
 
+/// Saves/Loads the state to/from the local device disk.
 class AppPersistor extends Persistor<AppState> {
   //
   static const dbName_Portfolio = "portfolio";
@@ -30,14 +31,14 @@ class AppPersistor extends Persistor<AppState> {
     }
     //
     catch (error, stackTrace) {
-      // We should log this error, but we should not throw it.
+      // We should log this error, not throw it.
       print('\n'
           'Error while reading from the local persistence:\n'
           'Error: $error.'
           'StackTrace: $stackTrace.\n');
     }
 
-    // If we managed to read the saved that, return it.
+    // If we managed to read the saved state, return it.
     // It will later become the store's initial state.
     if (state != null)
       return state;
@@ -110,6 +111,8 @@ class AppPersistor extends Persistor<AppState> {
     return fileInRoot.parent;
   }
 
+  /// Here I compare the last saved state with the current state.
+  /// If the state changed, I save it to a file. I could have saved it to a database instead.
   @override
   Future<void> persistDifference({
     required AppState? lastPersistedState,
@@ -123,8 +126,6 @@ class AppPersistor extends Persistor<AppState> {
       await localPersist.save(newState.portfolio.toJson());
     }
 
-    /// Here I compare the last saved Portfolio with the current Portfolio in the state.
-    /// If the Portfolio changed, I save it to a file. I could have saved it to a database instead.
     if (newState.ui != lastPersistedState?.ui) {
       print('Persisting the Ui to disk: ${newState.ui}');
       var localPersist = LocalJsonPersist(dbName_Ui);
