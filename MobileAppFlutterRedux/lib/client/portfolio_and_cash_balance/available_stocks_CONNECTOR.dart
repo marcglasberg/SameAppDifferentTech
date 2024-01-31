@@ -1,11 +1,11 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_fluctuate_stock_price.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_read_available_stocks.dart';
 
 import '../../business/state/app_state.dart';
 import '../../business/state/available_stocks.dart';
 import '../../business/utils/app_vm_factory.dart';
+import 'ACTION_fluctuate_stock_price.dart';
+import 'ACTION_read_available_stocks.dart';
 import 'available_stock_widget.dart';
 
 class AvailableStocks_Connector extends StatelessWidget {

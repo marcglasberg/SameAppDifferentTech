@@ -17,7 +17,6 @@ void main() async {
     dao: SimulatedDao(), // Another option.
 
     ifShowRunConfigInTheConfigScreen: true,
-    ifPrintsDebugInfoToConsole: true,
     abTesting: AbTesting.A,
   );
 

@@ -4,7 +4,6 @@ import "package:mobile_app_flutter_redux/business/infra/basic/routes_transitions
 import "package:mobile_app_flutter_redux/business/infra/basic/screen.dart";
 import "package:mobile_app_flutter_redux/client/infra/base_screen_chooser.dart";
 import "package:mobile_app_flutter_redux/client/utils/errors_and_exceptions.dart";
-import "package:mobile_app_flutter_redux/portfolio_and_cash_balance_screen.dart";
 
 class AppRoutes {
   //
@@ -43,4 +42,3 @@ bool ifScreen(String name, Type ScreenRuntimeType) {
 }
 
 Type getReturnType<T extends Type>(T Function(List<String>) method) => T;
-

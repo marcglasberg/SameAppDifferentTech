@@ -5,6 +5,10 @@ import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/business/state/portfolio.dart';
 import 'package:mobile_app_flutter_redux/business/state/stock.dart';
 import 'package:mobile_app_flutter_redux/business/utils/app_vm_factory.dart';
+import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:themed/themed.dart';
+
+import 'cash_balance_CONNECTOR.dart';
 
 class Portfolio_Connector extends StatelessWidget {
   //
@@ -35,7 +39,7 @@ class _Vm extends Vm {
 
 class PortfolioWidget extends StatelessWidget {
   //
-  static const style = TextStyle(fontSize: 20, color: Colors.black);
+  static var textStyle = CashBalanceWidget.textStyle;
 
   final Portfolio portfolio;
 
@@ -47,18 +51,17 @@ class PortfolioWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Box(
-      padding: const Pad(vertical: 16, horizontal: 16),
+      padding: const Pad(top: 12, bottom: 16, horizontal: 16),
       width: double.infinity,
-      color: Colors.grey[300],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
           Row(
             children: [
-              const Text('Portfolio:', style: style),
+              Text('Portfolio:', style: textStyle),
               const Box(width: 8),
-              if (portfolio.isEmpty) const Text('—', style: style),
+              if (portfolio.isEmpty) Text('—', style: textStyle),
             ],
           ),
           const Box(height: 4),
@@ -71,7 +74,7 @@ class PortfolioWidget extends StatelessWidget {
 
 class StockInPortfolio extends StatelessWidget {
   //
-  static const stockStyle = TextStyle(fontSize: 16, color: Colors.black);
+  static var stockStyle = Font.small + AppColor.text;
 
   final Stock stock;
 
@@ -81,7 +84,8 @@ class StockInPortfolio extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const Pad(top: 6),
         child: Text(
-            '${stock.ticker} (${stock.howManyShares} shares @ US\$ ${stock.averagePriceStr})',
-            style: stockStyle),
+          '${stock.ticker} (${stock.howManyShares} shares @ US\$ ${stock.averagePriceStr})',
+          style: stockStyle,
+        ),
       );
 }

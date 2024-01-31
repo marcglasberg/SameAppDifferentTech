@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/business/infra/basic/screen.dart';
 import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/business/utils/app_vm_factory.dart';
-import 'package:mobile_app_flutter_redux/client/infra/configuration_screen.dart';
-import 'package:mobile_app_flutter_redux/client/infra/sign_up_screen.dart';
-import 'package:mobile_app_flutter_redux/portfolio_and_cash_balance_screen.dart';
+import 'package:mobile_app_flutter_redux/client/configuration_screen/configuration_screen.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_balance/portfolio_and_cash_balance_screen.dart';
+import 'package:mobile_app_flutter_redux/client/sign_up/sign_up_screen.dart';
 
 enum ScreenChoice {
   signup,
@@ -34,7 +34,8 @@ class BaseScreenChooser extends StatelessWidget with Screen {
         builder: (context, vm) {
           return switch (vm.screen) {
             ScreenChoice.signup => const SignupScreen(),
-            ScreenChoice.configuration => const ConfigurationScreen(),
+            // ScreenChoice.configuration => MaterialApp(home: Text('lalalala')),
+            ScreenChoice.configuration => const ConfigurationScreen_Connector(),
             ScreenChoice.portfolioAndCashBalance => const PortfolioAndCashBalanceScreen(),
           };
         },

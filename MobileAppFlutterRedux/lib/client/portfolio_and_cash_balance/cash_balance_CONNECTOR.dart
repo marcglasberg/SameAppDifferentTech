@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/business/state/cash_balance.dart';
 import 'package:mobile_app_flutter_redux/business/utils/app_vm_factory.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_add_cash.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_remove_cash.dart';
+import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:themed/themed.dart';
+
+import 'ACTION_add_cash.dart';
+import 'ACTION_remove_cash.dart';
 
 class CashBalance_Connector extends StatelessWidget {
   //
@@ -53,7 +56,7 @@ class _Vm extends Vm {
 
 class CashBalanceWidget extends StatelessWidget {
   //
-  static const style = TextStyle(fontSize: 20, color: Colors.black);
+  static var textStyle = Font.medium + AppColor.text;
 
   final CashBalance cashBalance;
   final VoidCallback onAddCash, onRemoveCash;
@@ -68,12 +71,11 @@ class CashBalanceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Box(
-      padding: const Pad(top: 16, left: 16, right: 8),
+      padding: const Pad(top: 12, left: 16, right: 3),
       width: double.infinity,
-      color: Colors.grey[300],
       child: Row(
         children: [
-          Expanded(child: Text('Cash Balance: $cashBalance', style: style)),
+          Expanded(child: Text('Cash Balance: $cashBalance', style: textStyle)),
           _addButton(),
           _removeButton(),
         ],
@@ -83,8 +85,9 @@ class CashBalanceWidget extends StatelessWidget {
 
   CircleButton _removeButton() {
     return CircleButton(
-      backgroundColor: Colors.red,
-      tapColor: Colors.red[800],
+      backgroundColor: AppColor.buttonRed,
+      clickAreaMargin: const Pad(all: 3.0, left: 3.5, right: 5, vertical: 4),
+      tapColor: AppColor.buttonRed.lighter(0.2),
       icon: const Icon(Icons.remove, color: Colors.white),
       onTap: onRemoveCash,
     );
@@ -92,8 +95,9 @@ class CashBalanceWidget extends StatelessWidget {
 
   CircleButton _addButton() {
     return CircleButton(
-      backgroundColor: Colors.green,
-      tapColor: Colors.green[700],
+      backgroundColor: AppColor.buttonGreen,
+      clickAreaMargin: const Pad(all: 3.0, left: 6, vertical: 4),
+      tapColor: AppColor.buttonGreen.lighter(0.2),
       icon: const Icon(Icons.add, color: Colors.white),
       onTap: onAddCash,
     );

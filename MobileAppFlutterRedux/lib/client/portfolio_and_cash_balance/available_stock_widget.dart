@@ -1,12 +1,16 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_buy_stock.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/ACTION_sell_stock.dart';
+import 'package:mobile_app_flutter_redux/business/infra/run_config/run_config.dart';
+import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:themed/themed.dart';
 
 import '../../business/state/app_state.dart';
 import '../../business/state/available_stock.dart';
 import '../../business/utils/app_vm_factory.dart';
+import '../utils/divider.dart';
+import 'ACTION_buy_stock.dart';
+import 'ACTION_sell_stock.dart';
 
 class AvailableStockWidget_Connector extends StatelessWidget {
   //
@@ -70,20 +74,25 @@ class _Vm extends Vm {
 
 class AvailableStockWidget extends StatelessWidget {
   //
-  static const tickerStyle = TextStyle(fontSize: 26, color: Colors.black);
-  static const nameStyle = TextStyle(fontSize: 16, color: Colors.black54);
+  static var tickerStyle = Font.giant + AppColor.text;
+  static var nameStyle = Font.small + AppColor.textDimmed;
+  static var priceStyleA = Font.large + AppColor.blue + FontWeight.bold;
+  static var priceStyleB = Font.medium + AppColor.text + FontWeight.normal;
 
-  static const priceStyle =
-      TextStyle(fontSize: 23, color: Colors.blue, fontWeight: FontWeight.bold);
-
-  static final buyStyle = ElevatedButton.styleFrom(
-    backgroundColor: Colors.green,
-    foregroundColor: Colors.white,
+  static var buyStyle = ElevatedButton.styleFrom(
+    textStyle: Font.small,
+    foregroundColor: AppColor.white,
+    backgroundColor: AppColor.buttonGreen,
+    disabledBackgroundColor: AppColor.bkgGray,
+    disabledForegroundColor: AppColor.textDimmed,
   );
 
-  static final sellStyle = ElevatedButton.styleFrom(
-    backgroundColor: Colors.red,
-    foregroundColor: Colors.white,
+  static var sellStyle = ElevatedButton.styleFrom(
+    textStyle: Font.small,
+    foregroundColor: AppColor.white,
+    backgroundColor: AppColor.red,
+    disabledBackgroundColor: AppColor.bkgGray,
+    disabledForegroundColor: AppColor.textDimmed,
   );
 
   final AvailableStock availableStock;
@@ -109,16 +118,17 @@ class AvailableStockWidget extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Text(availableStock.ticker, style: AvailableStockWidget.tickerStyle),
+              Text(availableStock.ticker, style: tickerStyle),
               const Spacer(),
-              Text(availableStock.currentPriceStr, style: AvailableStockWidget.priceStyle),
+              Text(availableStock.currentPriceStr,
+                  style: RunConfig.instance.abTesting.choose(priceStyleA, priceStyleB)),
             ],
           ),
           const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: Text(availableStock.name, style: AvailableStockWidget.nameStyle)),
+              Expanded(child: Text(availableStock.name, style: nameStyle)),
               const SizedBox(width: 8),
               _buyButton(),
               const SizedBox(width: 8),
@@ -126,21 +136,27 @@ class AvailableStockWidget extends StatelessWidget {
             ],
           ),
           const Box(height: 4),
-          const Divider(),
+          const ThinDivider(),
         ],
       ),
     );
   }
 
-  ElevatedButton _sellButton() => ElevatedButton(
-        style: AvailableStockWidget.sellStyle,
-        onPressed: ifHasStockToSell ? onSell : null,
-        child: const Text('SELL'),
+  Widget _buyButton() => Theme(
+        data: ThemeData(useMaterial3: false),
+        child: ElevatedButton(
+          style: buyStyle,
+          onPressed: ifHasMoneyToBuyStock ? onBuy : null,
+          child: const Text('Buy'),
+        ),
       );
 
-  ElevatedButton _buyButton() => ElevatedButton(
-        style: AvailableStockWidget.buyStyle,
-        onPressed: ifHasMoneyToBuyStock ? onBuy : null,
-        child: const Text('BUY'),
+  Widget _sellButton() => Theme(
+        data: ThemeData(useMaterial3: false),
+        child: ElevatedButton(
+          style: sellStyle,
+          onPressed: ifHasStockToSell ? onSell : null,
+          child: const Text('Sell'),
+        ),
       );
 }

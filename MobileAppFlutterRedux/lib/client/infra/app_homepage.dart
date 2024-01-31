@@ -9,6 +9,7 @@ import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/infra/ACTION_process_lifecycle_change.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_routes.dart';
 import 'package:mobile_app_flutter_redux/client/infra/client.dart';
+import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
 import 'package:themed/themed.dart';
 
 class AppHomePage extends StatelessWidget {
@@ -37,6 +38,7 @@ class AppHomePage extends StatelessWidget {
     };
 
     return Themed(
+      currentTheme: Business.store.state.ui.isDarkMode ? darkTheme : null,
       child: StoreProvider<AppState>(
         store: Business.store,
         child: AppLifecycleManager(
@@ -45,7 +47,7 @@ class AppHomePage extends StatelessWidget {
               primaryColor: Colors.green.shade800,
               colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.green.shade600),
             ),
-            title: "My App",
+            title: "Demo App",
             navigatorKey: Client.navigatorKey,
             debugShowCheckedModeBanner: false,
             builder: navigatorRoutesWrapper,
@@ -71,9 +73,9 @@ class AppLifecycleManager extends StatefulWidget {
   final Widget child;
 
   const AppLifecycleManager({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   _AppLifecycleManagerState createState() => _AppLifecycleManagerState();

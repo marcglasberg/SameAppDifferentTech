@@ -26,8 +26,6 @@ class RunConfig {
 
   final bool ifShowRunConfigInTheConfigScreen;
 
-  final bool ifPrintsDebugInfoToConsole;
-
   final AbTesting abTesting;
 
   RunConfig({
@@ -36,9 +34,26 @@ class RunConfig {
     this.disablePlatformChannels = false,
     this.ifChecksInternetConnection = true,
     this.ifShowRunConfigInTheConfigScreen = true,
-    this.ifPrintsDebugInfoToConsole = true,
     this.abTesting = AbTesting.A,
   });
+
+  RunConfig copy({
+    Dao? dao,
+    bool? ifLogsMissingTranslations,
+    bool? disablePlatformChannels,
+    bool? ifChecksInternetConnection,
+    bool? ifShowRunConfigInTheConfigScreen,
+    AbTesting? abTesting,
+  }) =>
+      RunConfig(
+        dao: dao ?? this.dao,
+        ifLogsMissingTranslations: ifLogsMissingTranslations ?? this.ifLogsMissingTranslations,
+        disablePlatformChannels: disablePlatformChannels ?? this.disablePlatformChannels,
+        ifChecksInternetConnection: ifChecksInternetConnection ?? this.ifChecksInternetConnection,
+        ifShowRunConfigInTheConfigScreen:
+            ifShowRunConfigInTheConfigScreen ?? this.ifShowRunConfigInTheConfigScreen,
+        abTesting: abTesting ?? this.abTesting,
+      );
 
   /// This will turn the given runConfig into a singleton, accessible statically.
   /// It will also apply the RunConfiguration, injecting its parts where necessary.
@@ -56,4 +71,25 @@ class RunConfig {
   static RunConfig get instance => (_instance != null)
       ? _instance!
       : throw AssertionError("A RunConfig instance is not defined.");
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RunConfig &&
+          runtimeType == other.runtimeType &&
+          dao == other.dao &&
+          ifLogsMissingTranslations == other.ifLogsMissingTranslations &&
+          disablePlatformChannels == other.disablePlatformChannels &&
+          ifChecksInternetConnection == other.ifChecksInternetConnection &&
+          ifShowRunConfigInTheConfigScreen == other.ifShowRunConfigInTheConfigScreen &&
+          abTesting == other.abTesting;
+
+  @override
+  int get hashCode =>
+      dao.hashCode ^
+      ifLogsMissingTranslations.hashCode ^
+      disablePlatformChannels.hashCode ^
+      ifChecksInternetConnection.hashCode ^
+      ifShowRunConfigInTheConfigScreen.hashCode ^
+      abTesting.hashCode;
 }

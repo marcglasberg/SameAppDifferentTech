@@ -1,9 +1,12 @@
+import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/business/infra/basic/screen.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/available_stocks_CONNECTOR.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/cash_balance_CONNECTOR.dart';
-import 'package:mobile_app_flutter_redux/client/cash_balance_and_portfolio/portfolio_CONNECTOR.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_balance/cash_balance_CONNECTOR.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_balance/portfolio_CONNECTOR.dart';
+import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+
+import 'available_stocks_CONNECTOR.dart';
 
 class PortfolioAndCashBalanceScreen extends StatelessWidget with Screen {
   const PortfolioAndCashBalanceScreen({super.key});
@@ -31,12 +34,20 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      backgroundColor: AppColor.bkg,
       appBar: StocksAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CashBalance_Connector(),
-          Portfolio_Connector(),
+          Box(
+            color: AppColor.bkgGray,
+            child: Column(
+              children: [
+                CashBalance_Connector(),
+                Portfolio_Connector(),
+              ],
+            ),
+          ),
           Expanded(child: AvailableStocks_Connector()),
         ],
       ),
