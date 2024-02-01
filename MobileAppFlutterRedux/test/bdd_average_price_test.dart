@@ -51,26 +51,22 @@ void main() {
 
     var avbStock = AvailableStock(ticker, name: '$ticker corp', currentPrice: price);
 
-    // The user has <Quantity> shares of <Ticker> at <At> dollars each.
     var stock = Stock(ticker: ticker, howManyShares: quantity, averagePrice: at);
 
-    var state = AppState.from(
-      cashBalance: 100000.00, // We have money to buy whatever we need.
-      availableStocks: [avbStock],
-      stocks: [stock],
+    var storeTester = StoreTester(
+      initialState: AppState.from(
+        cashBalance: 100000.00, // Enough money to buy whatever we want.
+        availableStocks: [avbStock],
+        stocks: [stock],
+      ),
     );
 
-    var storeTester = StoreTester(initialState: state);
-
     // When:
-    // The user <BuyOrSell> <How many> of these stock at <Price> for each share.
-    if (buyOrSell.isBuy) {
-      storeTester.dispatch(BuyStock_Action(avbStock, howMany: how));
-      await storeTester.wait(BuyStock_Action);
-    } else {
-      storeTester.dispatch(SellStock_Action(avbStock, howMany: how));
-      await storeTester.wait(SellStock_Action);
-    }
+    await storeTester.dispatchAndWait(
+      buyOrSell.isBuy
+          ? BuyStock_Action(avbStock, howMany: how)
+          : SellStock_Action(avbStock, howMany: how),
+    );
 
     // Then:
     var portfolio = storeTester.lastInfo.state.portfolio;

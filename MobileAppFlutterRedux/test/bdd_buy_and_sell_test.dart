@@ -33,8 +33,8 @@ void main() {
     var storeTester = StoreTester(initialState: state);
 
     // When:
-    storeTester.dispatch(BuyStock_Action(ibm, howMany: 1));
-    await storeTester.wait(BuyStock_Action);
+    await storeTester.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
+    storeTester.wait(BuyStock_Action);
 
     // Then:
     expect(storeTester.lastInfo.state.portfolio.howManyStocks('IBM'), 1);
@@ -71,7 +71,7 @@ void main() {
     var availableStocks = availableStocksTable
         .map((row) => AvailableStock(
               row.val('Ticker'),
-              name: row.val('Ticker'),
+              name: row.val('Ticker') + ' corp',
               currentPrice: row.val('Price'),
             ))
         .toList();
@@ -97,8 +97,7 @@ void main() {
 
     // When:
     var ibm = state.availableStocks.findBySymbol('IBM');
-    storeTester.dispatch(SellStock_Action(ibm, howMany: 1));
-    var info = await storeTester.wait(SellStock_Action);
+    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
 
     // Then:
     expect(info.state.portfolio.howManyStocks('IBM'), 2);
@@ -109,9 +108,9 @@ void main() {
     //  /// The code below shows the alternative hard-coded implementation:
     //
     //  // Given:
-    //  var aapl = AvailableStock('AAPL', name: 'Apple Inc', currentPrice: 50.25);
+    //  var aapl = AvailableStock('AAPL', name: 'Apple corp', currentPrice: 50.25);
     //  var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30.00);
-    //  var goog = AvailableStock('GOOG', name: 'Alphabet Inc', currentPrice: 60.75);
+    //  var goog = AvailableStock('GOOG', name: 'Alphabet corp', currentPrice: 60.75);
     //
     //  var availableStocks = [aapl, ibm, goog];
     //  var stocks = [
@@ -128,8 +127,7 @@ void main() {
     //  var storeTester = StoreTester(initialState: state);
     //
     //  // When:
-    //  storeTester.dispatch(SellStock_Action(ibm, howMany: 1));
-    //  var info = await storeTester.wait(SellStock_Action);
+    //  var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
     //
     //  // Then:
     //  expect(info.state.portfolio.howManyStocks('IBM'), 2);
@@ -161,8 +159,7 @@ void main() {
     var storeTester = StoreTester(initialState: state);
 
     // When:
-    storeTester.dispatch(SellStock_Action(ibm, howMany: 1));
-    var info = await storeTester.wait(SellStock_Action);
+    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
 
     // Then:
     expect(info.error, isAError('Cannot sell stock you do not own'));
