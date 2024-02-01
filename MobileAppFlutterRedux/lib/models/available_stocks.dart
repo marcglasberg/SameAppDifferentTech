@@ -4,11 +4,13 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'available_stock.dart';
 
 class AvailableStocks {
-  static const AvailableStocks EMPTY = AvailableStocks(IListConst([]));
+  static const AvailableStocks EMPTY = AvailableStocks._(IListConst([]));
 
   final IList<AvailableStock> list;
 
-  const AvailableStocks(this.list);
+  AvailableStocks(Iterable<AvailableStock> list) : list = IList(list);
+
+  const AvailableStocks._(this.list);
 
   AvailableStock? findBySymbolOrNull(String ticker) {
     return list.firstWhereOrNull((s) => s.ticker == ticker);

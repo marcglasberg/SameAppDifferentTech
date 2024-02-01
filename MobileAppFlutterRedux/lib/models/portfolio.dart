@@ -1,3 +1,4 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -136,12 +137,12 @@ class Portfolio {
     final pos = _getStockPositionInList(availableStock);
 
     if (pos == -1) {
-      throw Exception('Cannot sell stock you do not own');
+      throw const UserException('Cannot sell stock you do not own');
     } else {
       final stock = stocks[pos];
 
       if (stock.howManyShares < howMany) {
-        throw Exception('Cannot sell $howMany shares of stock you do not own');
+        throw UserException('Cannot sell $howMany shares of stock you do not own');
       } else {
         final newShares = stock.howManyShares - howMany;
         final newAveragePrice = round(

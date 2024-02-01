@@ -1,5 +1,8 @@
+import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:mobile_app_flutter_redux/models/available_stocks.dart';
+import 'package:mobile_app_flutter_redux/models/cash_balance.dart';
 import 'package:mobile_app_flutter_redux/models/portfolio.dart';
+import 'package:mobile_app_flutter_redux/models/stock.dart';
 import 'package:mobile_app_flutter_redux/models/ui.dart';
 
 class AppState {
@@ -16,8 +19,20 @@ class AppState {
   AppState({
     required this.portfolio,
     required this.availableStocks,
-    required this.ui,
+    this.ui = Ui.DEFAULT,
   });
+
+  AppState.from({
+    double cashBalance = 0.0,
+    Iterable<Stock> stocks = const [],
+    Iterable<AvailableStock> availableStocks = const [],
+  }) : this(
+          portfolio: Portfolio(
+            cashBalance: CashBalance(cashBalance),
+            stocks: stocks,
+          ),
+          availableStocks: AvailableStocks(availableStocks),
+        );
 
   AppState copy({
     Portfolio? portfolio,
