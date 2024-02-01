@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app_flutter_redux/business/state/stock.dart';
+import 'package:mobile_app_flutter_redux/models/stock.dart';
 
 void main() {
   test('costBasis', () {

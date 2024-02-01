@@ -1,12 +1,12 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter_redux/business/infra/dao/real_dao/real_dao.dart';
-import 'package:mobile_app_flutter_redux/business/infra/run_config/run_config.dart';
-import 'package:mobile_app_flutter_redux/business/state/app_state.dart';
-import 'package:mobile_app_flutter_redux/business/utils/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
+import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
+import 'package:mobile_app_flutter_redux/client/infra/dao/real_dao/real_dao.dart';
+import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
 import 'package:themed/themed.dart';
 
@@ -153,11 +153,11 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        space16,
         const ThinDivider(),
-        const SizedBox(height: 16),
+        space16,
         Text('Run Configuration', style: Font.small + AppColor.textDimmed),
-        const SizedBox(height: 12),
+        space12,
         runConfigOption1(),
         runConfigOption3(),
         runConfigOption4(),
