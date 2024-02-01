@@ -2,7 +2,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
-import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:themed/themed.dart';
 
 class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {

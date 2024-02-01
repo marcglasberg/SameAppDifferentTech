@@ -557,6 +557,319 @@ To test the app I use:
 
 The tests are inside the `test` directory.
 
+### Testing business, utility, and state classes
+
+The simplest tests are the unit tests that exercise the business classes and utility classes.
+For example, [Stock.test.dart](__tests__/Stock.test.dart)
+and [utils.test.dart](__tests__/utils.test.dart).
+
+Then, I test the state classes,
+in [Ui.test.dart](__tests__/Ui.test.dart),
+[Portfolio.test.dart](__tests__/Portfolio.test.dart)
+and [AvailableStock.test.dart](__tests__/AvailableStock.test.dart):
+
+<br>
+
+### Testing the app infrastructure
+
+Then I test the infrastructure classes, in [RunConfig.test.dart](__tests__/RunConfig.test.dart),
+[Storage.test.dart](__tests__/Storage.test.dart),
+[StorageManager.test.dart](__tests__/StorageManager.test.dart)
+and [Dao.test.dart](__tests__/Dao.test.dart).
+
+
+<br>
+
+### Testing components
+
+Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory.
+
+It contains a `mixed` directory containing two "mixed" components which are **not used** in the app:
+
+* [AvailableStock.mixed.dart](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStock.mixed.dart)
+* [Portfolio.mixed.dart](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/Portfolio.mixed.dart)
+
+They are provided here as examples,
+for comparison with the "container/view" components we actually use in the app.
+
+These mixed components have hooks inside the UI code.
+They **mix** accessing the state from inside the UI code.
+
+For example, consider the component called `AvailableStock` which displays one of the
+available stocks the user can buy.
+It displays the stock ticker and name, its current price, and two buttons for buying and selling the
+stock.
+Here are two of them in a column:
+
+<div style="text-align: center;">
+<img src="readme_images/AvailableStock.png" alt="Alt text" width="300"/>
+</div>     
+
+File [AvailableStock.mixed.dart](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStock.mixed.dart)
+defines the `AvailableStock_Mixed` component,
+which accesses the store directly within the UI code, for example, here:
+
+```dart
+<MaterialButton label="BUY"
+backgroundColor={Color.up}
+disabled={!portfolio.hasMoneyToBuyStock(availableStock)}
+onPress={() => {
+animateAddition();
+setPortfolio(portfolio.buy(availableStock, 1));
+}} /
+>
+/
+>
+```
+
+To test this mixed component, we need to use the React Native Testing Library (RNTL),
+render the component, then interact with the UI, and check that the rendered component is as
+expected.
+
+For example, suppose we want to test that the BUY button is disabled when there is no money to buy
+stock.
+We can create the initial state with zero money, and then find the BUY button and check that its
+color is grey.
+Then, we can add some money and check that its color changes to green.
+
+In other words, testing this component is hard, because it must be tested through UI tests,
+which are more complex, slow and brittle.
+
+### The container/view pattern
+
+The components I actually use in the app are composed of a separate "container" to access the store,
+and a "view" that gets all its information from the container.
+
+The combination of **container** and **view** is called the "container/view pattern",
+or "container/presentational pattern", or "smart/dumb pattern".
+
+While we don't strictly need this pattern to create the component,
+the separation of concerns is still useful, in my opinion, because it makes the code easier to test
+and to understand.
+
+1. The Container
+
+   File [AvailableStock.container.dart](src/ui/cashBalanceAndPortfolio/AvailableStock.container.dart)
+   contains `AvailableStockContainer`, which has no UI.
+   Its goal is simply to access the store, create a data structure called the "view-model" with all
+   the necessary
+   information, and pass it down to the "view component".
+
+   ```dart                                      
+   // The container component.
+   export const AvailableStockContainer: React.FC<{ availableStock: AvailableStock }> 
+      = ({ availableStock }) => {
+   
+        const { portfolio, setPortfolio } = useContext(PortfolioContext);
+        return <AvailableStockView {...viewModel(availableStock, portfolio, setPortfolio)} />;
+        };
+                                        
+   // Function to create the view-model.
+   export function viewModel(
+       availableStock: AvailableStock,
+       portfolio: Portfolio,
+       setPortfolio: UseSet<Portfolio>
+   ) {        
+       return {
+           availableStock,
+           ifBuyDisabled: !portfolio.hasMoneyToBuyStock(availableStock),
+           ifSellDisabled: !portfolio.hasStock(availableStock),
+           abTesting: runConfig.abTesting,
+           onBuy: () => { setPortfolio(prevPortfolio => prevPortfolio.buy(availableStock, 1)); },
+           onSell: () => { setPortfolio(prevPortfolio => prevPortfolio.sell(availableStock, 1)); }
+       };
+   }
+   ```   
+
+   Let's see how to test the **container** in
+   file [AvailableStocks.container.test.dart](__tests__/AvailableStocks.container.test.dart).
+
+   Testing the container is basically testing that the view-model is correct. This is easy to do, as
+   we can
+   simply call the `viewModel()` function with different states, and check that the view-model
+   properties
+   are as expected.
+
+   First, we import the view-model from:
+
+   ```dart
+   import { viewModel } from '.../AvailableStock.container';
+   ```
+
+   We then set the store state, create the view-model by calling the `viewModel()` function,
+   and check that the view-model properties are as expected. Example:
+
+   ```dart
+   // The BUY button is disabled, since we cannot buy stock when there is no money.
+   let portfolio = new Portfolio();
+   let ibm = new AvailableStock('IBM', 'I. B. Machines', 150.00);
+   let vm = viewModel(ibm, portfolio, setPortfolio);
+   expect(vm.ifBuyDisabled).toBe(true);
+   ```
+
+   We can also call the callbacks defined in the view-model,
+   and check that they do what they are supposed to do. Example:
+
+   ```dart
+   // Cash balance is 1000. There are no IBM stocks.
+   let portfolio = new Portfolio().withCashBalance(new CashBalance(1000));
+   expect(store.portfolio.howManyStocks(ibm.ticker)).toBe(0);
+   
+   const vm = viewModel(ibm, portfolio, setPortfolio);
+   vm.onBuy(); // Buy 1 share of IBM stock.
+   
+   // Cash balance decreased by the price of 1 IBM stock. Portfolio now contains 1 IBM stock.
+   expect(portfolio.cashBalance.amount).toBe(1000 - ibm.currentPrice);
+   expect(portfolio.howManyStocks(ibm.ticker)).toBe(1);
+   ```
+
+
+2. The View
+
+   File [AvailableStock.view.dart](src/ui/cashBalanceAndPortfolio/AvailableStock.view.dart)
+   contains `AvailableStockView`, which does not access the store directly.
+   Instead, it gets all information in its constructor.
+
+   ```dart
+   export const AvailableStockView: React.FC<{
+     availableStock: AvailableStock;
+     ifBuyDisabled: boolean;
+     ifSellDisabled: boolean;
+     abTesting: AbTesting,
+     onBuy: () => void;
+     onSell: () => void;
+   }>
+     = ({
+          availableStock,
+          ifBuyDisabled,
+          ifSellDisabled,
+          abTesting,
+          onBuy,
+          onSell,
+        }) => {
+   
+   return <...>
+   ```
+
+   Just like when testing the mixed component, the only way to test the view is through UI testing,
+   using the React Native Testing Library.   
+   However, the ability to configure it through its constructor simplifies the testing process.
+
+   For example, we don't need to test that the BUY button is disabled when there is no money to buy
+   stock.
+   We just need to test that passing `ifBuyDisabled: true` to the constructor will indeed disable
+   the button.
+
+   Likewise, we don't need to test that pressing the BUY button will call the correct store
+   function.
+   We just need to test that it actually calls the `onBuy()` callback.
+
+## BDD tests
+
+BDD stands for _Behavior-Driven Development_.
+
+It's a way of writing executable tests that are easy to read, even for non-programmers,
+and that also serve as documentation.
+
+I won't go into details here, but I'm providing two files with BDD tests, to demonstrate how to
+create them:
+
+* [bdd.AveragePrice.test.dart](__tests__/bdd.AveragePrice.test.dart)
+* [bdd.BuyAndSell.test.dart](__tests__/bdd.BuyAndSell.test.dart)
+
+These BDD tests use a **<a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For
+Jest</a>**,
+that I have developed myself.
+
+Let's see an example of a BDD test description that specifies the behavior of the app when the user
+buys stocks:
+
+```gherkin
+Feature: Buying and Selling Stocks
+
+  Scenario: Buying stocks
+
+    Given The user has 120 dollars in cash-balance.
+    And IBM price is 30 dollars.
+    And The user has no IBM stocks.
+    When The user buys 1 IBM.
+    Then The user now has 1 IBM.
+    And The cash-balance is now 90 dollars.
+```
+
+The following is the implementation of the test:
+
+```dart
+let
+availableStocks: AvailableStocks;
+
+beforeEach
+(
+async () => {
+inject({});
+availableStocks = await AvailableStocks.loadAvailableStocks();
+});
+
+const feature = new Feature('Buying and Selling Stocks');
+
+Bdd(feature)
+    .scenario('Buying stocks.')
+    .given('The user has 120 dollars in cash-balance.')
+    .and('IBM price is 30 dollars.')
+    .and('The user has no IBM stocks.')
+    .when('The user buys 1 IBM.')
+    .then('The user now has 1 IBM.')
+    .and('The cash-balance is now 90 dollars.')
+    .run(async (ctx) => {
+
+// Given:
+let portfolio = new Portfolio({ cashBalance: new CashBalance(120) });
+
+const ibm = availableStocks.findBySymbol('IBM').withCurrentPrice(30.00);
+portfolio = portfolio.withoutStock('IBM');
+
+// When:
+portfolio = portfolio.buy(ibm, 1);
+
+// Then:
+expect(portfolio.howManyStocks('IBM')).toBe(1);
+expect(portfolio.cashBalance).toEqual(new CashBalance(90.00));
+});
+```
+
+Please note, the above BDD test runs against the **simulated backend**.
+This means it runs as fast as a unit test.
+
+If you want to run it against the **real backend**,
+you can do so by injecting the real DAO instead of the simulated one, like so:
+
+```dart
+inject({ dao: new RealDao() });
+```
+
+### Feature files
+
+The BDD tests also contain the following code:
+
+```dart
+reporter
+(new FeatureFileReporter
+(
+)
+);
+```
+
+Using this reporter means that `.feature` files will be automatically generated whenever the BDD
+tests run.
+
+Please see the generated files in the `gen_features` directory:
+
+* `average_price.feature`
+* `buying_and_selling_stocks.feature`
+
+These files may be committed to source control,
+and can be used as living documentation that evolves as the app evolves.
+
 # App Directories
 
 Here's a typical way to organize directories in a Flutter app:

@@ -3,7 +3,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
-import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:mobile_app_flutter_redux/models/cash_balance.dart';
 import 'package:themed/themed.dart';
 

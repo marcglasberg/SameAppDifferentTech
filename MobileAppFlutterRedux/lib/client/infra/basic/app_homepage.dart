@@ -8,7 +8,7 @@ import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/ACTION_process_lifecycle_change.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/client.dart';
 import 'package:mobile_app_flutter_redux/client/infra/navigation/app_routes.dart';
-import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
+import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:themed/themed.dart';
 
 import 'business.dart';
