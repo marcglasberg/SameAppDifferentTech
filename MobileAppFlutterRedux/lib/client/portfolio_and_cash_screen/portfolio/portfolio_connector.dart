@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
-import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/cash_balance/cash_balance_CONNECTOR.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/cash_balance/cash_balance_connector.dart';
 import 'package:mobile_app_flutter_redux/models/portfolio.dart';
 import 'package:mobile_app_flutter_redux/models/stock.dart';
 import 'package:themed/themed.dart';

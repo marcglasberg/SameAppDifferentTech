@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: async_redux
-      sha256: "0f4cf9af86ede5d40ee1b0fd7739aba866dcb0e811cadd822ffcbfb6b8739439"
+      sha256: "9cdbac8b35365b6b7f1010be7ddf7c3e4193faf36f6c79a4ad0f9065ea1f2a7d"
       url: "https://pub.dev"
     source: hosted
-    version: "21.1.1"
+    version: "21.3.0"
   bdd_framework:
     dependency: "direct main"
     description:

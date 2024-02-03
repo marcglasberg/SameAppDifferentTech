@@ -8,6 +8,8 @@ import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:mobile_app_flutter_redux/models/buy_or_sell.dart';
 import 'package:mobile_app_flutter_redux/models/stock.dart';
 
+import 'test_utils/store_tester_matchers.dart';
+
 void main() {
   var feature = BddFeature('Average Price');
 
@@ -51,7 +53,7 @@ void main() {
 
     var avbStock = AvailableStock(ticker, name: '$ticker corp', currentPrice: price);
 
-    var stock = Stock(ticker: ticker, howManyShares: quantity, averagePrice: at);
+    var stock = Stock( ticker, howManyShares: quantity, averagePrice: at);
 
     var storeTester = StoreTester(
       initialState: AppState.from(
@@ -70,7 +72,21 @@ void main() {
 
     // Then:
     var portfolio = storeTester.lastInfo.state.portfolio;
-    expect(portfolio.howManyStocks(ticker), quantity + (buyOrSell.isBuy ? how : -how));
-    expect(portfolio.getStock(ticker).averagePrice, averagePrice);
+
+    // Tip: Here I'm using a custom matcher: `isPortfolioWithStock`.
+    // Check its documentation in file `test/utils/store_tester_matchers.dart`.
+    //
+    // This is equivalent of doing:
+    // ```
+    // expect(portfolio.howManyStocks(ticker), quantity + (buyOrSell.isBuy ? how : -how));
+    // expect(portfolio.getStock(ticker).averagePrice, averagePrice);
+    // ```
+    expect(
+        portfolio,
+        isPortfolioWithStock(
+          ticker: ticker,
+          howManyShares: quantity + (buyOrSell.isBuy ? how : -how),
+          averagePrice: averagePrice,
+        ));
   });
 }

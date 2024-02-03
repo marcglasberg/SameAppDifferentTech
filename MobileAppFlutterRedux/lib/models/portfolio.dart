@@ -67,7 +67,7 @@ class Portfolio {
 
       newStocks = [...stocks];
       newStocks[pos] = Stock(
-        ticker: stock.ticker,
+        stock.ticker,
         howManyShares: newShares,
         averagePrice: newAveragePrice,
       );
@@ -84,7 +84,7 @@ class Portfolio {
     final newStocks = stocks.where((stock) => stock.ticker != ticker).toList();
 
     if (quantity > 0) {
-      final newStock = Stock(ticker: ticker, howManyShares: quantity, averagePrice: averagePrice);
+      final newStock = Stock(ticker, howManyShares: quantity, averagePrice: averagePrice);
       newStocks.add(newStock);
     }
 
@@ -122,9 +122,11 @@ class Portfolio {
         : sell(availableStock, howMany: howMany);
   }
 
+  /// Buys [howMany] shares of [availableStock].
+  /// If the user does not have enough money, throws a [UserException].
   Portfolio buy(AvailableStock availableStock, {required int howMany}) {
     if (cashBalance.amount < availableStock.currentPrice * howMany) {
-      throw Exception('Not enough money to buy stock');
+      throw const UserException('Not enough money to buy stock');
     } else {
       final newCashBalance =
           CashBalance(cashBalance.amount - availableStock.currentPrice * howMany);
@@ -133,6 +135,9 @@ class Portfolio {
     }
   }
 
+  /// Sells [howMany] shares of [availableStock].
+  /// If the user does not own the stock, or does not own enough shares, throws a [UserException].
+  /// This exception will be shown to the user in a dialog.
   Portfolio sell(AvailableStock availableStock, {required int howMany}) {
     final pos = _getStockPositionInList(availableStock);
 
@@ -151,7 +156,7 @@ class Portfolio {
 
         var newStocks = [...stocks];
         newStocks[pos] = Stock(
-          ticker: stock.ticker,
+          stock.ticker,
           howManyShares: newShares,
           averagePrice: newAveragePrice,
         );

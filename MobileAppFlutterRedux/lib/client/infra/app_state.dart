@@ -1,3 +1,5 @@
+import 'package:async_redux/async_redux.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:mobile_app_flutter_redux/models/available_stocks.dart';
 import 'package:mobile_app_flutter_redux/models/cash_balance.dart';
@@ -66,4 +68,8 @@ class AppState {
 
   @override
   int get hashCode => portfolio.hashCode ^ availableStocks.hashCode ^ ui.hashCode;
+}
+
+extension BuildContextExtension on BuildContext {
+  AppState get state => StoreProvider.of<AppState>(this, null).state;
 }

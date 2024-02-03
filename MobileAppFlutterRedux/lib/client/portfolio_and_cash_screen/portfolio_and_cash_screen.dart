@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/screen.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
-import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/cash_balance/cash_balance_CONNECTOR.dart';
+import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/cash_balance/cash_balance_connector.dart';
 
-import 'available_stocks/available_stocks_CONNECTOR.dart';
-import 'portfolio/portfolio_CONNECTOR.dart';
+import 'available_stocks/available_stocks_panel_connector.dart';
+import 'portfolio/portfolio_connector.dart';
 
 class PortfolioAndCashScreen extends StatelessWidget with Screen {
   const PortfolioAndCashScreen({super.key});
@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
-          Expanded(child: AvailableStocks_Connector()),
+          Expanded(child: AvailableStocksPanel_Connector()),
         ],
       ),
     );

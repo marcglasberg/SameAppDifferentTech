@@ -5,17 +5,17 @@ import 'package:mobile_app_flutter_redux/models/stock.dart';
 
 void main() {
   test('costBasis', () {
-    var stock = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
     expect(stock.costBasis, 1500.0);
   });
 
   test('averagePriceStr', () {
-    var stock = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
     expect(stock.averagePriceStr, 'US\$ 150.00');
   });
 
   test('toJson', () {
-    final stock = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    final stock = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
     final json = stock.toJson();
     expect(json, {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0});
   });
@@ -29,20 +29,20 @@ void main() {
   });
 
   test('Equality', () {
-    var stock1 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
-    var stock2 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock1 = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock2 = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
     expect(stock1, stock2);
 
-    stock2 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 151.0);
+    stock2 = Stock( 'AAPL', howManyShares: 10, averagePrice: 151.0);
     expect(stock1, isNot(stock2));
   });
 
   test('HashCode', () {
-    var stock1 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
-    var stock2 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock1 = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
+    var stock2 = Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0);
     expect(stock1.hashCode, stock2.hashCode);
 
-    stock2 = Stock(ticker: 'AAPL', howManyShares: 10, averagePrice: 151.0);
+    stock2 = Stock( 'AAPL', howManyShares: 10, averagePrice: 151.0);
     expect(stock1.hashCode, isNot(stock2.hashCode));
   });
 }

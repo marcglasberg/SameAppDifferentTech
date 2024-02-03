@@ -8,7 +8,7 @@ import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:mobile_app_flutter_redux/models/cash_balance.dart';
 import 'package:mobile_app_flutter_redux/models/stock.dart';
 
-import 'utils/matchers.dart';
+import 'test_utils/matchers.dart';
 
 void main() {
   var feature = BddFeature('Buying and Selling Stocks');
@@ -81,7 +81,7 @@ void main() {
 
     var stocks = portfolioTable
         .map((row) => Stock(
-              ticker: row.val('Ticker'),
+              row.val('Ticker'),
               howManyShares: row.val('Quantity'),
               averagePrice: 42, // Any value will do.
             ))
@@ -114,9 +114,9 @@ void main() {
     //
     //  var availableStocks = [aapl, ibm, goog];
     //  var stocks = [
-    //    Stock(ticker: 'AAPL', howManyShares: 5, averagePrice: 100),
-    //    Stock(ticker: 'IBM', howManyShares: 3, averagePrice: 100),
-    //    Stock(ticker: 'GOOG', howManyShares: 12, averagePrice: 100),
+    //    Stock( 'AAPL', howManyShares: 5, averagePrice: 100),
+    //    Stock( 'IBM', howManyShares: 3, averagePrice: 100),
+    //    Stock( 'GOOG', howManyShares: 12, averagePrice: 100),
     //  ];
     //
     //  var state = AppState.from(

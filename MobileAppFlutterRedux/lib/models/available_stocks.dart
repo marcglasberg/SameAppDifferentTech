@@ -26,7 +26,21 @@ class AvailableStocks {
     list.forEach(callback);
   }
 
+  /// Updates the available stock with the new available stock.
+  /// If the stock is not found, it is added to the list.
   AvailableStocks withAvailableStock(AvailableStock newAvailableStock) {
+    bool isPresent = list.any((s) => s.ticker == newAvailableStock.ticker);
+
+    IList<AvailableStock> newList = isPresent
+        ? list.map((s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s).toIList()
+        : list.add(newAvailableStock);
+
+    return AvailableStocks(newList);
+  }
+
+  /// Updates the available stock with the new available stock.
+  /// If the stock is not found, it is NOT added to the list.
+  AvailableStocks withUpdatedAvailableStock(AvailableStock newAvailableStock) {
     final newList =
         list.map((s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s).toIList();
 
@@ -37,4 +51,12 @@ class AvailableStocks {
   String toString() {
     return 'AvailableStocks: ${list.isEmpty ? 'empty' : list}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AvailableStocks && runtimeType == other.runtimeType && list == other.list;
+
+  @override
+  int get hashCode => list.hashCode;
 }

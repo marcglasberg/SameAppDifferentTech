@@ -22,7 +22,7 @@ class AvailableStock {
 
   Stock toStock({int shares = 1}) {
     return Stock(
-      ticker: ticker,
+      ticker,
       howManyShares: shares,
       averagePrice: currentPrice,
     );

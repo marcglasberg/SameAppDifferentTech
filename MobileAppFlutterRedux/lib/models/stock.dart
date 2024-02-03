@@ -9,8 +9,8 @@ class Stock {
   final int howManyShares;
   final double averagePrice;
 
-  Stock({
-    required this.ticker,
+  Stock(
+    this.ticker, {
     required this.howManyShares,
     required this.averagePrice,
   });
@@ -30,7 +30,7 @@ class Stock {
 
   static Stock fromJson(Json json) {
     return Stock(
-      ticker: json.asString('ticker')!,
+      json.asString('ticker')!,
       howManyShares: json.asInt('howManyShares')!,
       averagePrice: json.asDouble('averagePrice')!,
     );

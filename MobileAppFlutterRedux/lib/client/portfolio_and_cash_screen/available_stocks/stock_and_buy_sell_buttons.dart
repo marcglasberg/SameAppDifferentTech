@@ -11,39 +11,39 @@ import 'package:mobile_app_flutter_redux/client/utils/divider.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:themed/themed.dart';
 
-class AvailableStockWidget_Connector extends StatelessWidget {
+class StockAndBuySellButtons_Connector extends StatelessWidget {
   //
   final AvailableStock availableStock;
 
-  const AvailableStockWidget_Connector({
+  const StockAndBuySellButtons_Connector({
     super.key,
     required this.availableStock,
   });
 
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, _Vm>(
-        vm: () => _Factory(this),
+        vm: () => Factory(this),
         builder: (context, vm) {
-          return AvailableStockWidget(
+          return StockAndBuySellButtons(
             availableStock: availableStock,
             onBuy: vm.onBuy,
             onSell: vm.onSell,
-            ifHasMoneyToBuyStock: vm.ifHasMoneyToBuyStock,
-            ifHasStockToSell: vm.ifHasStockToSell,
+            ifBuyDisabled: vm.ifBuyDisabled,
+            ifSellDisabled: vm.ifSellDisabled,
           );
         },
       );
 }
 
-class _Factory extends AppVmFactory<_Vm, AvailableStockWidget_Connector> {
-  _Factory(AvailableStockWidget_Connector? connector) : super(connector);
+class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
+  Factory(StockAndBuySellButtons_Connector? connector) : super(connector);
 
   @override
   _Vm fromStore() => _Vm(
         onBuy: _onBuy,
         onSell: _onSell,
-        ifHasMoneyToBuyStock: state.portfolio.hasMoneyToBuyStock(widget.availableStock),
-        ifHasStockToSell: state.portfolio.hasStock(widget.availableStock),
+        ifBuyDisabled: !state.portfolio.hasMoneyToBuyStock(widget.availableStock),
+        ifSellDisabled: !state.portfolio.hasStock(widget.availableStock),
       );
 
   void _onBuy() => dispatch(
@@ -58,20 +58,20 @@ class _Factory extends AppVmFactory<_Vm, AvailableStockWidget_Connector> {
 class _Vm extends Vm {
   //
   final VoidCallback onBuy, onSell;
-  final bool ifHasMoneyToBuyStock, ifHasStockToSell;
+  final bool ifBuyDisabled, ifSellDisabled;
 
   _Vm({
     required this.onBuy,
     required this.onSell,
-    required this.ifHasMoneyToBuyStock,
-    required this.ifHasStockToSell,
+    required this.ifBuyDisabled,
+    required this.ifSellDisabled,
   }) : super(equals: [
-          ifHasMoneyToBuyStock,
-          ifHasStockToSell,
+          ifBuyDisabled,
+          ifSellDisabled,
         ]);
 }
 
-class AvailableStockWidget extends StatelessWidget {
+class StockAndBuySellButtons extends StatelessWidget {
   //
   static var tickerStyle = Font.giant + AppColor.text;
   static var nameStyle = Font.small + AppColor.textDimmed;
@@ -96,15 +96,15 @@ class AvailableStockWidget extends StatelessWidget {
 
   final AvailableStock availableStock;
   final VoidCallback onBuy, onSell;
-  final bool ifHasMoneyToBuyStock, ifHasStockToSell;
+  final bool ifBuyDisabled, ifSellDisabled;
 
-  const AvailableStockWidget({
+  const StockAndBuySellButtons({
     super.key,
     required this.availableStock,
     required this.onBuy,
     required this.onSell,
-    required this.ifHasMoneyToBuyStock,
-    required this.ifHasStockToSell,
+    required this.ifBuyDisabled,
+    required this.ifSellDisabled,
   });
 
   @override
@@ -147,7 +147,7 @@ class AvailableStockWidget extends StatelessWidget {
         data: ThemeData(useMaterial3: false),
         child: ElevatedButton(
           style: buyStyle,
-          onPressed: ifHasMoneyToBuyStock ? onBuy : null,
+          onPressed: ifBuyDisabled ? null : onBuy,
           child: const Text('Buy'),
         ),
       );
@@ -156,7 +156,7 @@ class AvailableStockWidget extends StatelessWidget {
         data: ThemeData(useMaterial3: false),
         child: ElevatedButton(
           style: sellStyle,
-          onPressed: ifHasStockToSell ? onSell : null,
+          onPressed: ifSellDisabled ? null : onSell,
           child: const Text('Sell'),
         ),
       );
