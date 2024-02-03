@@ -13,7 +13,7 @@ This project contains the SAME MOBILE APP implemented with DIFFERENT TECH STACKS
 * Flutter with Bloc
 * Flutter with Provider
 * Flutter with MobX
-* Flutter with Redux
+* <a href='./MobileAppFlutterRedux/README.md'>Flutter with Redux</a>
 
 **Native:**
 * Android Jetpack
