@@ -6,7 +6,6 @@ import 'ab_testing.dart';
 
 @immutable
 class RunConfig {
-  //
   static RunConfig? _instance;
 
   final Dao dao;

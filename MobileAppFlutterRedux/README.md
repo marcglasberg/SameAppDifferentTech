@@ -322,7 +322,7 @@ var runConfig = RunConfig(
 ```
 
 You might believe that simulating the DAO requires more effort than mocking it,
-but usually it doesn't, because the simulation only needs to be "partial".
+but usually it doesn't because the simulation only needs to be partial.
 While the real backend needs to deal with multi-user concurrency,
 the simulated DAO can just return data for a single user.
 
@@ -377,12 +377,12 @@ If some tests succeed in the simulation but not with the actual backend,
 then it's clear there's an issue with either the backend or the simulation.
 It's usually easy to find out which one is the problem.
 
-Please check the tests in the `test` directory.
+Please check the tests in the [test](test) directory.
 
 # The RunConfig
 
 The `RunConfig` class is the "run configuration" which contains the configuration parameters
-for the app. It's defined in file [RunConfig.dart](lib/client/infra/run_config/run_config.dart).
+for the app. It's defined in file [run_config.dart](lib/client/infra/run_config/run_config.dart).
 
 You can set up distinct configurations for various environments,
 like development, staging, and production.
@@ -408,8 +408,8 @@ in the run configuration is set to `true`.
 
 ## A/B testing
 
-For example, one of the options here lets the developer choose between `Auto`, `A` or `B`, for an
-A/B testing.
+For example, one of the options in the configuration screen lets the developer choose
+between `Auto`, `A` or `B`, for an A/B testing.
 
 `Auto` means that the app will automatically choose between A and B,
 based on criteria such as the user's ID or frameworks
@@ -563,7 +563,7 @@ To completely test the app, we need at least:
 
 * Unit tests
 * Widget tests
-* Integration tests (which I implement as Bdd tests,
+* Integration tests (which I implement as BDD tests,
   by using <a href="https://pub.dev/packages/bdd_framework">BDD Framework</a>
   (my own library for Behavior-Driven Development)
 * Golden tests (which consist of comparing the rendered UI with a reference image)
@@ -576,8 +576,7 @@ The simplest tests are the unit tests that exercise:
 
 * The model classes, like [stock_test.dart](test/stock_test.dart)
 * The utility classes, like [utils_test.dart](test/utils_test.dart)
-* The infrastructure classes in the [infra](lib/client/infra) directory (not provided in this
-  example app)
+* The infrastructure classes in the [infra](lib/client/infra) directory 
 
 <br>
 
@@ -590,6 +589,8 @@ the stock. Here are two of them in a column:
 <div style="text-align: center;">
 <img src="readme_images/AvailableStock.png" alt="Alt text" width="300"/>
 </div> 
+
+<br>
 
 File [available_stocks_mixed.dart](lib/client/portfolio_and_cash_screen/available_stocks/available_stocks_panel_mixed.dart)
 defines the `AvailableStock_Mixed` widget,
