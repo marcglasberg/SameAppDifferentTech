@@ -818,8 +818,8 @@ generate `.feature` files from them.
 
 Please see the generated files in the [gen_features](gen_features) directory:
 
-* `average_price.feature`
-* `buying_and_selling_stocks.feature`
+* [average_price.feature](gen_features/average_price.feature)
+* [buying_and_selling_stocks.feature](gen_features/buying_and_selling_stocks.feature)
 
 These files may be committed to source control,
 and can be used as living documentation that evolves as the app evolves.
