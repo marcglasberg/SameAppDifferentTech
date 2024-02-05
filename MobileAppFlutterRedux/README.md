@@ -1,8 +1,9 @@
 # Flutter with Redux
 
-> This is part of the <a href='../README.md'>**Same App, Different Tech**</a> project.
+> This is part of the <a href='https://github.com/marcglasberg/SameAppDifferentTech'>**Same App,
+> Different Tech**</a> project.
 >
-> It contains the same simple but not trivial **mobile app** implemented using a
+> It contains the same simple but non-trivial **mobile app** implemented using a
 > variety of *different tech stacks*.
 
 ### Why is this repository useful?
@@ -10,8 +11,8 @@
 * It helps you learn **Redux state management for Flutter**.
 
 
-* If you're already familiar Redux for Flutter, it provides you with a consistent reference point
-  for you to <a href='https://github.com/marcglasberg/SameAppDifferentTech'>learn other
+* If you're already familiar with Redux for Flutter, it provides you with a consistent reference
+  point for you to <a href='https://github.com/marcglasberg/SameAppDifferentTech'>learn other
   technologies</a> by comparing them through applications that are functionally identical.
 
 
@@ -37,7 +38,8 @@
     * Using a "real" backend for production
     * On-demand fetching (REST get), or continuous streaming (websocket)
 
-* Saving data to the local device storage (using Async Redux's `Persistor` class).
+* Saving data to the local device storage (using Async Redux's `Persistor` and `LocalJsonPersist`
+  classes).
 
 * Configuring the app with a "Run Configuration".
 
@@ -60,7 +62,7 @@ Class `AppState` is the app state, composed of 3 "sub-states":
 * `AvailableStocks` contains the list of stocks that are available for purchase.
 * `Ui` contains state related to the user interface.
 
-It's defined in [app_state.dart](lib/models/state/app_state.dart):
+It's defined in [app_state.dart](lib/client/infra/app_state.dart):
 
 ```dart
 class AppState {
@@ -81,15 +83,15 @@ class AppState {
 
 This state is managed by the `Store` class, which is part of the Redux package.
 
-The `Business.init()` method (in [business.dart](lib/models/infra/basic/business.dart))
+The `Business.init()` method (in [business.dart](lib/client/infra/basic/business.dart))
 instantiates the business classes when the app starts. This method:
 
 1. Sets up some app configurations.
-2. Creates the "persistor" which loads the state from local device disk when the app starts,
+2. Creates the "persistor" which loads the state from the local device disk when the app starts,
    and saves the state whenever the state changes, later on.
 3. If no state is found in the local device disk, it creates a new state and then saves it.
 4. Creates the Redux "store" which holds the app state in memory.
-5. Initializes the DAO (Data Access Object) which fetches data from the backend.
+5. Initializes the DAO (Data Access Object) which is responsible for fetching data from the backend.
 6. Runs a Redux action called `InitApp_Action` with stuff the Store needs to do as soon as the
    app opens.
 
@@ -139,13 +141,13 @@ The `persistor` is passed to the `Store` constructor.
 This allows the Redux store to monitor state changes, and call the appropriate `persistor`
 methods whenever something needs to be loaded or saved.
 
-Check file [app_persistor.dart](lib/models/infra/persistor/app_persistor.dart) to see how
+Check file [app_persistor.dart](lib/client/infra/persistor/app_persistor.dart) to see how
 loading and saving to local device disk is implemented. Note I'm saving to local files,
 but a database could be used instead.
 
 ## How to access the State
 
-Check file [app_homepage.dart](lib/client/infra/app_homepage.dart),
+Check file [app_homepage.dart](lib/client/infra/basic/app_homepage.dart),
 where I create the top of the widget tree. This includes setting up:
 
 * The `StoreProvider` to provide the `Store` to the rest of the app.
@@ -183,7 +185,7 @@ More on that later.
 
 # Initializing the app
 
-In [main.dart](lib/client/infra/main.dart) we create a "run-configuration",
+In [main.dart](lib/client/infra/basic/main.dart) we create a "run-configuration",
 and start the app with it:
 
 ```dart
@@ -244,7 +246,7 @@ Here's what it gives us:
   we can work on a specific app feature even if its backend isn't ready yet.
   We can also simulate different scenarios, such as network errors, to see how the app behaves.
 
-In the [dao.dart](lib/models/infra/dao/dao.dart) file, we define the `Dao` interface:
+In the [dao.dart](lib/client/infra/dao/dao.dart) file, we define the `Dao` interface:
 
 ```dart
 abstract class Dao {
@@ -327,7 +329,7 @@ It can simply return data without worrying about all these issues.
 It doesn't need to be perfect, but just good enough to help us develop and test the app.
 
 Please use the app code as given, and try it out a little. It's using a simulated DAO.
-In file [simulated_dao.dart](lib/models/infra/dao/simulated_dao/simulated_dao.dart) you can see
+In file [simulated_dao.dart](lib/client/infra/dao/simulated_dao/simulated_dao.dart) you can see
 how it returns a list of predefined available stocks, and generates random stock price updates every
 few milliseconds.
 
@@ -372,7 +374,7 @@ Please check the tests in the `test` directory.
 # The RunConfig
 
 The `RunConfig` class is the "run configuration" which contains the configuration parameters
-for the app. It's defined in file [RunConfig.dart](lib/models/infra/run_config/run_config.dart).
+for the app. It's defined in file [RunConfig.dart](lib/client/infra/run_config/run_config.dart).
 
 You can set up distinct configurations for various environments,
 like development, staging, and production.
@@ -426,7 +428,7 @@ The `abTesting.choose()` method takes two parameters: `priceStyleA` and `priceSt
 It returns the first parameter if the `RunConfig.abTesting` flag is set to `A`,
 and the second parameter if it's set to `B`.
 
-Check file [ab_testing.dart](lib/models/infra/run_config/ab_testing.dart) to see how
+Check file [ab_testing.dart](lib/client/infra/run_config/ab_testing.dart) to see how
 this is implemented.
 
 # Theming the app
@@ -446,7 +448,7 @@ The main goals of theming the app are:
 
 4. Allow the React widgets to access the colors they need in an easy way.
 
-Please check file [app_themes.dart](lib/client/theme/app_themes.dart)
+Please check file [app_themes.dart](lib/client/infra/theme/app_themes.dart)
 
 We first define a `Font` class, with all the fonts defined by the designers in the app's design
 system:
@@ -534,7 +536,7 @@ Row(
 );
 ```
 
-In file [app_themes.dart](lib/client/theme/app_themes.dart) we specify all the spacings we need:
+In file [app_themes.dart](lib/client/infra/theme/app_themes.dart) we specify all the spacings we need:
 
 ```
 const double px8 = 8;
