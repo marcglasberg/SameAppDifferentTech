@@ -576,7 +576,7 @@ The simplest tests are the unit tests that exercise:
 
 * The model classes, like [stock_test.dart](test/stock_test.dart)
 * The utility classes, like [utils_test.dart](test/utils_test.dart)
-* The infrastructure classes in the [infra](lib/client/infra) directory 
+* The infrastructure classes in the [infra](lib/client/infra) directory
 
 <br>
 
@@ -606,7 +606,7 @@ return SingleChildScrollView(
        ])));
 ```
 
-I'm calling this a "mixed widget" because it **mixes** accessing the state from inside the UI code.
+I call this a "mixed widget" because it **mixes** accessing the state from inside the UI code.
 
 To test this mixed widget, we need to use "widget tests" to render the widget,
 then interact with the UI and check that the rendered widget is as expected.
@@ -632,17 +632,23 @@ While we don't strictly need this pattern to create the widget,
 the separation of concerns is still useful, in my opinion, because it makes the code easier to test
 and to understand.
 
+Let's see an example in
+file [stock_and_buy_sell_buttons.dart](lib/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart),
+where the connector `StockAndBuySellButtons_Connector` uses a `Factory`
+to create a view model object of type `_Vm` with all the necessary information.
+Then, the connector's `builder` method uses this view model to create the
+view of type `StockAndBuySellButtons`:
+
 1. The Connector
 
-   File [stock_and_buy_sell_buttons.dart](lib/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart)
-   contains the connector widget `StockAndBuySellButtons_Connector`, which has no UI.
-   Its goal is simply to access the store, use a `Factory` to create a data structure called
-   the "view-model" with all the necessary information, and then pass it down to the
-   view widget `StockAndBuySellButtons`.
+   The connector widget `StockAndBuySellButtons_Connector`, which has no UI. It will:
+
+    * Use a `Factory` to create a data structure called the "view-model".
+    * Its `builder` uses the `vm` to create and return `StockAndBuySellButtons`.
 
    Here is a simplified version of the connector, the factory and its view-model:
 
-    ```                                      
+    ```dart                                      
     class StockAndBuySellButtons_Connector extends StatelessWidget {
       final AvailableStock availableStock;
     
@@ -686,7 +692,7 @@ and to understand.
    var storeTester = StoreTester(initialState: AppState.from(cashBalance: 100, availableStocks: [ibmAvb]));
    var factory = Factory(StockAndBuySellButtons_Connector(availableStock: ibmAvb));
    var vm = factory().fromStoreTester(storeTester)!;
-   expect(vm.ifBuyDisabled, true);
+   expect(vm.ifBuyDisabled,true);
    ```
 
 2. The View
