@@ -160,14 +160,16 @@ where I create the top of the widget tree. This includes setting up:
 * The user exception dialog (to show error messages to the user)
 * Analytics (hinted by a comment, but not implemented)
 
-After this is done, the whole app can access the state and dispatch actions by using
-the `StoreProvider` or a `StoreConnector`.
-
-Using the `StoreProvider` is more direct, and you can use it from inside any widget in the tree:
+After this is done, all widgets can access the state and dispatch actions by using
+the widget's `context`:
 
 ```
-StoreProvider.of<AppState>(context, this).dispatch(SomeAction_Action());
+context.dispatch(SomeAction_Action());        
 ```
+
+Note: The above code is possible because Async Redux
+[comes out of the box](https://github.com/marcglasberg/async_redux/blob/master/lib/src/store_provider.dart#L116)
+with an extension method on  `BuildContext`.
 
 However, the recommended way is using the `StoreConnector`:
 
@@ -536,7 +538,8 @@ Row(
 );
 ```
 
-In file [app_themes.dart](lib/client/infra/theme/app_themes.dart) we specify all the spacings we need:
+In file [app_themes.dart](lib/client/infra/theme/app_themes.dart) we specify all the spacings we
+need:
 
 ```
 const double px8 = 8;

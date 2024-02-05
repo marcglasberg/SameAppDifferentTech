@@ -27,7 +27,7 @@ class AppHomePage extends StatelessWidget {
         child: Box(
           child: I18n(
             id: I18nWidgetId,
-            // initialLocale: const Locale("pt", "BR"),
+            // initialLocale: const Locale("en", "US"),
             child: (child == null) //
                 ? const Box()
                 :
