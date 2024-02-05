@@ -641,9 +641,9 @@ view of type `StockAndBuySellButtons`:
 
 1. The Connector
 
-   The connector widget `StockAndBuySellButtons_Connector`, which has no UI. It will:
+   The connector widget `StockAndBuySellButtons_Connector` has no UI. It will:
 
-    * Use a `Factory` to create a data structure called the "view-model".
+    * Use a `Factory` to create a data structure called the "view-model", `vm`.
     * Its `builder` uses the `vm` to create and return `StockAndBuySellButtons`.
 
    Here is a simplified version of the connector, the factory and its view-model:
@@ -659,8 +659,8 @@ view of type `StockAndBuySellButtons`:
           builder: (context, vm) => StockAndBuySellButtons(
               availableStock: availableStock,
               onBuy: vm.onBuy,
-              ifBuyDisabled: vm.ifBuyDisabled);
-          }); 
+              ifBuyDisabled: vm.ifBuyDisabled,
+          )); 
     }
     
     class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
@@ -674,7 +674,7 @@ view of type `StockAndBuySellButtons`:
     class _Vm extends Vm {
       final VoidCallback onBuy;
       final bool ifBuyDisabled;    
-      _Vm({required this.onBuy, required this.ifSellDisabled}) : super(equals: [ ifBuyDisabled ]);
+      _Vm({required this.onBuy, required this.ifSellDisabled}) : super(equals: [ifBuyDisabled]);
     }
     ```   
 
@@ -716,7 +716,7 @@ view of type `StockAndBuySellButtons`:
 
    For example, we don't need to test that the BUY button is disabled when there is no money to buy
    stock. We just need to test that passing `ifBuyDisabled: true` to the constructor will indeed
-   disable the button.
+   make the button grey.
 
    Likewise, we don't need to test that pressing the BUY button will call the correct store
    function. We just need to test that it actually calls the `onBuy()` callback.
@@ -734,7 +734,7 @@ create them:
 * [bdd_average_price_test.dart](test/bdd_average_price_test.dart)
 * [bdd_buy_and_sell_test.dart](test/bdd_buy_and_sell_test.dart)
 
-These BDD tests use a **<a href="https://pub.dev/packages/bdd_framework">BDD Framework</a>**,
+These BDD tests use a **<a href="https://pub.dev/packages/bdd_framework">BDD Framework</a>**
 that I have developed myself.
 
 Let's see an example of a BDD test description that specifies the behavior of the app when the user
@@ -816,7 +816,7 @@ void main() async {
 Running this file, which uses the `FeatureFileReporter`, will run the BDD tests, and automatically
 generate `.feature` files from them.
 
-Please see the generated files in the `gen_features` directory:
+Please see the generated files in the [gen_features](gen_features) directory:
 
 * `average_price.feature`
 * `buying_and_selling_stocks.feature`
