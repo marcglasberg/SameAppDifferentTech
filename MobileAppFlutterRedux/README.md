@@ -161,15 +161,12 @@ where I create the top of the widget tree. This includes setting up:
 * Analytics (hinted by a comment, but not implemented)
 
 After this is done, all widgets can access the state and dispatch actions by using
-the widget's `context`:
+an [extension method](https://github.com/marcglasberg/async_redux/blob/master/lib/src/store_provider.dart#L116)
+on the widget's `context`:
 
 ```
 context.dispatch(SomeAction_Action());        
 ```
-
-Note: The above code is possible because Async Redux
-[comes out of the box](https://github.com/marcglasberg/async_redux/blob/master/lib/src/store_provider.dart#L116)
-with an extension method on  `BuildContext`.
 
 However, the recommended way is using the `StoreConnector`:
 
@@ -224,9 +221,8 @@ Future<void> startApp(RunConfig runConfig) async {
 The `DAO` (Data Access Object) gets data from the backend.
 Here's what it gives us:
 
-* **Ready-to-use data:** The DAO takes care of getting data and turns it into simple objects that
-  our app can
-  easily use.
+* **Ready-to-use data:** The DAO takes care of fetching the data from the server,
+  and turning it into business objects that our app can readily use.
 
 
 * **Hides complex details:** The DAO ensures that our app doesn't have to deal with the details of
@@ -263,7 +259,7 @@ abstract class Dao {
 }
 ```
 
-DAO methods return mostly Futures, because they need to asynchronously fetch data from the backend.
+DAO methods usually return Futures, because they need to asynchronously fetch data from the backend.
 
 Once we inject the DAO into the run-configuration
 (by doing `var runConfig = RunConfig(dao: RealDao())`)
@@ -275,8 +271,13 @@ import 'package:mobile_app_flutter_redux/business/infra/dao/dao.dart';
 var myStocks = await DAO.readAvailableStocks();
 ```
 
-In the above code, the DAO returns the available stocks as a list of objects of
-type `AvailableStock`, and not as JSON.
+Note that the `readAvailableStocks()` method returns an `IList`, not a `List`.
+Since Redux state needs to be immutable, we use the `IList` (immutable List) from the
+<a href="https://pub.dev/packages/fast_immutable_collections">fast_immutable_collections</a>
+package.
+
+Also note, it returns the available stocks as a list of objects of type `AvailableStock`,
+and not as JSON.
 You should avoid returning JSON or any other specific transport data format from the DAO.
 Always return rich objects that are easy to use by the rest of the app.
 
@@ -309,19 +310,19 @@ instead of the "simulated DAO". This is very easy to do, as the rest of the app 
 change at all.
 
 ```dart
-// Injecting the real DAO:
-var runConfig = RunConfig(
-    dao: RealDao()
-);
-
 // Injecting the simulated DAO:
 var runConfig = RunConfig(
     dao: SimulatedDao()
 );
+
+// Injecting the real DAO:
+var runConfig = RunConfig(
+    dao: RealDao()
+);
 ```
 
-You might believe that simulating the DAO requires more effort than mocking it, but usually, it
-doesn't, because the simulation only needs to be "partial".
+You might believe that simulating the DAO requires more effort than mocking it,
+but usually it doesn't, because the simulation only needs to be "partial".
 While the real backend needs to deal with multi-user concurrency,
 the simulated DAO can just return data for a single user.
 
@@ -349,11 +350,16 @@ fetch:
 ```dart
 Future<IList<AvailableStock>> readAvailableStocks() async {
   await simulatesWaiting(250);
+  print('Just read ${_hardcodedStocks.length} stocks.');
 
-  return _hardcodedStocks
-      .map((stock) => AvailableStock(stock.ticker, name: stock.name, currentPrice: stock.price))
-      .toIList();
+  return _hardcodedStocks.map(AvailableStock.from).toIList();
 }
+
+final List<({String ticker, String name, double price})> _hardcodedStocks = [
+  (ticker: 'IBM', name: 'International Business Machines', price: 132.64),
+  (ticker: 'AAPL', name: 'Apple', price: 183.58),
+  ...
+];
 
 ```
 

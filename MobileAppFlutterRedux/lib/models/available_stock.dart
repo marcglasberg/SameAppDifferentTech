@@ -15,6 +15,9 @@ class AvailableStock {
     required double currentPrice,
   }) : currentPrice = round(currentPrice);
 
+  AvailableStock.from(({String ticker, String name, double price}) stock)
+      : this(stock.ticker, name: stock.name, currentPrice: stock.price);
+
   String get currentPriceStr => 'US\$ ${currentPrice.toStringAsFixed(2)}';
 
   AvailableStock withCurrentPrice(double price) =>

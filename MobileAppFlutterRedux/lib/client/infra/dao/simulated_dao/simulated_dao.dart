@@ -21,12 +21,8 @@ class SimulatedDao extends Dao {
   @override
   Future<IList<AvailableStock>> readAvailableStocks() async {
     await simulatesWaiting(250);
-
     print('Just read ${_hardcodedStocks.length} stocks.');
-
-    return _hardcodedStocks
-        .map((stock) => AvailableStock(stock.ticker, name: stock.name, currentPrice: stock.price))
-        .toIList();
+    return _hardcodedStocks.map(AvailableStock.from).toIList();
   }
 
   Function({
@@ -44,7 +40,7 @@ class SimulatedDao extends Dao {
 
     _priceUpdateInterval = Timer.periodic(const Duration(milliseconds: 300), (Timer t) {
       if (_callback != null) {
-        final stocks = _hardcodedStocks;
+        final List<({String ticker, String name, double price})> stocks = _hardcodedStocks;
         if (stocks.isEmpty) return;
 
         final randomIndex = Random().nextInt(stocks.length);
@@ -54,7 +50,11 @@ class SimulatedDao extends Dao {
 
         newPrice = max(1, min(newPrice, 1000));
 
-        stocks[randomIndex].price = newPrice;
+        stocks[randomIndex] = (
+          ticker: randomStock.ticker,
+          name: randomStock.ticker,
+          price: newPrice,
+        );
 
         _callback!(
           ticker: randomStock.ticker,
@@ -73,22 +73,14 @@ class SimulatedDao extends Dao {
   }
 }
 
-final List<_Stock> _hardcodedStocks = [
-  _Stock('IBM', 'International Business Machines', 132.64),
-  _Stock('AAPL', 'Apple', 183.58),
-  _Stock('GOOG', 'Alphabet', 126.63),
-  _Stock('AMZN', 'Amazon', 125.30),
-  _Stock('META', 'Meta Platforms', 271.39),
-  _Stock('INTC', 'Intel', 29.86),
+final List<({String ticker, String name, double price})> _hardcodedStocks = [
+  (ticker: 'IBM', name: 'International Business Machines', price: 132.64),
+  (ticker: 'AAPL', name: 'Apple', price: 183.58),
+  (ticker: 'GOOG', name: 'Alphabet', price: 126.63),
+  (ticker: 'AMZN', name: 'Amazon', price: 125.30),
+  (ticker: 'META', name: 'Meta Platforms', price: 271.39),
+  (ticker: 'INTC', name: 'Intel', price: 29.86),
 ];
-
-class _Stock {
-  final String ticker;
-  final String name;
-  double price;
-
-  _Stock(this.ticker, this.name, this.price);
-}
 
 /// Simulates waiting for the demonstrating with the app.
 /// For tests, will wait a very small random amount of time.
