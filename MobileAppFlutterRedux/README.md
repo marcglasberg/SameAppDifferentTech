@@ -7,12 +7,12 @@
 
 ### Why is this repository useful?
 
-* It helps you learn **using Redux to do Flutter state management**.
+* It helps you learn **Redux state management for Flutter**.
 
 
-* If you're already familiar Flutter with Redux, it provides you with a consistent reference point
-  for you to <a href='../README.md'>learn other technologies</a> by comparing them
-  through applications that are functionally identical.
+* If you're already familiar Redux for Flutter, it provides you with a consistent reference point
+  for you to <a href='https://github.com/marcglasberg/SameAppDifferentTech'>learn other
+  technologies</a> by comparing them through applications that are functionally identical.
 
 
 * Feel free to clone this repository as a foundation for your own Flutter Redux applications.
@@ -37,7 +37,7 @@
     * Using a "real" backend for production
     * On-demand fetching (REST get), or continuous streaming (websocket)
 
-* Saving data to local storage (using Async Redux's `Persistor` class).
+* Saving data to the local device storage (using Async Redux's `Persistor` class).
 
 * Configuring the app with a "Run Configuration".
 
@@ -45,7 +45,8 @@
 
 * Organizing the app directories.
 
-* Note: This example app does not cover Navigation, Authentication, or Internationalization aspects.
+* Note: This example app does not cover Navigation (even though Async Redux does contain navigation
+  features) nor Authentication.
 
 This is the app:
 
