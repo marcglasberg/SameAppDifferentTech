@@ -7,6 +7,7 @@ import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:mobile_app_flutter_redux/models/cash_balance.dart';
 import 'package:themed/themed.dart';
 
+import '../portfolio_and_cash_screen.i18n.dart';
 import 'ACTION_add_cash.dart';
 import 'ACTION_remove_cash.dart';
 
@@ -75,7 +76,7 @@ class CashBalanceWidget extends StatelessWidget {
       width: double.infinity,
       child: Row(
         children: [
-          Expanded(child: Text('Cash Balance: $cashBalance', style: textStyle)),
+          Expanded(child: Text('Cash Balance:'.i18n + ' $cashBalance', style: textStyle)),
           _addButton(),
           _removeButton(),
         ],

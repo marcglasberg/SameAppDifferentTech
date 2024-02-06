@@ -9,6 +9,8 @@ import 'package:mobile_app_flutter_redux/models/portfolio.dart';
 import 'package:mobile_app_flutter_redux/models/stock.dart';
 import 'package:themed/themed.dart';
 
+import '../portfolio_and_cash_screen.i18n.dart';
+
 class Portfolio_Connector extends StatelessWidget {
   //
   const Portfolio_Connector();
@@ -58,7 +60,7 @@ class PortfolioWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Portfolio:', style: textStyle),
+              Text('Portfolio:'.i18n, style: textStyle),
               const Box(width: 8),
               if (portfolio.isEmpty) Text('—', style: textStyle),
             ],
@@ -83,7 +85,9 @@ class StockInPortfolio extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const Pad(top: 6),
         child: Text(
-          '${stock.ticker} (${stock.howManyShares} shares @ US\$ ${stock.averagePriceStr})',
+          '${stock.ticker} (${stock.howManyShares} ' +
+              'shares'.plural(stock.howManyShares) +
+              ' @ US\$ ${stock.averagePriceStr})',
           style: stockStyle,
         ),
       );

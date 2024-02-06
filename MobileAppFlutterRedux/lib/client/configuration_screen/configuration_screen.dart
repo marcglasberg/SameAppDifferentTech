@@ -1,6 +1,8 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
+import 'package:i18n_extension/i18n_extension.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
@@ -12,6 +14,7 @@ import 'package:themed/themed.dart';
 
 import '../utils/divider.dart';
 import 'ACTION_toggle_light_and_dark_mode.dart';
+import 'configuration_screen.i18n.dart';
 
 class ConfigurationScreen_Connector extends StatelessWidget {
   const ConfigurationScreen_Connector({super.key});
@@ -100,7 +103,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: ValueKey(widget.isDarkMode),
-      appBar: const SimpleAppBar(title: "Configuration"),
+      appBar: SimpleAppBar(title: 'Configuration'.i18n),
       backgroundColor: AppColor.bkgGray,
       body: Column(
         children: [
@@ -108,8 +111,11 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                option1(),
-                if (RunConfig.instance.ifShowRunConfigInTheConfigScreen) runConfigOptions(),
+                _option1(),
+                _option2(),
+                if (RunConfig.instance.ifShowRunConfigInTheConfigScreen) _runConfigOptions(),
+                if (Translations.missingKeys.isNotEmpty) _missingTranslationKeys(),
+                if (Translations.missingTranslations.isNotEmpty) _missingTranslations(),
               ],
             ),
           ),
@@ -120,7 +126,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               minWidth: double.infinity,
               padding: const EdgeInsets.all(16),
               color: Colors.green,
-              child: Text("Done", style: Font.small + AppColor.white),
+              child: Text('Done'.i18n, style: Font.small + AppColor.white),
               onPressed: widget.onDone,
             ),
           ),
@@ -129,12 +135,45 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget option1() {
+  Widget _missingTranslationKeys() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        space16,
+        const ThinDivider(),
+        space16,
+        Text('Missing translation keys'.i18n, style: Font.small + AppColor.textDimmed),
+        space12,
+        for (TranslatedString ts in Translations.missingKeys)
+          Text('${ts.locale}: "${ts.text}"', style: Font.small)
+      ],
+    );
+  }
+
+  Widget _missingTranslations() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        space16,
+        const ThinDivider(),
+        space16,
+        Text('Missing translations'.i18n, style: Font.small + AppColor.textDimmed),
+        space12,
+        for (TranslatedString ts in Translations.missingTranslations)
+          Text('${ts.locale}: "${ts.text}"', style: Font.small)
+      ],
+    );
+  }
+
+  Widget _option1() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(widget.isDarkMode ? 'Dark mode' : 'Light mode', style: Font.medium),
+          Expanded(
+            child:
+                Text(widget.isDarkMode ? 'Dark mode'.i18n : 'Light mode'.i18n, style: Font.medium),
+          ),
           Switch(
             activeColor: AppColor.blue,
             value: widget.isDarkMode,
@@ -149,28 +188,57 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget runConfigOptions() {
+  Widget _option2() {
+    bool isSpanish = (I18n.language == 'sp');
+
+    return Item(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(isSpanish ? 'Español' : 'English', style: Font.medium),
+          ),
+          Switch(
+            activeColor: AppColor.blue,
+            value: isSpanish,
+            onChanged: (_) {
+              setState(() {
+                var newLocale = isSpanish ? const Locale("en", "US") : const Locale("sp", "ES");
+                print('Changing locale to $newLocale.');
+
+                I18n.of(context).locale = newLocale;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _runConfigOptions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         space16,
         const ThinDivider(),
         space16,
-        Text('Run Configuration', style: Font.small + AppColor.textDimmed),
+        Text('Run Configuration'.i18n, style: Font.small + AppColor.textDimmed),
         space12,
-        runConfigOption1(),
-        runConfigOption3(),
-        runConfigOption4(),
+        _runConfigOption1(),
+        _runConfigOption3(),
+        _runConfigOption4(),
       ],
     );
   }
 
-  Widget runConfigOption1() {
+  Widget _runConfigOption1() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Show Run Configuration', style: Font.medium),
+          Expanded(
+            child: Text('Show Run Configuration'.i18n, style: Font.medium),
+          ),
           Switch(
             activeColor: AppColor.blue,
             value: RunConfig.instance.ifShowRunConfigInTheConfigScreen,
@@ -185,12 +253,14 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget runConfigOption3() {
+  Widget _runConfigOption3() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('A/B Testing', style: Font.medium),
+          Expanded(
+            child: Text('A/B Testing'.i18n, style: Font.medium),
+          ),
           MaterialButton(
             color: AppColor.blue,
             minWidth: 100,
@@ -209,13 +279,17 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget runConfigOption4() {
+  Widget _runConfigOption4() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Simulation is ' + (RunConfig.instance.dao is RealDao ? 'OFF' : 'ON'),
-              style: Font.medium),
+          Text(
+            (RunConfig.instance.dao is RealDao)
+                ? 'Simulation is OFF'.i18n
+                : 'Simulation is ON'.i18n,
+            style: Font.medium,
+          ),
         ],
       ),
     );

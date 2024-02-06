@@ -402,7 +402,8 @@ without needing to recompile the app.
 If you run the app and tap the "Settings" icon button in the top right corner,
 you'll be taken to the configuration screen.
 
-The first item in this screen is the 'Light/Dark mode' switch, accessible to all users.
+The first and second items in this screen are the 'Light/Dark mode' and the 'English/Spanish'
+switches, accessible to all users.
 The other items become available only if the `RunConfig.ifShowRunConfigInTheConfigScreen` flag
 in the run configuration is set to `true`.
 
@@ -510,7 +511,7 @@ In the UI code, we may simply import the `Font` and `AppColor` and use it. For e
 ```
 import 'package:mobile_app_flutter_redux/client/theme/app_themes.dart';
 
-Text("Done", style: Font.small + AppColor.white),
+Text('Done', style: Font.small + AppColor.white),
 ```
 
 To toggle between light and dark modes, we dispatch the `ToggleLightAndDarkMode_Action`.
@@ -555,6 +556,31 @@ const double px12 = 12;
 const Widget space8 = SizedBox(width: px8, height: px8);
 const Widget space12 = SizedBox(width: px12, height: px12); 
 ...
+```
+
+# Translating the app to Spanish
+
+The app text is translated using the <a href="https://pub.dev/packages/i18n_extension">
+i18n_extension</a> package. This package allows us to translate strings by simply appending
+a `.i18n` extension to them. For example:
+
+```
+// Will be translated to "Buy" in English, and "Comprar" in Spanish.
+Text('Buy'.i18n);
+```
+
+And then defining a translations file:
+
+```
+extension Localization on String {
+  static final _t = Translations("en_us") +
+      {
+        "en_us": "Buy",
+        "sp_es": "Comprar",
+      };
+
+  String get i18n => localize(this, _t);
+}                                 
 ```
 
 # Testing the app

@@ -11,6 +11,8 @@ import 'package:mobile_app_flutter_redux/client/utils/divider.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:themed/themed.dart';
 
+import '../portfolio_and_cash_screen.i18n.dart';
+
 class StockAndBuySellButtons_Connector extends StatelessWidget {
   //
   final AvailableStock availableStock;
@@ -148,7 +150,7 @@ class StockAndBuySellButtons extends StatelessWidget {
         child: ElevatedButton(
           style: buyStyle,
           onPressed: ifBuyDisabled ? null : onBuy,
-          child: const Text('Buy'),
+          child: Text('Buy'.i18n),
         ),
       );
 
@@ -157,7 +159,7 @@ class StockAndBuySellButtons extends StatelessWidget {
         child: ElevatedButton(
           style: sellStyle,
           onPressed: ifSellDisabled ? null : onSell,
-          child: const Text('Sell'),
+          child: Text('Sell'.i18n),
         ),
       );
 }

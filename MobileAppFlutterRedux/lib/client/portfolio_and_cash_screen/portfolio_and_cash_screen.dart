@@ -33,10 +33,10 @@ class _MyHomePageState extends State<MyHomePage> {
   //
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: AppColor.bkg,
       appBar: StocksAppBar(),
-      body: Column(
+      body: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Box(

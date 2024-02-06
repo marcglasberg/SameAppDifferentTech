@@ -117,7 +117,7 @@ class AppLocalizations {
   static List<Locale> supportedLocales() {
     return [
       const Locale('en', 'US'),
-      const Locale('pt', 'BR'),
+      const Locale('sp', 'ES'),
     ];
   }
 }

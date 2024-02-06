@@ -4,6 +4,9 @@ import 'package:mobile_app_flutter_redux/client/app_bar/ACTION_navigate_to_scree
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:themed/themed.dart';
 
+import '../infra/app_state.dart';
+import 'stocks_app_bar.i18n.dart';
+
 class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   //
   static const kToolbarHeight = 56.0;
@@ -38,7 +41,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class StocksAppBar extends SimpleAppBar {
   //
-  const StocksAppBar({super.key}) : super(title: 'Stocks App Demo');
+  StocksAppBar({super.key}) : super(title: 'Stocks App Demo'.i18n);
 
   @override
   Widget iconButton(BuildContext context) {
@@ -46,7 +49,9 @@ class StocksAppBar extends SimpleAppBar {
       icon: const Icon(Icons.settings, color: AppColor.white),
       tooltip: 'Open configuration screen',
       onPressed: () {
-        // Same as: StoreProvider.of<AppState>(context, this).dispatch(NavigateToConfigScreen_Action());
+        // Same as:
+        StoreProvider.of<AppState>(context, this).dispatch(NavigateToConfigScreen_Action());
+        print(context.state.availableStocks);
         context.dispatch(NavigateToConfigScreen_Action());
       },
     );
