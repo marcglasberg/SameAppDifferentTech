@@ -81,24 +81,23 @@ On the other hand, the [celest/functions](celest/functions) directory (which is
 outside [celest/lib](celest/lib)) cannot be seen by any of those: You cannot import it
 from files in [lib](lib), and you cannot import it from files in [celest/lib](celest/lib).
 These files in the [celest/functions](celest/functions) directory are to be used exclusively by the
-Celest service (which you started with `celest start`). This service which will read those files and
-then auto-generate some code inside the [celest/lib](celest/lib) directory.
-
-Note: The [celest/functions](celest/functions) directory can, however, be imported from the tests in
-[celest/test](celest/test).
+Celest service (started with `celest start`), which will use them as a base to auto-generate some
+code inside the [celest/lib](celest/lib) directory.
 
 To sum up:
 
 * `celest/functions`
     - Inaccessible from both your app's `lib` and from `celest/lib`.
-    - Only accessible from `celest/test` for testing purposes.
+    - Only accessible from `celest/test`, for testing purposes.
 
 * `celest/lib`
     - Accessible from your app's `lib` directory. This means that files in `celest/lib` can be
       shared between backend and frontend.
+    - Accessible from both `test` and `celest/test`, for testing purposes.
 
 * `lib`
     - Frontend-specific code that cannot be imported into `celest/lib`.
+    - Only accessible from `test`, for testing purposes.
 
 By reading the code in [celest/functions](celest/functions), Celest will then auto generate code
 inside the [celest/lib](celest/lib) directory.
