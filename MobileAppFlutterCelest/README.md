@@ -71,7 +71,7 @@ dependencies:
 
 As a result, your frontend app code in the [lib](lib) directory can import and use the backend code
 that's present in the [celest/lib](celest/lib) directory; But the backend code in
-the [celest/lib](celest/lib) **cannot** see the code in you added in your frontend app's [lib](lib)
+the [celest/lib](celest/lib) **cannot** see the code you added in your app's [lib](lib)
 directory.
 
 For this reason, all code that you want to share between the backend and the frontend should be put
