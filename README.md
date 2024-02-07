@@ -14,6 +14,7 @@ This project contains the SAME MOBILE APP implemented with DIFFERENT TECH STACKS
 * Flutter with Provider
 * Flutter with MobX
 * <a href='./MobileAppFlutterRedux/README.md'>Flutter with Redux</a>
+* <a href='./MobileAppFlutterCelest/README.md'>Flutter with Celest</a> (in development)
 
 **Native:**
 * Android Jetpack
