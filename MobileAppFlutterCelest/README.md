@@ -44,16 +44,16 @@ This is the app:
 The structure below represents a mobile app using Flutter and Celest:
 
 ```
-mobile_app_flutter_celest/
-├── celest/                 # Local Celest package
-|   ├── functions/  
-|   ├── lib/
+mobile_app/
+├── celest/           # Local Celest package
+|   ├── functions/    # Backend only code
+|   ├── lib/          # Shared code between frontend and backend
 |   ├── test/
-|   └── pubspec.yaml
-├── lib/                    # Your frontend code
+|   └── pubspec.yaml  # For the local Celest package
+├── lib/              # Frontend only code
 ├── test/
-└── pubspec.yaml
-```
+└── pubspec.yaml      # For the frontend. Includes the local Celest package
+``` 
 
 Upon executing `celest start`, a local Dart package named `celest_backend` is generated within your
 application's directory, in the [celest](celest) subdirectory. This local package contains
@@ -63,7 +63,7 @@ The `celest_backend` package is integrated into your app via the app's
 own [pubspec.yaml](pubspec.yaml) file,
 which points to the `celest` directory. The dependency is specified as follows:
 
-```
+```yaml
 dependencies:
   celest_backend:
     path: celest/
@@ -99,7 +99,7 @@ To sum up:
     - Inaccessible from both your app's `lib` and from `celest/lib`.
     - Only accessible from `celest/test`, for testing purposes.
 
-## Auto-generated code
+## Generated code
 
 As explained, the Celest service will read the code in [celest/functions](celest/functions), and use
 it to auto generate some more code inside the [celest/lib](celest/lib) directory.
@@ -186,7 +186,7 @@ from https://pub.dev/packages/celest, Celest will:
 Future<Response> _handler(Request request) async {
   final bodyJson = await request.decodeJson();
   final response = await runZoned(
-            () => handle(bodyJson),
+        () => handle(bodyJson),
     zoneSpecification: ZoneSpecification(
       print: (self, parent, zone, message) {
         parent.print(zone, '[$name] $message');
@@ -203,5 +203,107 @@ Future<Response> _handler(Request request) async {
 }
 ```
 
+## How to use the Celest functions
 
+To recap, the original `sayHello()` function you wrote
+in [celest/functions](celest/functions)/greeting.dart is turned into a
+generated method
+inside [celest/lib/src/client/functions.dart](celest/lib/src/client/functions.dart).
 
+To access this generated `sayHello()` method from your frontend app code (in [lib](lib))
+you must import [celest/lib/client.dart](celest/lib/client.dart) and use the global `celest` object:
+
+```dart
+import 'package:celest_backend/client.dart';
+
+var result = await celest.functions.greeting.sayHello('Celest');
+```
+
+Since Celest functions are _cloud functions_, they are always asynchronous, and can always fail,
+for example, because of network issues, or because the server is down, etc.
+
+This means you must always `await` the result of a Celest function, and you must always handle
+the possibility of an error.
+
+If you use a `FutureBuilder` to call a Celest function, you must always handle the `snapshot.error`:
+
+```dart
+FutureBuilder(
+   future: celest.functions.greeting.sayHello('Celest'),
+   builder: (_, snapshot) => switch (snapshot) {
+      AsyncSnapshot(:final data?) => Text(data),
+      AsyncSnapshot(:final error?) =>
+         Text('${error.runtimeType}: $error'),
+      _ => const CircularProgressIndicator(),
+    }));
+```
+
+In the case of a `try/catch` block:
+
+```dart
+try {
+    var result = await celest.functions.greeting.sayHello('Celest');
+    print('Result: $result');
+  } catch (error) {
+    print('Error: $error');
+  }
+```
+
+In the case of a `then/catchError`:
+
+```dart
+celest.functions.greeting.sayHello('Celest').then((result) {
+  print('Result: $result');
+}).catchError((error) {
+  print('Error: $error');
+});
+```
+
+Or, when using a state management solution, you'll follow its principles for handling
+asynchronous operations that may fail.
+
+In this example app we are using **[Async Redux](https://pub.dev/packages/async_redux)**,
+which allows you to simply define a local `wrapError` in the action:
+
+```dart
+class GreetingAction extends ReduxAction<AppState> {
+
+  Future<AppState?> reduce() async {
+    var newGreeting = await celest.functions.greeting.sayHello('Celest');    
+    return state.copy(greeting: newGreeting);
+  }
+  
+  Object wrapError(Object error, StackTrace stackTrace) => 
+      UserException("The greeting failed.", cause: error);  
+}
+```
+
+Or a global `wrapError` when creating the store:
+
+```dart
+store = Store<AppState>(
+   initialState: state,
+   wrapError: MyWrapError(), // A custom WrapError
+);
+
+class MyWrapError extends WrapError<AppState> {  
+  Object? wrap(Object error, [StackTrace? st, ReduxAction<AppState>? action]) {  
+    if (error is InternalServerException) {
+      return UserException("The greeting failed.", cause: error);
+    else
+      return null;
+  }}
+```
+
+Note: When
+a [wrapError](https://github.com/marcglasberg/async_redux/blob/master/lib/src/wrap_error.dart)
+converts some error into
+a [UserException](https://github.com/marcglasberg/async_redux/blob/master/lib/src/user_exception.dart),
+this is a special exception that will be displayed to the user in
+a [dialog](https://github.com/marcglasberg/async_redux/blob/master/lib/src/user_exception_dialog.dart).
+However, if your Celest function directly throws a `UserException` (or a subclass
+of `UserException`), it will also be displayed to the user in a dialog, no error wrapping needed.
+
+# The functions
+
+_[In development]_
