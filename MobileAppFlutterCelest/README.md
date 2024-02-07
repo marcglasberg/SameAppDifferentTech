@@ -59,7 +59,8 @@ Upon executing `celest start`, a local Dart package named `celest_backend` is ge
 application's directory, in the [celest](celest) subdirectory. This local package contains
 its own `pubspec.yaml`, `analysis_options.yaml` etc.
 
-The `celest_backend` package is integrated into your app via the app's own `pubspec.yaml` file,
+The `celest_backend` package is integrated into your app via the app's
+own [pubspec.yaml](pubspec.yaml) file,
 which points to the `celest` directory. The dependency is specified as follows:
 
 ```
@@ -182,7 +183,7 @@ with `jsonEncode(response.body)` to send it back to the frontend:
 Future<Response> _handler(Request request) async {
   final bodyJson = await request.decodeJson();
   final response = await runZoned(
-            () => handle(bodyJson),
+        () => handle(bodyJson),
     zoneSpecification: ZoneSpecification(
       print: (self, parent, zone, message) {
         parent.print(zone, '[$name] $message');
