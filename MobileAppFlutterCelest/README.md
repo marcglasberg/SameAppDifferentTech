@@ -71,7 +71,7 @@ dependencies:
 
 As a result, your frontend app code in the [lib](lib) directory can import and use the backend code
 that's present in the [celest/lib](celest/lib) directory; But the backend code in
-the [celest/lib](celest/lib) **cannot** see the frontend code you added in your app's [lib](lib)
+the [celest/lib](celest/lib) cannot see the frontend code you added in your app's [lib](lib)
 directory.
 
 For this reason, all code that you want to share between the backend and the frontend should be put
@@ -86,10 +86,6 @@ code inside the [celest/lib](celest/lib) directory.
 
 To sum up:
 
-* `celest/functions`
-    - Inaccessible from both your app's `lib` and from `celest/lib`.
-    - Only accessible from `celest/test`, for testing purposes.
-
 * `celest/lib`
     - Accessible from your app's `lib` directory. This means that files in `celest/lib` can be
       shared between backend and frontend.
@@ -99,8 +95,14 @@ To sum up:
     - Frontend-specific code that cannot be imported into `celest/lib`.
     - Only accessible from `test`, for testing purposes.
 
-By reading the code in [celest/functions](celest/functions), Celest will then auto generate code
-inside the [celest/lib](celest/lib) directory.
+* `celest/functions`
+    - Inaccessible from both your app's `lib` and from `celest/lib`.
+    - Only accessible from `celest/test`, for testing purposes.
+
+## Auto-generated code
+
+As explained, the Celest service will read the code in [celest/functions](celest/functions), and use
+it to auto generate some more code inside the [celest/lib](celest/lib) directory.
 
 For example, a `celest/functions/greetings.dart` file containing this:
 
