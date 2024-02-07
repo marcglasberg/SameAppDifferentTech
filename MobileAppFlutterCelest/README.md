@@ -71,17 +71,16 @@ dependencies:
 
 As a result, your frontend app code in the [lib](lib) directory can import and use the backend code
 that's present in the [celest/lib](celest/lib) directory; But the backend code in
-the [celest/lib](celest/lib) **cannot** see the code you added in your app's [lib](lib)
+the [celest/lib](celest/lib) **cannot** see the frontend code you added in your app's [lib](lib)
 directory.
 
 For this reason, all code that you want to share between the backend and the frontend should be put
-in the [celest/lib](celest/lib) directory.
+into the [celest/lib](celest/lib) directory.
 
-However, the [celest/functions](celest/functions) directory, which is
-outside [celest/lib](celest/lib), cannot be seen by any of those: You cannot import it
+On the other hand, the [celest/functions](celest/functions) directory (which is
+outside [celest/lib](celest/lib)) cannot be seen by any of those: You cannot import it
 from files in [lib](lib), and you cannot import it from files in [celest/lib](celest/lib).
-
-The files in the [celest/functions](celest/functions) directory are to be used exclusively by the
+These files in the [celest/functions](celest/functions) directory are to be used exclusively by the
 Celest service (which you started with `celest start`). This service which will read those files and
 then auto-generate some code inside the [celest/lib](celest/lib) directory.
 
