@@ -1,6 +1,6 @@
 name: mobile_app_flutter_redux
 description: Mobile App Example in Flutter and Redux
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 version: 1.0.0
 
 environment:
