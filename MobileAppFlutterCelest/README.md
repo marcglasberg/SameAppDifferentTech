@@ -149,11 +149,12 @@ class CelestFunctionsGreeting {
 }
 ```
 
-This generated `sayHello()` method is what your frontend app files in `lib` interact with,
-not the original one in the functions directory, due to the previously mentioned access limitations.
+This generated `sayHello()` method is the one your frontend app code in `lib` actually interacts
+with, not the original `sayHello()` function in the functions directory (which cannot even be
+imported, due to the previously mentioned access limitations).
 
 The generated `sayHello()` starts by sending an HTTP POST request to the backend,
-by doing `await celest.httpClient.post(url, ...)` and will resolve the URL
+by doing `await celest.httpClient.post(url, ...)`, and will resolve the URL
 with `baseUri.resolve('/greeting/say-hello')`, where:
 
 ```
@@ -174,16 +175,18 @@ and the generated `sayHello()` function will send the HTTP POST request
 to `http://...:7777/greeting/say-hello`.
 
 In the backend, as seen in file `celest-0.1.1\lib\src\runtime\serve.dart`
-from https://pub.dev/packages/celest, Celest will: Decode the Json with `request.decodeJson()`; Run
-the original `sayHello()` function from the `greetings.dart` file
-with `final response = ... handle(bodyJson)`; And encode the response
-with `jsonEncode(response.body)` to send it back to the frontend:
+from https://pub.dev/packages/celest, Celest will:
+
+* Decode the Json with `request.decodeJson()`
+* Run the original `sayHello()` function from the `greetings.dart` file
+  with `final response = ... handle(bodyJson)`
+* Encode the response with `jsonEncode(response.body)` and send it back to the frontend
 
 ```dart
 Future<Response> _handler(Request request) async {
   final bodyJson = await request.decodeJson();
   final response = await runZoned(
-        () => handle(bodyJson),
+            () => handle(bodyJson),
     zoneSpecification: ZoneSpecification(
       print: (self, parent, zone, message) {
         parent.print(zone, '[$name] $message');
