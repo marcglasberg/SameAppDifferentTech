@@ -41,6 +41,8 @@ This is the app:
 
 # How Celest works under the hood
 
+The structure below represents a mobile app using Flutter and Celest:
+
 ```
 mobile_app_flutter_celest/
 ├── celest/                 # Local Celest package
@@ -53,11 +55,12 @@ mobile_app_flutter_celest/
 └── pubspec.yaml
 ```
 
-The [celest](celest) directory created when you run `celest start` is a local Dart package,
-with its own `pubspec.yaml`, `analysis_options.yaml` etc., that exists inside your app directory.
+Upon executing `celest start`, a local Dart package named `celest_backend` is generated within your
+application's directory, in the [celest](celest) subdirectory. This local package contains
+its own `pubspec.yaml`, `analysis_options.yaml` etc.
 
-Your app can access this local celest package code because your app's original `pubspec.yaml` adds
-it as a dependency:
+The `celest_backend` package is integrated into your app via the app's own `pubspec.yaml` file,
+which points to the `celest` directory. The dependency is specified as follows:
 
 ```
 dependencies:
