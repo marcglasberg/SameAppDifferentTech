@@ -68,35 +68,42 @@ dependencies:
     path: celest/
 ```
 
-This means your app can use the code you add to the [celest/lib](celest/lib) directory, but the
-backend code there cannot see the code in your app's [lib](lib) directory.
-This means that code you want to share between the backend and the frontend should be put in the
-celest package.
+As a result, your frontend app code in the [lib](lib) directory can import and use the backend code
+that's present in the [celest/lib](celest/lib) directory; But the backend code in
+the [celest/lib](celest/lib) **cannot** see the code in you added in your frontend app's [lib](lib)
+directory.
+
+For this reason, all code that you want to share between the backend and the frontend should be put
+in the [celest/lib](celest/lib) directory.
 
 However, the [celest/functions](celest/functions) directory, which is
-outside [celest/lib](celest/lib), cannot be accessed by your app, and cannot be accessed from
-[celest/lib](celest/lib) as well. The functions directory will be used by the Celest CLI to
-create generated code inside the [celest/lib](celest/lib) directory.
+outside [celest/lib](celest/lib), cannot be seen by any of those: You cannot import it
+from files in [lib](lib), and you cannot import it from files in [celest/lib](celest/lib).
 
-The [celest/functions](celest/functions) directory can, however, be imported from the tests in
+The files in the [celest/functions](celest/functions) directory are to be used exclusively by the
+Celest service (which you started with `celest start`). This service which will read those files and
+then auto-generate some code inside the [celest/lib](celest/lib) directory.
+
+Note: The [celest/functions](celest/functions) directory can, however, be imported from the tests in
 [celest/test](celest/test).
 
+To sum up:
+
 * `celest/functions`
-    - Cannot be imported from your app's `lib`.
-    - Cannot be imported from `celest/lib`.
-    - Can be imported from the tests in `celest/test`.
+    - Inaccessible from both your app's `lib` and from `celest/lib`.
+    - Only accessible from `celest/test` for testing purposes.
 
 * `celest/lib`
-    - Can be imported from your app's `lib`. Put here code that you want to share between
-      backend and frontend.
+    - Accessible from your app's `lib` directory. This means that files in `celest/lib` can be
+      shared between backend and frontend.
 
 * `lib`
-    - Cannot be imported from `celest/lib`. Frontend code only.
+    - Frontend-specific code that cannot be imported into `celest/lib`.
 
 By reading the code in [celest/functions](celest/functions), Celest will then auto generate code
 inside the [celest/lib](celest/lib) directory.
 
-For example, if file `celest/functions/greetings.dart` contains:
+For example, a `celest/functions/greetings.dart` file containing this:
 
 ```dart
 Future<String> sayHello(String name) async {
@@ -105,8 +112,8 @@ Future<String> sayHello(String name) async {
 }
 ```
 
-Then Celest will generate this
-in [celest/lib/src/client/functions.dart](celest/lib/src/client/functions.dart):
+Will lead the Celest service to automatically generate a corresponding method
+in [celest/lib/src/client/functions.dart](celest/lib/src/client/functions.dart), like so:
 
 ```dart
 class CelestFunctionsGreeting {
@@ -141,9 +148,8 @@ class CelestFunctionsGreeting {
 }
 ```
 
-This generated `sayHello()` function is the one accessed from your app's code when you write
-`await celest.functions.greeting.sayHello('Celest');`, and NOT the one in the functions directory,
-since, as explained above, the functions directory cannot be imported from your app's `lib`.
+This generated `sayHello()` method is what your frontend app files in `lib` interact with,
+not the original one in the functions directory, due to the previously mentioned access limitations.
 
 The generated `sayHello()` starts by sending an HTTP POST request to the backend,
 by doing `await celest.httpClient.post(url, ...)` and will resolve the URL
@@ -155,27 +161,28 @@ baseUri = kIsWeb || !Platform.isAndroid
     : Uri.parse('http://10.0.2.2:7777');
 ```
 
-At the moment Celest is not yet running on a server. When it does, I believe the Celest URL
-will be one of the options, for when we want to run against the real server. But for the moment
-we have `http://localhost:7777` for web, and `http://10.0.2.2:7777`
-for Android, where `10.0.2.2` is a special alias to my host loopback interface
+At the moment, Celest can only run locally via the CLI. In the near future, when Celest can run
+in a real server, the Celest server URL will be one of the options above.
+
+But for the moment, we have only `http://localhost:7777` for web, and `http://10.0.2.2:7777`
+for Android, where `10.0.2.2` is a special alias to the host loopback interface
 (i.e., `127.0.0.1` on my development machine) when using the Android Emulator.
 
-When running locally, Celest will spin up a local server on port 7777
-(see: `celest-0.1.1\lib\src\runtime\serve.dart` from https://pub.dev/packages/celest),
+By running locally, Celest will then spin up a local server on port 7777
 and the generated `sayHello()` function will send the HTTP POST request
 to `http://...:7777/greeting/say-hello`.
 
-In the backend (which for the moment is our local server), Celest will decode the Json with
-`request.decodeJson()`, run the original `sayHello()` function we wrote in the `greetings.dart` file
-with `final response = ... handle(bodyJson)`, encode the response with `jsonEncode(response.body)`,
-and send it back to the frontend:
+In the backend, as seen in file `celest-0.1.1\lib\src\runtime\serve.dart`
+from https://pub.dev/packages/celest, Celest will: Decode the Json with `request.decodeJson()`; Run
+the original `sayHello()` function from the `greetings.dart` file
+with `final response = ... handle(bodyJson)`; And encode the response
+with `jsonEncode(response.body)` to send it back to the frontend:
 
 ```dart
 Future<Response> _handler(Request request) async {
   final bodyJson = await request.decodeJson();
   final response = await runZoned(
-        () => handle(bodyJson),
+            () => handle(bodyJson),
     zoneSpecification: ZoneSpecification(
       print: (self, parent, zone, message) {
         parent.print(zone, '[$name] $message');
