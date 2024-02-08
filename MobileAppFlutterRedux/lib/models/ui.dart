@@ -27,7 +27,7 @@ class Ui {
   String toString() => 'Ui{isDarkMode: $isDarkMode, screenChoice: $screenChoice}';
 
   /// Don't include [screenChoice].
-  Map<String, dynamic> toJson() => {
+  Json toJson() => {
         'isDarkMode': isDarkMode,
       };
 

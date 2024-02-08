@@ -1,11 +1,13 @@
-import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/models.dart';
+import 'package:celest_backend/my_src/models/buy_or_sell.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
+import 'package:celest_backend/my_src/models/utils/map_deserialization_extension.dart';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
-import 'buy_or_sell.dart';
-import 'cash_balance.dart';
+import 'utils/json.dart';
 
 @immutable
 class Portfolio {
@@ -96,7 +98,7 @@ class Portfolio {
   Stock getStock(String ticker) {
     final stock = getStockOrNull(ticker);
     if (stock == null) {
-      throw Exception('Stock $ticker not found.');
+      throw TranslatableUserException('Stock %s not found.', s: ticker);
     }
     return stock;
   }
@@ -110,7 +112,7 @@ class Portfolio {
   }
 
   bool hasMoneyToBuyStock(AvailableStock availableStock) {
-    return cashBalance.amount >= availableStock.currentPrice;
+    return cashBalance.amountX >= availableStock.currentPrice;
   }
 
   Portfolio buyOrSell(BuyOrSell buyOrSell, AvailableStock availableStock, int howMany) {
@@ -122,11 +124,11 @@ class Portfolio {
   /// Buys [howMany] shares of [availableStock].
   /// If the user does not have enough money, throws a [UserException].
   Portfolio buy(AvailableStock availableStock, {required int howMany}) {
-    if (cashBalance.amount < availableStock.currentPrice * howMany) {
-      throw const UserException('Not enough money to buy stock');
+    if (cashBalance.amountX < availableStock.currentPrice * howMany) {
+      throw const TranslatableUserException('Not enough money to buy stock');
     } else {
       final newCashBalance =
-          CashBalance(cashBalance.amount - availableStock.currentPrice * howMany);
+          CashBalance(cashBalance.amountX - availableStock.currentPrice * howMany);
       final newPortfolio = withAddedStock(availableStock, howMany);
       return newPortfolio.copyWith(cashBalance: newCashBalance);
     }
@@ -139,12 +141,13 @@ class Portfolio {
     final pos = _getStockPositionInList(availableStock);
 
     if (pos == -1) {
-      throw const UserException('Cannot sell stock you do not own');
+      throw const TranslatableUserException('Cannot sell stock you do not own');
     } else {
       final stock = stocks[pos];
 
       if (stock.howManyShares < howMany) {
-        throw UserException('Cannot sell $howMany shares of stock you do not own');
+        throw TranslatableUserException('Cannot sell %d shares of stock you do not own',
+            d: howMany);
       } else {
         final newShares = stock.howManyShares - howMany;
         final newAveragePrice = round(
@@ -163,7 +166,7 @@ class Portfolio {
         }
 
         final newCashBalance =
-            CashBalance(cashBalance.amount + availableStock.currentPrice * howMany);
+            CashBalance(cashBalance.amountX + availableStock.currentPrice * howMany);
         return copyWith(stocks: newStocks, cashBalance: newCashBalance);
       }
     }
@@ -174,27 +177,26 @@ class Portfolio {
   }
 
   double get totalCostBasis {
-    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) + cashBalance.amount;
+    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) + cashBalance.amountX;
   }
 
   @override
   String toString() => 'Portfolio{stocks: $stocks, cashBalance: $cashBalance}';
 
-  // TODO: MARCELO
-  // Map<String, dynamic> toJson() => {
-  //       'stocks': stocks.map((stock) => stock.toJson()).toList(),
-  //       'cashBalance': cashBalance.toJson(),
-  //     };
-  //
-  // static Portfolio fromJson(Json? json) {
-  //   if (json == null)
-  //     return Portfolio.EMPTY;
-  //   else {
-  //     IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJson);
-  //     CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
-  //     return Portfolio(stocks: stocks, cashBalance: cashBalance);
-  //   }
-  // }
+  Map<String, dynamic> toJson() => {
+        'stocks': stocks.map((stock) => stock.toJsonPersistor()).toList(),
+        'cashBalance': cashBalance.toJsonPersistor(),
+      };
+
+  static Portfolio fromJson(Json? json) {
+    if (json == null)
+      return Portfolio.EMPTY;
+    else {
+      IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJsonPersistor);
+      CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
+      return Portfolio(stocks: stocks, cashBalance: cashBalance);
+    }
+  }
 
   @override
   bool operator ==(Object other) =>

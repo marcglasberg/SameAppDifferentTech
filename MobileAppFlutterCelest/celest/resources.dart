@@ -9,6 +9,8 @@ import 'package:celest/celest.dart';
 abstract final class apis {
   static const database = CloudApi(name: r'database');
 
+  static const portfolio = CloudApi(name: r'portfolio');
+
   static const stocks = CloudApi(name: r'stocks');
 }
 
@@ -16,6 +18,26 @@ abstract final class functions {
   static const databaseInit = CloudFunction(
     api: r'database',
     functionName: r'init',
+  );
+
+  static const portfolioAddCashBalance = CloudFunction(
+    api: r'portfolio',
+    functionName: r'addCashBalance',
+  );
+
+  static const portfolioBuyStock = CloudFunction(
+    api: r'portfolio',
+    functionName: r'buyStock',
+  );
+
+  static const portfolioRemoveCashBalance = CloudFunction(
+    api: r'portfolio',
+    functionName: r'removeCashBalance',
+  );
+
+  static const portfolioSellStock = CloudFunction(
+    api: r'portfolio',
+    functionName: r'sellStock',
   );
 
   static const stocksReadAvailableStocks = CloudFunction(

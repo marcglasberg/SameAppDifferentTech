@@ -1,21 +1,20 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:celest_backend/models.dart';
+import 'package:celest_backend/my_src/models/buy_or_sell.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app_flutter_celest/models/buy_or_sell.dart';
-import 'package:mobile_app_flutter_celest/models/cash_balance.dart';
-import 'package:mobile_app_flutter_celest/models/portfolio.dart';
 
 void main() {
   test('addCashBalance', () {
     var portfolio = Portfolio(cashBalance: CashBalance(100.0));
     portfolio = portfolio.addCashBalance(50.0);
-    expect(portfolio.cashBalance.amount, 150.0);
+    expect(portfolio.cashBalance.amountX, 150.0);
   });
 
   test('removeCashBalance', () {
     var portfolio = Portfolio(cashBalance: CashBalance(100.0));
     portfolio = portfolio.removeCashBalance(50.0);
-    expect(portfolio.cashBalance.amount, 50.0);
+    expect(portfolio.cashBalance.amountX, 50.0);
   });
 
   test('withAddedStock', () {
@@ -96,7 +95,7 @@ void main() {
     var portfolio = Portfolio(cashBalance: CashBalance(200.0));
     portfolio =
         portfolio.buy(AvailableStock('AAPL', name: 'Apple', currentPrice: 150.0), howMany: 1);
-    expect(portfolio.cashBalance.amount, 50.0);
+    expect(portfolio.cashBalance.amountX, 50.0);
     expect(portfolio.stocks.length, 1);
     expect(portfolio.stocks[0].ticker, 'AAPL');
     expect(portfolio.stocks[0].howManyShares, 1);
@@ -114,7 +113,7 @@ void main() {
     portfolio =
         portfolio.sell(AvailableStock('AAPL', name: 'Apple', currentPrice: 150.0), howMany: 1);
 
-    expect(portfolio.cashBalance.amount, 350.0);
+    expect(portfolio.cashBalance.amountX, 350.0);
     expect(portfolio.stocks.length, 1);
     expect(portfolio.stocks[0].ticker, 'AAPL');
     expect(portfolio.stocks[0].howManyShares, 9);
@@ -130,7 +129,7 @@ void main() {
       stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
     var copiedPortfolio = portfolio.copyWith(cashBalance: CashBalance(100.0));
-    expect(copiedPortfolio.cashBalance.amount, 100.0);
+    expect(copiedPortfolio.cashBalance.amountX, 100.0);
     expect(copiedPortfolio.stocks, portfolio.stocks);
   });
 
@@ -168,7 +167,7 @@ void main() {
       AvailableStock('AAPL', name: 'Apple', currentPrice: 150.0),
       1,
     );
-    expect(portfolio.cashBalance.amount, 50.0);
+    expect(portfolio.cashBalance.amountX, 50.0);
     expect(portfolio.stocks.length, 1);
     expect(portfolio.stocks[0].ticker, 'AAPL');
     expect(portfolio.stocks[0].howManyShares, 1);

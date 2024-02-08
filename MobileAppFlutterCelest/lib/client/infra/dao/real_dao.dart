@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:celest_backend/client.dart';
 import 'package:celest_backend/models.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 import 'dao.dart';
@@ -16,9 +17,24 @@ class RealDao extends Dao {
   }
 
   @override
-  Future<IList<AvailableStock>> readAvailableStocks() async {
-    return celest.functions.stocks.readAvailableStocks();
-  }
+  Future<CashBalance> addCashBalance(double howMuch) =>
+      celest.functions.portfolio.addCashBalance(howMuch);
+
+  @override
+  Future<CashBalance> removeCashBalance(double howMuch) =>
+      celest.functions.portfolio.removeCashBalance(howMuch);
+
+  @override
+  Future<Stock> buyStock(AvailableStock availableStock, {required int howMany}) =>
+      celest.functions.portfolio.buyStock(availableStock, howMany: howMany);
+
+  @override
+  Future<Stock?> sellStock(AvailableStock availableStock, {required int howMany}) =>
+      celest.functions.portfolio.sellStock(availableStock, howMany: howMany);
+
+  @override
+  Future<IList<AvailableStock>> readAvailableStocks() async =>
+      celest.functions.stocks.readAvailableStocks();
 
   /// This method should be using Celest websockets to update the ticker price.
   /// But since websockets is not yet a feature in Celest, I'm polling the prices from a

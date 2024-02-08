@@ -11,6 +11,7 @@ dependencies:
   http: ">=0.13.0 <2.0.0"
   fast_immutable_collections: ^10.1.0
   meta: ^1.10.0
+  collection: ^1.17.2
 
 dev_dependencies:
   lints: ^3.0.0

@@ -1,10 +1,8 @@
+import 'package:celest_backend/exceptions.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mobile_app_flutter_celest/models/cash_balance.dart';
 
-import '../../client/utils/errors_and_exceptions.dart';
-
-typedef Json = Map<String, dynamic>;
-typedef JsonList = List<dynamic>;
+import 'json.dart';
 
 extension MapDeserializeExtension on Json {
   //
@@ -104,7 +102,7 @@ extension MapDeserializeExtension on Json {
 
   CashBalance? asCashBalance(String key) {
     var value = this[key];
-    return (value == null) ? null : CashBalance.fromJson(value);
+    return (value == null) ? null : CashBalance.fromJsonPersistor(value);
   }
 }
 

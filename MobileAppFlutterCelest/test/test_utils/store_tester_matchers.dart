@@ -1,5 +1,5 @@
+import 'package:celest_backend/my_src/models/portfolio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app_flutter_celest/models/portfolio.dart';
 
 /// Example: expect(portfolio, isPortfolio(ticker, howMany: 1, averagePrice: 10.5));
 ///

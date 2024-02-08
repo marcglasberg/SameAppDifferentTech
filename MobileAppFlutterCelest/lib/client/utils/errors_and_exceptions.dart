@@ -49,24 +49,6 @@ class AppException implements Exception {
   String toString() => msg.toString();
 }
 
-/// Used when something will be implemented in the future.
-class NotYetImplementedError extends AssertionError {
-  final String msg;
-
-  NotYetImplementedError([dynamic msg])
-      : msg = (msg == null) ? StackTrace.current.toString() : "$msg\n\n${StackTrace.current}";
-
-  @override
-  String toString() => "NOT YET IMPLEMENTED!\n $msg";
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is NotYetImplementedError && runtimeType == other.runtimeType;
-
-  @override
-  int get hashCode => 0;
-}
-
 /// Used to stop the control flow, interrupting a process and breaking out of the current code.
 /// This shouldn't be logged nor show any error messages. It also has no stacktrace.
 /// Use with care, only if you know what you are doing, because that's generally an anti-pattern.
@@ -80,26 +62,6 @@ class InterruptControlFlowException {
 
   @override
   int get hashCode => 0;
-}
-
-/// This should be used when validating input.
-class ValidateError extends TypeError {
-  String msg;
-
-  ValidateError(this.msg);
-
-  ValidateError.semCrashlytics(this.msg);
-
-  @override
-  String toString() => 'ValidateError: $msg';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ValidateError && runtimeType == other.runtimeType && msg == other.msg;
-
-  @override
-  int get hashCode => msg.hashCode;
 }
 
 /// UserException that shows in the console.

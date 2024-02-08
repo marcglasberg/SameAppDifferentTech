@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
 import 'package:celest_backend/models.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_celest/models/available_stocks.dart';
-import 'package:mobile_app_flutter_celest/models/cash_balance.dart';
-import 'package:mobile_app_flutter_celest/models/portfolio.dart';
 import 'package:mobile_app_flutter_celest/models/ui.dart';
 
 class AppState {

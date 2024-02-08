@@ -31,9 +31,9 @@ class CashBalance {
   @override
   String toString() => 'US\$ ${amount.toStringAsFixed(2)}';
 
-  Map<String, dynamic> toJson() => {'amount': amount};
+  Json toJson() => {'amount': amount};
 
-  static CashBalance fromJson(Json json) => CashBalance(json.asDouble('amount')!);
+  factory CashBalance.fromJson(Json json) => CashBalance(json.asDouble('amount')!);
 
   @override
   bool operator ==(Object other) =>

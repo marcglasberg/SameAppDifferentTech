@@ -22,13 +22,13 @@ class Stock {
   @override
   String toString() => '$howManyShares $ticker @$averagePrice';
 
-  Map<String, dynamic> toJson() => {
+  Json toJson() => {
         'ticker': ticker,
         'howManyShares': howManyShares,
         'averagePrice': averagePrice,
       };
 
-  static Stock fromJson(Json json) {
+  factory Stock.fromJson(Json json) {
     return Stock(
       json.asString('ticker')!,
       howManyShares: json.asInt('howManyShares')!,

@@ -2,7 +2,44 @@
 
 import 'package:celest/celest.dart';
 import 'package:celest_backend/my_src/models/available_stock.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
+import 'package:celest_backend/my_src/models/stock.dart';
 import 'package:fast_immutable_collections/src/ilist/ilist.dart';
+
+final class CashBalanceSerializer extends Serializer<CashBalance> {
+  const CashBalanceSerializer();
+
+  @override
+  CashBalance deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, Object?>>(value);
+    return CashBalance((serialized[r'amountX'] as num).toDouble());
+  }
+
+  @override
+  Map<String, Object?> serialize(CashBalance value) =>
+      {r'amountX': value.amountX};
+}
+
+final class StockSerializer extends Serializer<Stock> {
+  const StockSerializer();
+
+  @override
+  Stock deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, Object?>>(value);
+    return Stock(
+      (serialized[r'ticker'] as String),
+      howManyShares: (serialized[r'howManyShares'] as num).toInt(),
+      averagePrice: (serialized[r'averagePrice'] as num).toDouble(),
+    );
+  }
+
+  @override
+  Map<String, Object?> serialize(Stock value) => {
+        r'ticker': value.ticker,
+        r'howManyShares': value.howManyShares,
+        r'averagePrice': value.averagePrice,
+      };
+}
 
 final class AvailableStockSerializer extends Serializer<AvailableStock> {
   const AvailableStockSerializer();

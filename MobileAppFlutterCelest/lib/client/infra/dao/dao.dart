@@ -1,4 +1,5 @@
 import 'package:celest_backend/models.dart';
+import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 
@@ -18,6 +19,22 @@ abstract class Dao {
 
   /// Stop getting stock price updates from the backend.
   Future<void> stopListeningToStockPriceUpdates();
+
+  Future<CashBalance> addCashBalance(double howMuch);
+
+  Future<CashBalance> removeCashBalance(double howMuch);
+
+  /// Buys the given [availableStock] and return the [Stock] bought.
+  /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+  ///
+  Future<Stock> buyStock(AvailableStock availableStock, {required int howMany});
+
+  /// Sells the given [availableStock] and return the [Stock] bought.
+  /// Returns `null` if all the stock was sold.
+  ///
+  /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+  ///
+  Future<Stock?> sellStock(AvailableStock availableStock, {required int howMany});
 }
 
 /// If the DAO cannot complete because of an error, it must throw this error.

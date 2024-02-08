@@ -1,6 +1,6 @@
+import 'package:celest_backend/exceptions.dart';
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
-import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
 
 import '../basic/routes_transitions.dart';
 import '../basic/screen.dart';

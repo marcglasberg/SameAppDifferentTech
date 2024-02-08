@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/exceptions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
 

@@ -183,12 +183,12 @@ class Portfolio {
   @override
   String toString() => 'Portfolio{stocks: $stocks, cashBalance: $cashBalance}';
 
-  Map<String, dynamic> toJson() => {
+  Json toJson() => {
         'stocks': stocks.map((stock) => stock.toJson()).toList(),
         'cashBalance': cashBalance.toJson(),
       };
 
-  static Portfolio fromJson(Json? json) {
+  factory Portfolio.fromJson(Json? json) {
     if (json == null)
       return Portfolio.EMPTY;
     else {

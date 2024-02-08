@@ -75,7 +75,7 @@ void main() {
 
     // Cash balance decreased by the price of 1 IBM stock. Portfolio now contains 1 IBM stock.
     var info = await storeTester.wait(BuyStock_Action);
-    expect(info.state.portfolio.cashBalance.amount, 1000 - ibmAvb.currentPrice);
+    expect(info.state.portfolio.cashBalance.amountX, 1000 - ibmAvb.currentPrice);
     expect(info.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
   });
 
@@ -115,7 +115,7 @@ void main() {
 
     // Cash balance has increased by the price of 1 IBM stock.
     var info = await storeTester.wait(SellStock_Action);
-    expect(info.state.portfolio.cashBalance.amount, 500 + ibmAvb.currentPrice);
+    expect(info.state.portfolio.cashBalance.amountX, 500 + ibmAvb.currentPrice);
 
     // The portfolio now contains 1 IBM stock.
     expect(info.state.portfolio.howManyStocks(ibm_1Share.ticker), 1);

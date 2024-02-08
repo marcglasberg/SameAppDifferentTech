@@ -1,7 +1,9 @@
 import 'package:celest_backend/my_src/models/stock.dart';
+import 'package:celest_backend/src/client/serializers.dart';
 import 'package:meta/meta.dart';
 
-import '../utils/utils.dart';
+import 'utils/json.dart';
+import 'utils/utils.dart';
 
 @immutable
 class AvailableStock {
@@ -30,6 +32,10 @@ class AvailableStock {
       averagePrice: currentPrice,
     );
   }
+
+  Json toJsonPersistor() => const AvailableStockSerializer().serialize(this);
+
+  factory AvailableStock.fromJsonPersistor(Object? value) => const AvailableStockSerializer().deserialize(value);
 
   @override
   String toString() => '$ticker ($name)';

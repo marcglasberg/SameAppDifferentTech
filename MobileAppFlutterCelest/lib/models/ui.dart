@@ -1,5 +1,6 @@
+import 'package:celest_backend/my_src/models/utils/json.dart';
+import 'package:celest_backend/my_src/models/utils/map_deserialization_extension.dart';
 import 'package:mobile_app_flutter_celest/client/infra/navigation/base_screen_chooser.dart';
-import 'package:mobile_app_flutter_celest/models/utils/map_deserialization_extension.dart';
 
 class Ui {
   final bool isDarkMode;
