@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:celest_backend/my_src/models/stock.dart';
+import 'package:meta/meta.dart';
 
-import 'stock.dart';
-import 'utils/utils.dart';
+import '../utils/utils.dart';
 
 @immutable
 class AvailableStock {

@@ -1,12 +1,12 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/models.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_celest/client/infra/theme/app_themes.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/cash_balance/cash_balance_connector.dart';
 import 'package:mobile_app_flutter_celest/models/portfolio.dart';
-import 'package:mobile_app_flutter_celest/models/stock.dart';
 import 'package:themed/themed.dart';
 
 import '../portfolio_and_cash_screen.i18n.dart';

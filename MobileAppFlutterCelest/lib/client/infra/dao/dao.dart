@@ -1,6 +1,6 @@
+import 'package:celest_backend/models.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
-import 'package:mobile_app_flutter_celest/models/available_stock.dart';
 
 Dao get DAO => RunConfig.instance.dao;
 

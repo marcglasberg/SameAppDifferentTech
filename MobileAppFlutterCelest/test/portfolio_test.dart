@@ -1,11 +1,9 @@
 // ignore_for_file: prefer_const_constructors
-
+import 'package:celest_backend/models.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_app_flutter_celest/models/available_stock.dart';
 import 'package:mobile_app_flutter_celest/models/buy_or_sell.dart';
 import 'package:mobile_app_flutter_celest/models/cash_balance.dart';
 import 'package:mobile_app_flutter_celest/models/portfolio.dart';
-import 'package:mobile_app_flutter_celest/models/stock.dart';
 
 void main() {
   test('addCashBalance', () {
@@ -22,7 +20,7 @@ void main() {
 
   test('withAddedStock', () {
     var portfolio = Portfolio(
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
 
     portfolio = portfolio.withAddedStock(
@@ -41,28 +39,24 @@ void main() {
   });
 
   test('withoutStock', () {
-    var portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    var portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     portfolio = portfolio.withoutStock('AAPL');
     expect(portfolio.stocks.any((stock) => stock.ticker == 'AAPL'), false);
   });
 
   test('withoutStocks', () {
-    var portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    var portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     portfolio = portfolio.withoutStocks();
     expect(portfolio.stocks.isEmpty, true);
   });
 
   test('howManyStocks', () {
-    final portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    final portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     expect(portfolio.howManyStocks('AAPL'), 10);
   });
 
   test('getStock', () {
-    final portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    final portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     final stock = portfolio.getStock('AAPL');
     expect(stock.ticker, 'AAPL');
     expect(stock.howManyShares, 10);
@@ -70,8 +64,7 @@ void main() {
   });
 
   test('getStockOrNull', () {
-    final portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    final portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     final stock = portfolio.getStockOrNull('AAPL');
     expect(stock?.ticker, 'AAPL');
     expect(stock?.howManyShares, 10);
@@ -79,8 +72,7 @@ void main() {
   });
 
   test('hasStock', () {
-    final portfolio =
-        Portfolio(stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+    final portfolio = Portfolio(stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     final hasStock = portfolio.hasStock(AvailableStock('AAPL', name: 'Apple', currentPrice: 150.0));
     expect(hasStock, true);
   });
@@ -94,7 +86,7 @@ void main() {
 
   test('totalCostBasis', () {
     final portfolio = Portfolio(
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
       cashBalance: CashBalance(200.0),
     );
     expect(portfolio.totalCostBasis, 1700.0);
@@ -117,7 +109,7 @@ void main() {
   test('sell', () {
     var portfolio = Portfolio(
       cashBalance: CashBalance(200.0),
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
     portfolio =
         portfolio.sell(AvailableStock('AAPL', name: 'Apple', currentPrice: 150.0), howMany: 1);
@@ -135,7 +127,7 @@ void main() {
   test('copyWith', () {
     var portfolio = Portfolio(
       cashBalance: CashBalance(200.0),
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
     var copiedPortfolio = portfolio.copyWith(cashBalance: CashBalance(100.0));
     expect(copiedPortfolio.cashBalance.amount, 100.0);
@@ -150,17 +142,17 @@ void main() {
 
   test('copyWith changes stocks', () {
     var portfolio = Portfolio(
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
     var copiedPortfolio = portfolio.copyWith(
-      stocks: [Stock( 'GOOG', howManyShares: 5, averagePrice: 1000.0)],
+      stocks: [Stock('GOOG', howManyShares: 5, averagePrice: 1000.0)],
     );
     expect(copiedPortfolio.stocks[0].ticker, 'GOOG');
   });
 
   test('withStock', () {
     var portfolio = Portfolio(
-      stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)],
+      stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)],
     );
     portfolio = portfolio.withStock('GOOG', 5, 1000.0);
     expect(portfolio.stocks.length, 2);
@@ -183,38 +175,19 @@ void main() {
     expect(portfolio.stocks[0].averagePrice, 150.0);
   });
 
-  test('fromJson with multiple stocks', () {
-    final json = {
-      'cashBalance': {'amount': 100.0},
-      'stocks': [
-        {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0},
-        {'ticker': 'GOOG', 'howManyShares': 5, 'averagePrice': 1000.0},
-      ],
-    };
-    var portfolio = Portfolio.fromJson(json);
-    expect(portfolio.cashBalance.amount, 100.0);
-    expect(portfolio.stocks.length, 2);
-    expect(portfolio.stocks[0].ticker, 'AAPL');
-    expect(portfolio.stocks[0].howManyShares, 10);
-    expect(portfolio.stocks[0].averagePrice, 150.0);
-    expect(portfolio.stocks[1].ticker, 'GOOG');
-    expect(portfolio.stocks[1].howManyShares, 5);
-    expect(portfolio.stocks[1].averagePrice, 1000.0);
-  });
-
   test('Equality with multiple stocks', () {
     var portfolio1 = Portfolio(
       cashBalance: CashBalance(100.0),
       stocks: [
-        Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0),
-        Stock( 'GOOG', howManyShares: 5, averagePrice: 1000.0),
+        Stock('AAPL', howManyShares: 10, averagePrice: 150.0),
+        Stock('GOOG', howManyShares: 5, averagePrice: 1000.0),
       ],
     );
     var portfolio2 = Portfolio(
       cashBalance: CashBalance(100.0),
       stocks: [
-        Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0),
-        Stock( 'GOOG', howManyShares: 5, averagePrice: 1000.0),
+        Stock('AAPL', howManyShares: 10, averagePrice: 150.0),
+        Stock('GOOG', howManyShares: 5, averagePrice: 1000.0),
       ],
     );
     expect(portfolio1, portfolio2);
@@ -224,80 +197,100 @@ void main() {
     var portfolio1 = Portfolio(
       cashBalance: CashBalance(100.0),
       stocks: [
-        Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0),
-        Stock( 'GOOG', howManyShares: 5, averagePrice: 1000.0),
+        Stock('AAPL', howManyShares: 10, averagePrice: 150.0),
+        Stock('GOOG', howManyShares: 5, averagePrice: 1000.0),
       ],
     );
     var portfolio2 = Portfolio(
       cashBalance: CashBalance(100.0),
       stocks: [
-        Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0),
-        Stock( 'GOOG', howManyShares: 5, averagePrice: 1000.0),
+        Stock('AAPL', howManyShares: 10, averagePrice: 150.0),
+        Stock('GOOG', howManyShares: 5, averagePrice: 1000.0),
       ],
     );
     expect(portfolio1.hashCode, portfolio2.hashCode);
   });
 
-  test('fromJson with null', () {
-    var portfolio = Portfolio.fromJson(null);
-    expect(portfolio, Portfolio.EMPTY);
-  });
-
-  test('toJson', () {
-    final portfolio = Portfolio(
-        cashBalance: CashBalance(100.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
-    final json = portfolio.toJson();
-    expect(json, {
-      'cashBalance': {'amount': 100.0},
-      'stocks': [
-        {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0}
-      ]
-    });
-  });
-
-  test('fromJson', () {
-    final json = {
-      'cashBalance': {'amount': 100.0},
-      'stocks': [
-        {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0}
-      ]
-    };
-    var portfolio = Portfolio.fromJson(json);
-    expect(portfolio.cashBalance.amount, 100.0);
-    expect(portfolio.stocks.length, 1);
-    expect(portfolio.stocks[0].ticker, 'AAPL');
-    expect(portfolio.stocks[0].howManyShares, 10);
-    expect(portfolio.stocks[0].averagePrice, 150.0);
-  });
-
   test('Equality', () {
     var portfolio1 = Portfolio(
         cashBalance: CashBalance(100.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     var portfolio2 = Portfolio(
         cashBalance: CashBalance(100.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     expect(portfolio1, portfolio2);
 
     portfolio2 = Portfolio(
         cashBalance: CashBalance(101.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     expect(portfolio1, isNot(portfolio2));
   });
 
   test('HashCode', () {
     var portfolio1 = Portfolio(
         cashBalance: CashBalance(100.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     var portfolio2 = Portfolio(
         cashBalance: CashBalance(100.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     expect(portfolio1.hashCode, portfolio2.hashCode);
 
     portfolio2 = Portfolio(
         cashBalance: CashBalance(101.0),
-        stocks: [Stock( 'AAPL', howManyShares: 10, averagePrice: 150.0)]);
+        stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
     expect(portfolio1.hashCode, isNot(portfolio2.hashCode));
   });
+
+  // TODO: MARCELO
+  // test('fromJson with null', () {
+  //   var portfolio = Portfolio.fromJson(null);
+  //   expect(portfolio, Portfolio.EMPTY);
+  // });
+  //
+  // test('toJson', () {
+  //   final portfolio = Portfolio(
+  //       cashBalance: CashBalance(100.0),
+  //       stocks: [Stock('AAPL', howManyShares: 10, averagePrice: 150.0)]);
+  //   final json = portfolio.toJson();
+  //   expect(json, {
+  //     'cashBalance': {'amount': 100.0},
+  //     'stocks': [
+  //       {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0}
+  //     ]
+  //   });
+  // });
+  //
+  // test('fromJson', () {
+  //   final json = {
+  //     'cashBalance': {'amount': 100.0},
+  //     'stocks': [
+  //       {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0}
+  //     ]
+  //   };
+  //   var portfolio = Portfolio.fromJson(json);
+  //   expect(portfolio.cashBalance.amount, 100.0);
+  //   expect(portfolio.stocks.length, 1);
+  //   expect(portfolio.stocks[0].ticker, 'AAPL');
+  //   expect(portfolio.stocks[0].howManyShares, 10);
+  //   expect(portfolio.stocks[0].averagePrice, 150.0);
+  // });
+  //
+  // test('fromJson with multiple stocks', () {
+  //   final json = {
+  //     'cashBalance': {'amount': 100.0},
+  //     'stocks': [
+  //       {'ticker': 'AAPL', 'howManyShares': 10, 'averagePrice': 150.0},
+  //       {'ticker': 'GOOG', 'howManyShares': 5, 'averagePrice': 1000.0},
+  //     ],
+  //   };
+  //   var portfolio = Portfolio.fromJson(json);
+  //   expect(portfolio.cashBalance.amount, 100.0);
+  //   expect(portfolio.stocks.length, 2);
+  //   expect(portfolio.stocks[0].ticker, 'AAPL');
+  //   expect(portfolio.stocks[0].howManyShares, 10);
+  //   expect(portfolio.stocks[0].averagePrice, 150.0);
+  //   expect(portfolio.stocks[1].ticker, 'GOOG');
+  //   expect(portfolio.stocks[1].howManyShares, 5);
+  //   expect(portfolio.stocks[1].averagePrice, 1000.0);
+  // });
 }

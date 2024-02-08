@@ -9,10 +9,6 @@ import '../dao.dart';
 
 class SimulatedDao extends Dao {
   //
-  static SimulatedDao get instance => RunConfig.instance.dao as SimulatedDao;
-
-  SimulatedDao();
-
   @override
   Future<void> init() async {
     await simulatesWaiting(50);

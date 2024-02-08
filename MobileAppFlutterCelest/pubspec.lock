@@ -53,10 +53,10 @@ packages:
     dependency: "direct main"
     description:
       name: async_redux
-      sha256: bdbdf9b8cb752fae9fa1a234221d022235b06967426ce1fe766d67b477fb1a7b
+      sha256: fb10ed8eb48129ee7ade17400d0c8442dd47ae9c95b66cc35aaba4789c3992ea
       url: "https://pub.dev"
     source: hosted
-    version: "21.3.3"
+    version: "21.3.4"
   bdd_framework:
     dependency: "direct main"
     description:
@@ -188,10 +188,10 @@ packages:
     dependency: "direct main"
     description:
       name: fast_immutable_collections
-      sha256: b910ccdc99bb38a2abbce07c5afb8f81d4e222a892e4d095a548b99814837b0c
+      sha256: "97fc98d7304013421b4ad802386949578d1311c549f0c15ff1d61052cb8fc2ce"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.1"
+    version: "10.1.0"
   ffi:
     dependency: transitive
     description:

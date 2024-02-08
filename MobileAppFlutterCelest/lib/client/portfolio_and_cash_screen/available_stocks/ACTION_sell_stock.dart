@@ -1,6 +1,6 @@
+import 'package:celest_backend/models.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
-import 'package:mobile_app_flutter_celest/models/available_stock.dart';
 
 class SellStock_Action extends AppAction {
   //

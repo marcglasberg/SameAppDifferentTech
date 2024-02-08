@@ -9,6 +9,8 @@ dependencies:
   celest: ^0.1.0
   celest_core: ^0.1.0
   http: ">=0.13.0 <2.0.0"
+  fast_immutable_collections: ^10.1.0
+  meta: ^1.10.0
 
 dev_dependencies:
   lints: ^3.0.0

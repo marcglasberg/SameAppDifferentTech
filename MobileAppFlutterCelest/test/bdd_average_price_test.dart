@@ -1,12 +1,11 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
+import 'package:celest_backend/models.dart';
 import "package:flutter_test/flutter_test.dart";
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
-import 'package:mobile_app_flutter_celest/models/available_stock.dart';
 import 'package:mobile_app_flutter_celest/models/buy_or_sell.dart';
-import 'package:mobile_app_flutter_celest/models/stock.dart';
 
 import 'test_utils/store_tester_matchers.dart';
 
@@ -53,7 +52,7 @@ void main() {
 
     var avbStock = AvailableStock(ticker, name: '$ticker corp', currentPrice: price);
 
-    var stock = Stock( ticker, howManyShares: quantity, averagePrice: at);
+    var stock = Stock(ticker, howManyShares: quantity, averagePrice: at);
 
     var storeTester = StoreTester(
       initialState: AppState.from(

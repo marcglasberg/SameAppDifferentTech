@@ -77,12 +77,15 @@ class AppPersistor extends Persistor<AppState> {
   /// This method throws an exception if the file does not contain a valid Json for the Portfolio.
   /// If that happens, the caller assumes the file is corrupted, and will treat the error.
   Future<Portfolio> _readPortfolio() async {
-    print('Reading $dbName_Portfolio.db...');
-    LocalJsonPersist localPersist = LocalJsonPersist(dbName_Portfolio);
-    Object? result = await localPersist.load();
-    var portfolio = Portfolio.fromJson(result as Json?);
-    print('Read the Portfolio from disk: $portfolio');
-    return portfolio;
+    return Portfolio();
+
+    // TODO: MARCELO
+    // print('Reading $dbName_Portfolio.db...');
+    // LocalJsonPersist localPersist = LocalJsonPersist(dbName_Portfolio);
+    // Object? result = await localPersist.load();
+    // var portfolio = Portfolio.fromJson(result as Json?);
+    // print('Read the Portfolio from disk: $portfolio');
+    // return portfolio;
   }
 
   /// This method throws an exception if the file does not contain a valid Json for the Portfolio.
@@ -118,18 +121,21 @@ class AppPersistor extends Persistor<AppState> {
     required AppState? lastPersistedState,
     required AppState newState,
   }) async {
-    /// Here I compare the last saved Portfolio with the current Portfolio in the state.
-    /// If the Portfolio changed, I save it to a file. I could have saved it to a database instead.
-    if (newState.portfolio != lastPersistedState?.portfolio) {
-      print('Persisting the Portfolio to disk: ${newState.portfolio}');
-      var localPersist = LocalJsonPersist(dbName_Portfolio);
-      await localPersist.save(newState.portfolio.toJson());
-    }
+    return;
 
-    if (newState.ui != lastPersistedState?.ui) {
-      print('Persisting the Ui to disk: ${newState.ui}');
-      var localPersist = LocalJsonPersist(dbName_Ui);
-      await localPersist.save(newState.ui.toJson());
-    }
+    // TODO: MARCELO
+    // /// Here I compare the last saved Portfolio with the current Portfolio in the state.
+    // /// If the Portfolio changed, I save it to a file. I could have saved it to a database instead.
+    // if (newState.portfolio != lastPersistedState?.portfolio) {
+    //   print('Persisting the Portfolio to disk: ${newState.portfolio}');
+    //   var localPersist = LocalJsonPersist(dbName_Portfolio);
+    //   await localPersist.save(newState.portfolio.toJson());
+    // }
+    //
+    // if (newState.ui != lastPersistedState?.ui) {
+    //   print('Persisting the Ui to disk: ${newState.ui}');
+    //   var localPersist = LocalJsonPersist(dbName_Ui);
+    //   await localPersist.save(newState.ui.toJson());
+    // }
   }
 }

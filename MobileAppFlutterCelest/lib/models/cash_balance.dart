@@ -1,7 +1,6 @@
+import 'package:celest_backend/models.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_celest/models/utils/map_deserialization_extension.dart';
-
-import 'utils/utils.dart';
 
 @immutable
 class CashBalance {

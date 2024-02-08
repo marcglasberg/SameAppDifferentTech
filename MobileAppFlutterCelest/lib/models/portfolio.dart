@@ -1,14 +1,11 @@
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/models.dart';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter_celest/models/utils/map_deserialization_extension.dart';
 
-import 'available_stock.dart';
 import 'buy_or_sell.dart';
 import 'cash_balance.dart';
-import 'stock.dart';
-import 'utils/utils.dart';
 
 @immutable
 class Portfolio {
@@ -183,20 +180,21 @@ class Portfolio {
   @override
   String toString() => 'Portfolio{stocks: $stocks, cashBalance: $cashBalance}';
 
-  Map<String, dynamic> toJson() => {
-        'stocks': stocks.map((stock) => stock.toJson()).toList(),
-        'cashBalance': cashBalance.toJson(),
-      };
-
-  static Portfolio fromJson(Json? json) {
-    if (json == null)
-      return Portfolio.EMPTY;
-    else {
-      IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJson);
-      CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
-      return Portfolio(stocks: stocks, cashBalance: cashBalance);
-    }
-  }
+  // TODO: MARCELO
+  // Map<String, dynamic> toJson() => {
+  //       'stocks': stocks.map((stock) => stock.toJson()).toList(),
+  //       'cashBalance': cashBalance.toJson(),
+  //     };
+  //
+  // static Portfolio fromJson(Json? json) {
+  //   if (json == null)
+  //     return Portfolio.EMPTY;
+  //   else {
+  //     IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJson);
+  //     CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
+  //     return Portfolio(stocks: stocks, cashBalance: cashBalance);
+  //   }
+  // }
 
   @override
   bool operator ==(Object other) =>

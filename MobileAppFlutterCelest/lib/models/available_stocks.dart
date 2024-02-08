@@ -1,7 +1,6 @@
+import 'package:celest_backend/models.dart';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-
-import 'available_stock.dart';
 
 class AvailableStocks {
   static const AvailableStocks EMPTY = AvailableStocks._(IListConst([]));

@@ -7,12 +7,24 @@ library;
 import 'package:celest/celest.dart';
 
 abstract final class apis {
-  static const greeting = CloudApi(name: r'greeting');
+  static const database = CloudApi(name: r'database');
+
+  static const stocks = CloudApi(name: r'stocks');
 }
 
 abstract final class functions {
-  static const greetingSayHello = CloudFunction(
-    api: r'greeting',
-    functionName: r'sayHello',
+  static const databaseInit = CloudFunction(
+    api: r'database',
+    functionName: r'init',
+  );
+
+  static const stocksReadAvailableStocks = CloudFunction(
+    api: r'stocks',
+    functionName: r'readAvailableStocks',
+  );
+
+  static const stocksReadUpdatedStockPrice = CloudFunction(
+    api: r'stocks',
+    functionName: r'readUpdatedStockPrice',
   );
 }

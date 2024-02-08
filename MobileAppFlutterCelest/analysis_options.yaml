@@ -46,7 +46,7 @@ linter:
     - avoid_return_types_on_setters
     - avoid_slow_async_io
     - await_only_futures
-    #  - camel_case_types
+    # - camel_case_types
     - cancel_subscriptions
     - control_flow_in_finally
     - directives_ordering
@@ -72,7 +72,7 @@ linter:
     - prefer_const_declarations
     - prefer_contains
     - prefer_final_fields
-    #    - prefer_foreach
+    # - prefer_foreach
     - prefer_generic_function_type_aliases
     - prefer_initializing_formals
     - prefer_is_empty

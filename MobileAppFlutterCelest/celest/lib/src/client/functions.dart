@@ -7,25 +7,99 @@ library;
 import 'dart:convert';
 
 import 'package:celest/celest.dart';
+import 'package:celest_backend/my_src/models/available_stock.dart';
 import 'package:celest_core/src/exception/cloud_exception.dart';
+import 'package:fast_immutable_collections/src/ilist/ilist.dart';
 
 import '../../client.dart';
 
 class CelestFunctions {
-  final greeting = CelestFunctionsGreeting();
+  final database = CelestFunctionsDatabase();
+
+  final stocks = CelestFunctionsStocks();
 }
 
-class CelestFunctionsGreeting {
-  /// Says hello to a person called [name].
-  Future<String> sayHello(String name) async {
+class CelestFunctionsDatabase {
+  /// I'm using the init function to simulate the database initialization.
+  /// In reality this would be an admin service that connects to a third-party stock price provider.
+  Future<void> init() async {
     final $response = await celest.httpClient.post(
-      celest.baseUri.resolve('/greeting/say-hello'),
+      celest.baseUri.resolve('/database/init'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({r'name': name}),
     );
     final $body = (jsonDecode($response.body) as Map<String, Object?>);
     if ($response.statusCode == 200) {
-      return ($body['response'] as String);
+      return;
+    }
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case _:
+        switch ($response.statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
+}
+
+class CelestFunctionsStocks {
+  Future<IList<AvailableStock>> readAvailableStocks() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/stocks/read-available-stocks'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body = (jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode == 200) {
+      return Serializers.instance
+          .deserialize<IList<AvailableStock>>($body['response']);
+    }
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case _:
+        switch ($response.statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
+
+  /// This function selects a random ticker, updates its price (with some random variation)
+  /// and returns the updated ticker/price pair.
+  ///
+  /// For the moment, Celest has no features to read directly from a database with a websocket,
+  /// so I've created this functions to help me simulate this. As soon as Celest has websockets to
+  /// the database I'm going to remove this function and replace it with the real thing.
+  ///
+  /// Note I'll also have to simulate the websocket client in the frontend code, to use
+  /// this function and convert it to a stream of values.
+  ///
+  Future<({double price, String ticker})?> readUpdatedStockPrice() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/stocks/read-updated-stock-price'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body = (jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode == 200) {
+      return Serializers.instance
+          .deserialize<({double price, String ticker})?>($body['response']);
     }
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);

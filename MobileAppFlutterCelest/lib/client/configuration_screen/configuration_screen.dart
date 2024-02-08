@@ -7,7 +7,7 @@ import 'package:mobile_app_flutter_celest/client/app_bar/ACTION_navigate_to_scre
 import 'package:mobile_app_flutter_celest/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/app_vm_factory.dart';
-import 'package:mobile_app_flutter_celest/client/infra/dao/real_dao/real_dao.dart';
+import 'package:mobile_app_flutter_celest/client/infra/dao/real_dao.dart';
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_celest/client/infra/theme/app_themes.dart';
 import 'package:themed/themed.dart';

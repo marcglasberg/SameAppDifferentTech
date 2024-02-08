@@ -1,11 +1,10 @@
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart';
-import 'package:mobile_app_flutter_celest/models/available_stock.dart';
-import 'package:mobile_app_flutter_celest/models/stock.dart';
 
 void main() {
   final ibmAvb = AvailableStock('IBM', name: 'I. B. Machines', currentPrice: 150);
