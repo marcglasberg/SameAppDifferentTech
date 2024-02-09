@@ -2,7 +2,6 @@ import 'package:celest_backend/client.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/start_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/simulated_dao.dart';
 
-import '../dao/real_dao.dart';
 import '../run_config/ab_testing.dart';
 import '../run_config/run_config.dart';
 
