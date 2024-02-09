@@ -9,9 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  async_redux: ^21.3.3
+  async_redux: ^21.4.0
   align_positioned: ^4.0.0
-  animated_size_and_fade: ^3.0.1
+  animated_size_and_fade: ^4.0.0
   animations: ^2.0.11
   bdd_framework: ^3.0.1
   assorted_layout_widgets: ^9.0.0
@@ -19,7 +19,7 @@ dependencies:
   collection: ^1.17.2
   connectivity: ^3.0.6
   crypto: ^3.0.3
-  fast_immutable_collections: ^9.2.0
+  fast_immutable_collections: ^10.1.0
   flutter_svg: ^2.0.9
   http: ^1.1.2
   i18n_extension: ^10.0.1
@@ -33,7 +33,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
   flutter_localizations:
     sdk: flutter

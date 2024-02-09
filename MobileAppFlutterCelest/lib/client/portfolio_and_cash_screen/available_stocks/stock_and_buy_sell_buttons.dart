@@ -32,6 +32,7 @@ class StockAndBuySellButtons_Connector extends StatelessWidget {
             onSell: vm.onSell,
             ifBuyDisabled: vm.ifBuyDisabled,
             ifSellDisabled: vm.ifSellDisabled,
+            isWaiting: vm.isWaiting,
           );
         },
       );
@@ -46,6 +47,7 @@ class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
         onSell: _onSell,
         ifBuyDisabled: !state.portfolio.hasMoneyToBuyStock(widget.availableStock),
         ifSellDisabled: !state.portfolio.hasStock(widget.availableStock),
+        isWaiting: state.wait.isWaiting,
       );
 
   void _onBuy() => dispatch(
@@ -60,16 +62,18 @@ class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
 class _Vm extends Vm {
   //
   final VoidCallback onBuy, onSell;
-  final bool ifBuyDisabled, ifSellDisabled;
+  final bool ifBuyDisabled, ifSellDisabled, isWaiting;
 
   _Vm({
     required this.onBuy,
     required this.onSell,
     required this.ifBuyDisabled,
     required this.ifSellDisabled,
+    required this.isWaiting,
   }) : super(equals: [
           ifBuyDisabled,
           ifSellDisabled,
+          isWaiting,
         ]);
 }
 
@@ -98,7 +102,7 @@ class StockAndBuySellButtons extends StatelessWidget {
 
   final AvailableStock availableStock;
   final VoidCallback onBuy, onSell;
-  final bool ifBuyDisabled, ifSellDisabled;
+  final bool ifBuyDisabled, ifSellDisabled, isWaiting;
 
   const StockAndBuySellButtons({
     super.key,
@@ -107,6 +111,7 @@ class StockAndBuySellButtons extends StatelessWidget {
     required this.onSell,
     required this.ifBuyDisabled,
     required this.ifSellDisabled,
+    required this.isWaiting,
   });
 
   @override
@@ -145,21 +150,43 @@ class StockAndBuySellButtons extends StatelessWidget {
     );
   }
 
-  Widget _buyButton() => Theme(
-        data: ThemeData(useMaterial3: false),
-        child: ElevatedButton(
-          style: buyStyle,
-          onPressed: ifBuyDisabled ? null : onBuy,
-          child: Text('Buy'.i18n),
+  /// Note: If any operation is in progress ([isWaiting] is true) the button will be
+  /// have its opacity reduced to 0.9, and you won't be able to press it.
+  ///
+  /// However, if there is not enough money to buy the stock ([ifBuyDisabled] is true)
+  /// the button will be totally disabled.
+  Widget _buyButton() => IgnorePointer(
+        ignoring: isWaiting,
+        child: Opacity(
+          opacity: isWaiting ? 0.9 : 1.0,
+          child: Theme(
+            data: ThemeData(useMaterial3: false),
+            child: ElevatedButton(
+              style: buyStyle,
+              onPressed: ifBuyDisabled ? null : onBuy,
+              child: Text('Buy'.i18n),
+            ),
+          ),
         ),
       );
 
-  Widget _sellButton() => Theme(
-        data: ThemeData(useMaterial3: false),
-        child: ElevatedButton(
-          style: sellStyle,
-          onPressed: ifSellDisabled ? null : onSell,
-          child: Text('Sell'.i18n),
+  /// Note: If any operation is in progress ([isWaiting] is true) the button will be
+  /// have its opacity reduced to 0.9, and you won't be able to press it.
+  ///
+  /// However, if there is not enough stock to sell ([ifSellDisabled] is true)
+  /// the button will be totally disabled.
+  Widget _sellButton() => IgnorePointer(
+        ignoring: isWaiting,
+        child: Opacity(
+          opacity: isWaiting ? 0.9 : 1.0,
+          child: Theme(
+            data: ThemeData(useMaterial3: false),
+            child: ElevatedButton(
+              style: sellStyle,
+              onPressed: ifSellDisabled ? null : onSell,
+              child: Text('Sell'.i18n),
+            ),
+          ),
         ),
       );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
+import 'package:mobile_app_flutter_celest/client/infra/dao/simulated_dao.dart';
 
 import 'ab_testing.dart';
 
@@ -9,9 +10,6 @@ class RunConfig {
   static RunConfig? _instance;
 
   final Dao dao;
-
-  /// If true, the missing translations will be logged to the console. Default is false.
-  final bool ifLogsMissingTranslations;
 
   /// If true, PlatformChannels will not be called.
   /// Recommended default: true, for the real and demo; False for tests.
@@ -27,6 +25,15 @@ class RunConfig {
 
   final AbTesting abTesting;
 
+  /// If true, the missing translations will be logged to the console. Default is false.
+  /// Note: This is specific to the `i18n_extension` package we use for translations.
+  final bool ifLogsMissingTranslations;
+
+  /// 1) Null: The default. Does not simulate. Get the real connection status from the plugin.
+  /// 2) True: Simulates the connection status, stating that there is a connection.
+  /// 3) False: Simulates the connection status, stating that there is NO connection.
+  final bool? internetOnOffSimulation;
+
   RunConfig({
     required this.dao,
     this.ifLogsMissingTranslations = false,
@@ -34,7 +41,11 @@ class RunConfig {
     this.ifChecksInternetConnection = true,
     this.ifShowRunConfigInTheConfigScreen = true,
     this.abTesting = AbTesting.A,
+    this.internetOnOffSimulation,
   });
+
+  /// Return true if the DAO is a SimulatedDao.
+  bool get isSimulatingTheDao => dao is SimulatedDao;
 
   RunConfig copy({
     Dao? dao,
@@ -43,6 +54,7 @@ class RunConfig {
     bool? ifChecksInternetConnection,
     bool? ifShowRunConfigInTheConfigScreen,
     AbTesting? abTesting,
+    bool? internetOnOffSimulation,
   }) =>
       RunConfig(
         dao: dao ?? this.dao,
@@ -52,6 +64,7 @@ class RunConfig {
         ifShowRunConfigInTheConfigScreen:
             ifShowRunConfigInTheConfigScreen ?? this.ifShowRunConfigInTheConfigScreen,
         abTesting: abTesting ?? this.abTesting,
+        internetOnOffSimulation: internetOnOffSimulation ?? this.internetOnOffSimulation,
       );
 
   /// This will turn the given runConfig into a singleton, accessible statically.
@@ -81,7 +94,8 @@ class RunConfig {
           disablePlatformChannels == other.disablePlatformChannels &&
           ifChecksInternetConnection == other.ifChecksInternetConnection &&
           ifShowRunConfigInTheConfigScreen == other.ifShowRunConfigInTheConfigScreen &&
-          abTesting == other.abTesting;
+          abTesting == other.abTesting &&
+          internetOnOffSimulation == other.internetOnOffSimulation;
 
   @override
   int get hashCode =>
@@ -90,5 +104,6 @@ class RunConfig {
       disablePlatformChannels.hashCode ^
       ifChecksInternetConnection.hashCode ^
       ifShowRunConfigInTheConfigScreen.hashCode ^
-      abTesting.hashCode;
+      abTesting.hashCode ^
+      internetOnOffSimulation.hashCode;
 }

@@ -41,6 +41,27 @@ final class StockSerializer extends Serializer<Stock> {
       };
 }
 
+final class Record$z4p9fhSerializer extends Serializer<Record$z4p9fh> {
+  const Record$z4p9fhSerializer();
+
+  @override
+  Record$z4p9fh deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, Object?>>(value);
+    return (
+      cashBalance: Serializers.instance
+          .deserialize<CashBalance>(serialized[r'cashBalance']),
+      stock: Serializers.instance.deserialize<Stock>(serialized[r'stock'])
+    );
+  }
+
+  @override
+  Map<String, Object?> serialize(Record$z4p9fh value) => {
+        r'cashBalance':
+            Serializers.instance.serialize<CashBalance>(value.cashBalance),
+        r'stock': Serializers.instance.serialize<Stock>(value.stock),
+      };
+}
+
 final class AvailableStockSerializer extends Serializer<AvailableStock> {
   const AvailableStockSerializer();
 
@@ -99,4 +120,5 @@ final class Record$ma0bzgSerializer extends Serializer<Record$ma0bzg> {
       };
 }
 
+typedef Record$z4p9fh = ({CashBalance cashBalance, Stock stock});
 typedef Record$ma0bzg = ({double price, String ticker});

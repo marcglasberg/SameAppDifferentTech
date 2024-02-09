@@ -12,9 +12,9 @@ dependencies:
   celest_core: ^0.1.0
   celest_backend:
     path: celest/
-  async_redux: ^21.3.4
+  async_redux: ^21.4.0
   align_positioned: ^4.0.0
-  animated_size_and_fade: ^3.0.1
+  animated_size_and_fade: ^4.0.0
   animations: ^2.0.11
   bdd_framework: ^3.0.1
   assorted_layout_widgets: ^9.0.0
@@ -36,7 +36,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
   flutter_localizations:
     sdk: flutter

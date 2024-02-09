@@ -6,7 +6,7 @@ library;
 
 import 'package:celest/celest.dart';
 
-abstract final class apis {
+abstract final class Apis {
   static const database = CloudApi(name: r'database');
 
   static const portfolio = CloudApi(name: r'portfolio');
@@ -14,7 +14,7 @@ abstract final class apis {
   static const stocks = CloudApi(name: r'stocks');
 }
 
-abstract final class functions {
+abstract final class Functions {
   static const databaseInit = CloudFunction(
     api: r'database',
     functionName: r'init',
@@ -28,6 +28,11 @@ abstract final class functions {
   static const portfolioBuyStock = CloudFunction(
     api: r'portfolio',
     functionName: r'buyStock',
+  );
+
+  static const portfolioReadCashBalance = CloudFunction(
+    api: r'portfolio',
+    functionName: r'readCashBalance',
   );
 
   static const portfolioRemoveCashBalance = CloudFunction(

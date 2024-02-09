@@ -1,8 +1,9 @@
 import 'package:celest_backend/models.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
+import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 
-class BuyStock_Action extends AppAction {
+class BuyStock_Action extends AppAction with WithWaitState  {
   //
   final AvailableStock availableStock;
   final int howMany;
@@ -13,9 +14,14 @@ class BuyStock_Action extends AppAction {
   });
 
   @override
-  AppState? reduce() {
-    return state.copy(
-      portfolio: state.portfolio.buy(availableStock, howMany: howMany),
-    );
+  Future<AppState?> reduce() async {
+    var (stock: stock, cashBalance: cashBalance) =
+        await DAO.buyStock(availableStock, howMany: howMany);
+
+    var updatedPortfolio = state.portfolio
+        .withStock(stock.ticker, stock.howManyShares, stock.averagePrice)
+        .withCashBalance(cashBalance);
+
+    return state.copy(portfolio: updatedPortfolio);
   }
 }

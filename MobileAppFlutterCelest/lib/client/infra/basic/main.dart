@@ -1,5 +1,6 @@
 import 'package:celest_backend/client.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/start_app.dart';
+import 'package:mobile_app_flutter_celest/client/infra/dao/simulated_dao.dart';
 
 import '../dao/real_dao.dart';
 import '../run_config/ab_testing.dart';
@@ -15,8 +16,8 @@ void main() async {
     //
     /// If we inject the REAL dao, it will connect to the real backend service.
     /// If we inject the SIMULATED dao, it will simulate the backend service.
-    dao: RealDao(),
-    // dao: SimulatedDao(), // Another option.
+    // dao: RealDao(),
+    dao: SimulatedDao(), // Another option.
 
     ifShowRunConfigInTheConfigScreen: true,
     abTesting: AbTesting.A,

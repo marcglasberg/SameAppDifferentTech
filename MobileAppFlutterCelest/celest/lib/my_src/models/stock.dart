@@ -16,6 +16,9 @@ class Stock {
     required this.averagePrice,
   });
 
+  /// A stock with no shares.
+  Stock.noStocks(String ticker) : this(ticker, howManyShares: 0, averagePrice: 0);
+
   double get costBasis => howManyShares * averagePrice;
 
   String get averagePriceStr => 'US\$ ${averagePrice.toStringAsFixed(2)}';

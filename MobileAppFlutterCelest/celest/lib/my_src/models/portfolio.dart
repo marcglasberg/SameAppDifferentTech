@@ -37,19 +37,13 @@ class Portfolio {
 
   bool get isEmpty => stocks.isEmpty;
 
-  Portfolio addCashBalance(double howMuch) {
-    final newCashBalance = cashBalance.add(howMuch);
-    return copyWith(cashBalance: newCashBalance);
-  }
+  Portfolio withCashBalance(CashBalance newCashBalance) => copyWith(cashBalance: newCashBalance);
 
-  Portfolio removeCashBalance(double howMuch) {
-    final newCashBalance = cashBalance.remove(howMuch);
-    return copyWith(cashBalance: newCashBalance);
-  }
+  Portfolio addCashBalance(double howMuch) => copyWith(cashBalance: cashBalance.add(howMuch));
 
-  Portfolio withoutStock(String ticker) {
-    return withStock(ticker, 0, 0.0);
-  }
+  Portfolio removeCashBalance(double howMuch) => copyWith(cashBalance: cashBalance.remove(howMuch));
+
+  Portfolio withoutStock(String ticker) => withStock(ticker, 0, 0.0);
 
   Portfolio withAddedStock(AvailableStock availableStock, int howMany) {
     final pos = _getStockPositionInList(availableStock);

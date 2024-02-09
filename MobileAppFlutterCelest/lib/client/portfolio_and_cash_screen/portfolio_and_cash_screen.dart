@@ -13,10 +13,9 @@ class PortfolioAndCashScreen extends StatelessWidget with Screen {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Stocks App Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
       home: const MyHomePage(),
     );
   }

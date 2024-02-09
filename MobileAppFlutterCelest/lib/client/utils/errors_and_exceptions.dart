@@ -2,6 +2,8 @@ import "dart:io";
 
 import "package:async_redux/async_redux.dart";
 
+import "connectivity.dart";
+
 /// Used for Bugs.
 class AppError extends AssertionError {
   //
@@ -83,5 +85,48 @@ class UserException_ShowInConsole extends UserException {
       '================================================================'
       '\nCode = $code',
     );
+  }
+}
+
+/// An [InternetException] is a type of [UserException] that alerts the user when the connection is
+/// having issues. Use [InternetException.noInternet] for a simple version that advises the
+/// user to check their connection. Use the factory [newInstance] to give more complete messages,
+/// indicating which host (Google, Apple etc) is having problems.
+class InternetException extends UserException {
+  //
+  static const noInternet = InternetException._noInternet();
+
+  final bool ifDeviceHasInternet;
+
+  InternetException({
+    required this.ifDeviceHasInternet,
+    Object? cause,
+  }) : super(
+            ifDeviceHasInternet ? "There is no Internet" : "We couldn't connect to the our server.",
+            cause: const UserException('Please, check your Internet connection.')) {
+    if (ifDeviceHasInternet)
+      print(
+        "\nMsg = $msg, "
+        "================================================================"
+        "\nCause = $cause,"
+        "================================================================"
+        "\nCode = $code",
+      );
+  }
+
+  const InternetException._noInternet()
+      : ifDeviceHasInternet = false,
+        super("There is no Internet",
+            cause: const UserException('Please, check your Internet connection.'));
+
+  /// Async Factory that verifies if the device has Internet.
+  static Future<InternetException> newInstance({
+    Object? cause,
+    StackTrace? stackTrace,
+  }) async {
+    // TODO: Add logger here.
+    // if (cause != null) await log(cause, stackTrace);
+
+    return InternetException(ifDeviceHasInternet: await ifThereIsInternet(), cause: cause);
   }
 }

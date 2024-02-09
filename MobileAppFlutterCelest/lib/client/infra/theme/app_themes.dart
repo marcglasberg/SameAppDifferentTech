@@ -79,8 +79,10 @@ class AppColor {
 
   static const text = ColorRef(const Color(0xF0000000), id: 'text');
   static const textDimmed = ColorRef(const Color(0x60000000), id: 'dimmed');
+  static const invertedText = ColorRef(const Color(0xFFFFFFFF), id: 'invertedText');
   static const bkg = ColorRef(const Color(0xFFFFFFFF), id: 'bkg');
   static const bkgGray = ColorRef(const Color(0xFFE0E0E0), id: 'bkgGray');
+  static const disabledGray = ColorRef(const Color(0x70777777), id: 'disabledGray');
   static const blue = ColorRef(const Color(0xFF2196F3), id: 'blue');
   static const darkBlue = ColorRef(const Color(0xFF263073), id: 'darkBlue');
   static const green = ColorRef(const Color(0xFF309030), id: 'green');
@@ -94,8 +96,10 @@ class AppColor {
 Map<ThemeRef, Object> darkTheme = {
   AppColor.text: const Color(0xFFFFFFFF),
   AppColor.textDimmed: const Color(0x60FFFFFF),
+  AppColor.invertedText: const Color(0xF0000000),
   AppColor.bkg: const Color(0xF0000000),
   AppColor.bkgGray: const Color(0xF0222222),
+  AppColor.disabledGray: const Color(0x70777777),
   AppColor.blue: const Color(0xFF2196F3),
   AppColor.darkBlue: const Color(0xFF263073),
   AppColor.green: const Color(0xFF26FF5C),

@@ -114,10 +114,38 @@ class CelestFunctionsPortfolio {
     }
   }
 
+  Future<CashBalance> readCashBalance() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/portfolio/read-cash-balance'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body = (jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode == 200) {
+      return Serializers.instance.deserialize<CashBalance>($body['response']);
+    }
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case _:
+        switch ($response.statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
+
   /// Buys the given [availableStock] and return the [Stock] bought.
   /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
   ///
-  Future<Stock> buyStock(
+  Future<({CashBalance cashBalance, Stock stock})> buyStock(
     AvailableStock availableStock, {
     required int howMany,
   }) async {
@@ -132,7 +160,9 @@ class CelestFunctionsPortfolio {
     );
     final $body = (jsonDecode($response.body) as Map<String, Object?>);
     if ($response.statusCode == 200) {
-      return Serializers.instance.deserialize<Stock>($body['response']);
+      return Serializers.instance
+          .deserialize<({CashBalance cashBalance, Stock stock})>(
+              $body['response']);
     }
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);
@@ -154,11 +184,11 @@ class CelestFunctionsPortfolio {
   }
 
   /// Sells the given [availableStock] and return the [Stock] bought.
-  /// Returns `null` if all the stock was sold.
+  /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
   ///
   /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
   ///
-  Future<Stock?> sellStock(
+  Future<({CashBalance cashBalance, Stock stock})> sellStock(
     AvailableStock availableStock, {
     required int howMany,
   }) async {
@@ -173,7 +203,9 @@ class CelestFunctionsPortfolio {
     );
     final $body = (jsonDecode($response.body) as Map<String, Object?>);
     if ($response.statusCode == 200) {
-      return Serializers.instance.deserialize<Stock?>($body['response']);
+      return Serializers.instance
+          .deserialize<({CashBalance cashBalance, Stock stock})>(
+              $body['response']);
     }
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);

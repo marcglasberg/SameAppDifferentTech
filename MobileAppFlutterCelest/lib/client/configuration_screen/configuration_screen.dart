@@ -125,8 +125,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             child: MaterialButton(
               minWidth: double.infinity,
               padding: const EdgeInsets.all(16),
-              color: Colors.green,
-              child: Text('Done'.i18n, style: Font.small + AppColor.white),
+              color: AppColor.green,
+              child: Text('Done'.i18n, style: Font.small + AppColor.invertedText),
               onPressed: widget.onDone,
             ),
           ),

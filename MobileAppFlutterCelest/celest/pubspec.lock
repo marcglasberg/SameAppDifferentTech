@@ -45,18 +45,18 @@ packages:
     dependency: "direct main"
     description:
       name: celest
-      sha256: fa5f2cf62073d2e71a2ce4c559d703886c2a48062b08752040d3afcc4531b846
+      sha256: "19553d56c2e6cf444fd25c55dde3dc90c6dc72631880b85a8ede3d92d6c7c8f1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0-dev.2"
   celest_core:
     dependency: "direct main"
     description:
       name: celest_core
-      sha256: c5d6408d047816f2b81c63b75c8f270377768612ee47272a5782ed48af887e55
+      sha256: "615af7aede8f15dd3355ca66ae43baff88a3359e6a9e6ba92af0b0c61bf8c798"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0-dev"
   chunked_stream:
     dependency: transitive
     description:

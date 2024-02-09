@@ -30,13 +30,25 @@ class SimulatedDao extends RealDao {
   }
 
   @override
-  Future<Stock> buyStock(AvailableStock availableStock, {required int howMany}) async {
+  Future<CashBalance> readCashBalance() async {
+    await simulatesWaiting(250);
+    return super.readCashBalance();
+  }
+
+  @override
+  Future<({Stock stock, CashBalance cashBalance})> buyStock(
+    AvailableStock availableStock, {
+    required int howMany,
+  }) async {
     await simulatesWaiting(250);
     return super.buyStock(availableStock, howMany: howMany);
   }
 
   @override
-  Future<Stock?> sellStock(AvailableStock availableStock, {required int howMany}) async {
+  Future<({Stock stock, CashBalance cashBalance})> sellStock(
+    AvailableStock availableStock, {
+    required int howMany,
+  }) async {
     await simulatesWaiting(250);
     return super.sellStock(availableStock, howMany: howMany);
   }

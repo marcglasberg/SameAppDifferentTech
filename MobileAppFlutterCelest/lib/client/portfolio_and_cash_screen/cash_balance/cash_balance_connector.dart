@@ -23,6 +23,7 @@ class CashBalance_Connector extends StatelessWidget {
             cashBalance: vm.cashBalance,
             onAddCash: vm.onAddCash,
             onRemoveCash: vm.onRemoveCash,
+            isWaiting: vm.isWaiting,
           );
         },
       );
@@ -34,24 +35,32 @@ class _Factory extends AppVmFactory {
         cashBalance: state.portfolio.cashBalance,
         onAddCash: _onAddCash,
         onRemoveCash: _onRemoveCash,
+        isWaiting: _isWaiting(),
       );
 
   void _onAddCash() => dispatch(AddCash_Action(100));
 
   void _onRemoveCash() => dispatch(RemoveCash_Action(100));
+
+  bool _isWaiting() =>
+      state.wait.isWaitingForType<AddCash_Action>() ||
+      state.wait.isWaitingForType<RemoveCash_Action>();
 }
 
 class _Vm extends Vm {
   //
   final CashBalance cashBalance;
   final VoidCallback onAddCash, onRemoveCash;
+  final bool isWaiting;
 
   _Vm({
     required this.cashBalance,
     required this.onAddCash,
     required this.onRemoveCash,
+    required this.isWaiting,
   }) : super(equals: [
           cashBalance,
+          isWaiting,
         ]);
 }
 
@@ -61,12 +70,14 @@ class CashBalanceWidget extends StatelessWidget {
 
   final CashBalance cashBalance;
   final VoidCallback onAddCash, onRemoveCash;
+  final bool isWaiting;
 
   CashBalanceWidget({
     super.key,
     required this.cashBalance,
     required this.onAddCash,
     required this.onRemoveCash,
+    required this.isWaiting,
   });
 
   @override
@@ -84,23 +95,23 @@ class CashBalanceWidget extends StatelessWidget {
     );
   }
 
-  CircleButton _removeButton() {
+  CircleButton _addButton() {
     return CircleButton(
-      backgroundColor: AppColor.buttonRed,
-      clickAreaMargin: const Pad(all: 3.0, left: 3.5, right: 5, vertical: 4),
-      tapColor: AppColor.buttonRed.lighter(0.2),
-      icon: const Icon(Icons.remove, color: Colors.white),
-      onTap: onRemoveCash,
+      backgroundColor: isWaiting ? AppColor.disabledGray : AppColor.buttonGreen,
+      clickAreaMargin: const Pad(all: 3.0, left: 6, vertical: 4),
+      tapColor: isWaiting ? AppColor.disabledGray : AppColor.buttonGreen.lighter(0.2),
+      icon: const Icon(Icons.add, color: AppColor.white),
+      onTap: isWaiting ? null : onAddCash,
     );
   }
 
-  CircleButton _addButton() {
+  CircleButton _removeButton() {
     return CircleButton(
-      backgroundColor: AppColor.buttonGreen,
-      clickAreaMargin: const Pad(all: 3.0, left: 6, vertical: 4),
-      tapColor: AppColor.buttonGreen.lighter(0.2),
-      icon: const Icon(Icons.add, color: Colors.white),
-      onTap: onAddCash,
+      backgroundColor: isWaiting ? AppColor.disabledGray : AppColor.buttonRed,
+      clickAreaMargin: const Pad(all: 3.0, left: 3.5, right: 5, vertical: 4),
+      tapColor: isWaiting ? AppColor.disabledGray : AppColor.buttonRed.lighter(0.2),
+      icon: const Icon(Icons.remove, color: AppColor.white),
+      onTap: isWaiting ? null : onRemoveCash,
     );
   }
 }

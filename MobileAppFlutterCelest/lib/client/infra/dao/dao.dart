@@ -24,17 +24,21 @@ abstract class Dao {
 
   Future<CashBalance> removeCashBalance(double howMuch);
 
+  Future<CashBalance> readCashBalance();
+
   /// Buys the given [availableStock] and return the [Stock] bought.
   /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
   ///
-  Future<Stock> buyStock(AvailableStock availableStock, {required int howMany});
+  Future<({Stock stock, CashBalance cashBalance})> buyStock(AvailableStock availableStock,
+      {required int howMany});
 
   /// Sells the given [availableStock] and return the [Stock] bought.
-  /// Returns `null` if all the stock was sold.
+  /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
   ///
   /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
   ///
-  Future<Stock?> sellStock(AvailableStock availableStock, {required int howMany});
+  Future<({Stock stock, CashBalance cashBalance})> sellStock(AvailableStock availableStock,
+      {required int howMany});
 }
 
 /// If the DAO cannot complete because of an error, it must throw this error.

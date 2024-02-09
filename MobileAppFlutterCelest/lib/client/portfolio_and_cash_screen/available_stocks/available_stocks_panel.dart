@@ -3,9 +3,6 @@ import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/avail
 import 'package:mobile_app_flutter_celest/models/available_stocks.dart';
 
 class AvailableStocksPanel extends StatelessWidget {
-  //
-  static const style = TextStyle(fontSize: 20, color: Colors.black);
-
   final AvailableStocks availableStocks;
 
   const AvailableStocksPanel({

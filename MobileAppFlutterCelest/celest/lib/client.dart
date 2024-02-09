@@ -19,14 +19,15 @@ class Celest {
   late http.Client httpClient = http.Client();
 
   late final Uri baseUri = kIsWeb || !Platform.isAndroid
-      ? Uri.parse('http://localhost:7797')
-      : Uri.parse('http://10.0.2.2:7797');
+      ? Uri.parse('http://localhost:7777')
+      : Uri.parse('http://10.0.2.2:7777');
 
   final functions = CelestFunctions();
 
   void init() {
     Serializers.instance.put(const CashBalanceSerializer());
     Serializers.instance.put(const StockSerializer());
+    Serializers.instance.put(const Record$z4p9fhSerializer());
     Serializers.instance.put(const AvailableStockSerializer());
     Serializers.instance.put(const IListAvailableStockSerializer());
     Serializers.instance.put(const Record$ma0bzgSerializer());
