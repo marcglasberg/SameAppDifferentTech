@@ -39,6 +39,26 @@ This is the app:
 
 ![Alt text](readme_images/App_Description.png)
 
+# How to run the app
+
+Clone the app to your computer, and open it in your IDE (e.g. IntelliJ, Android Studio, VSCode).
+
+Before running the app, you need to start the Celest service. To do that, open a terminal and run:
+
+```shell
+celest start
+```
+
+The `start` command will run Celest locally, in your machine.
+
+Alternatively, to deploy the app to your Celest account in the cloud, try instead:
+
+```shell
+celest deploy
+```  
+
+The `deploy` command will run Celest in the cloud.
+
 # How Celest works under the hood
 
 The structure below represents a mobile app using Flutter and Celest:
@@ -155,24 +175,29 @@ imported, due to the previously mentioned access limitations).
 
 The generated `sayHello()` starts by sending an HTTP POST request to the backend,
 by doing `await celest.httpClient.post(url, ...)`, and will resolve the URL
-with `baseUri.resolve('/greeting/say-hello')`, where:
+with `baseUri.resolve('/greeting/say-hello')`.
 
-```
+If you ran Celest with `celest start`, this will be your `baseUri`:
+
+```dart
 baseUri = kIsWeb || !Platform.isAndroid
     ? Uri.parse('http://localhost:7777')
     : Uri.parse('http://10.0.2.2:7777');
 ```
 
-At the moment, Celest can only run locally via the CLI. In the near future, when Celest can run
-in a real server, the Celest server URL will be one of the options above.
+We have `http://localhost:7777` for web, and `http://10.0.2.2:7777` for Android, where `10.0.2.2` is
+a special alias to the host loopback interface (i.e., `127.0.0.1` on my development machine) when
+using the Android Emulator.
 
-But for the moment, we have only `http://localhost:7777` for web, and `http://10.0.2.2:7777`
-for Android, where `10.0.2.2` is a special alias to the host loopback interface
-(i.e., `127.0.0.1` on my development machine) when using the Android Emulator.
-
-By running locally, Celest will then spin up a local server on port 7777
+By running locally, Celest will then spin up a local server on port `7777`
 and the generated `sayHello()` function will send the HTTP POST request
 to `http://...:7777/greeting/say-hello`.
+
+If instead you ran Celest with `celest deploy`, your `baseUri` will be something like this
+
+```dart
+late final Uri baseUri = Uri.parse('https://mobile-app-flutter-celest-xxxx-xxxxxxxxxx-xx.a.run.app');
+```
 
 In the backend, as seen in file `celest-0.1.1\lib\src\runtime\serve.dart`
 from https://pub.dev/packages/celest, Celest will:

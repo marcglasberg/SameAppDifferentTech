@@ -15,7 +15,7 @@ Future<void> checkInternet() async {
 /// provider is really providing the service or if the server is available. So, it is possible that
 /// this function returns true and the request still fails.
 Future<bool> ifThereIsInternet() async {
-  if (RunConfig.instance.isSimulatingTheDao && RunConfig.instance.internetOnOffSimulation != null)
+  if (RunConfig.instance.internetOnOffSimulation != null)
     return RunConfig.instance.internetOnOffSimulation!;
   else {
     ConnectivityResult result = await Connectivity().checkConnectivity();

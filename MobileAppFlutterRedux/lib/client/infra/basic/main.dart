@@ -7,7 +7,7 @@ import '../run_config/run_config.dart';
 void main() async {
   //
 
-  /// A run-configuration let's us change some of the app characteristics at compile time.
+  /// A run-configuration let us change some of the app characteristics at compile time.
   /// We can have multiple main methods with different run-configurations, or we can create
   /// the run-configuration programmatically.
   var runConfig = RunConfig(

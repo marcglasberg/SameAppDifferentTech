@@ -78,6 +78,25 @@ class RunConfig {
     }
   }
 
+  /// Use this in tests only.
+  /// In tests, add: `setUp(RunConfig.setTestInstance);`
+  /// Or:
+  /// ```
+  /// setUp(() {
+  ///     RunConfig.setTestInstance( // Parameters here. );
+  /// });
+  /// ```
+  @visibleForTesting
+  static void setTestInstance() => RunConfig.setInstance(
+        RunConfig(
+          dao: SimulatedDao(),
+          ifShowRunConfigInTheConfigScreen: true,
+          abTesting: AbTesting.A,
+          disablePlatformChannels: true,
+          internetOnOffSimulation: true,
+        ),
+      );
+
   /// Returns the current RunConfig instance.
   /// Throws if that instance is not yet defined.
   static RunConfig get instance => (_instance != null)
