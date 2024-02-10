@@ -12,6 +12,7 @@ dependencies:
   fast_immutable_collections: ^10.1.0
   meta: ^1.10.0
   collection: ^1.17.2
+  intl: 0.18.1
 
 dev_dependencies:
   lints: ^3.0.0

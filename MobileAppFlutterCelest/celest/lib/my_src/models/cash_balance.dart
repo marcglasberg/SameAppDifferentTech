@@ -6,29 +6,29 @@ import 'package:meta/meta.dart';
 class CashBalance {
   static const CashBalance ZERO = CashBalance._(0);
 
-  final double amountX;
+  final double amount;
 
-  CashBalance(double amountX) : amountX = amountX.isNaN ? 0 : round(amountX);
+  CashBalance(double amountX) : amount = amountX.isNaN ? 0 : round(amountX);
 
-  const CashBalance._(this.amountX);
+  const CashBalance._(this.amount);
 
   CashBalance withAmount(double amount) => CashBalance(round(amount));
 
   CashBalance add(double howMuch) {
-    double newAmount = round(amountX + howMuch);
+    double newAmount = round(amount + howMuch);
     print('Added $howMuch. Cash balance is now: $newAmount.');
     return CashBalance(newAmount);
   }
 
   CashBalance remove(double howMuch) {
-    double newAmount = round(amountX - howMuch);
+    double newAmount = round(amount - howMuch);
     if (newAmount < 0) newAmount = 0;
     print('Removed $howMuch. Cash balance is now: $newAmount.');
     return CashBalance(newAmount);
   }
 
   @override
-  String toString() => 'US\$ ${amountX.toStringAsFixed(2)}';
+  String toString() => 'US\$ ${amount.toStringAsFixed(2)}';
 
   Map<String, dynamic> toJsonPersistor() => const CashBalanceSerializer().serialize(this);
 
@@ -38,8 +38,8 @@ class CashBalance {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CashBalance && runtimeType == other.runtimeType && amountX == other.amountX;
+      other is CashBalance && runtimeType == other.runtimeType && amount == other.amount;
 
   @override
-  int get hashCode => amountX.hashCode;
+  int get hashCode => amount.hashCode;
 }

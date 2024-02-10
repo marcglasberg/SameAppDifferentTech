@@ -106,7 +106,7 @@ class Portfolio {
   }
 
   bool hasMoneyToBuyStock(AvailableStock availableStock) {
-    return cashBalance.amountX >= availableStock.currentPrice;
+    return cashBalance.amount >= availableStock.currentPrice;
   }
 
   Portfolio buyOrSell(BuyOrSell buyOrSell, AvailableStock availableStock, int howMany) {
@@ -118,11 +118,11 @@ class Portfolio {
   /// Buys [howMany] shares of [availableStock].
   /// If the user does not have enough money, throws a [UserException].
   Portfolio buy(AvailableStock availableStock, {required int howMany}) {
-    if (cashBalance.amountX < availableStock.currentPrice * howMany) {
+    if (cashBalance.amount < availableStock.currentPrice * howMany) {
       throw const TranslatableUserException('Not enough money to buy stock');
     } else {
       final newCashBalance =
-          CashBalance(cashBalance.amountX - availableStock.currentPrice * howMany);
+          CashBalance(cashBalance.amount - availableStock.currentPrice * howMany);
       final newPortfolio = withAddedStock(availableStock, howMany);
       return newPortfolio.copyWith(cashBalance: newCashBalance);
     }
@@ -160,7 +160,7 @@ class Portfolio {
         }
 
         final newCashBalance =
-            CashBalance(cashBalance.amountX + availableStock.currentPrice * howMany);
+            CashBalance(cashBalance.amount + availableStock.currentPrice * howMany);
         return copyWith(stocks: newStocks, cashBalance: newCashBalance);
       }
     }
@@ -171,7 +171,7 @@ class Portfolio {
   }
 
   double get totalCostBasis {
-    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) + cashBalance.amountX;
+    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) + cashBalance.amount;
   }
 
   @override

@@ -7,41 +7,41 @@ void main() {
   test('add', () {
     var cashBalance = CashBalance(100.0);
     cashBalance = cashBalance.add(50.0);
-    expect(cashBalance.amountX, 150.0);
+    expect(cashBalance.amount, 150.0);
   });
 
   test('remove', () {
     var cashBalance = CashBalance(100.0);
     cashBalance = cashBalance.remove(50.0);
-    expect(cashBalance.amountX, 50.0);
+    expect(cashBalance.amount, 50.0);
   });
 
   test('add negative', () {
     var cashBalance = CashBalance(100.0);
     cashBalance = cashBalance.add(-50.0);
-    expect(cashBalance.amountX, 50.0);
+    expect(cashBalance.amount, 50.0);
   });
 
   test('remove more than balance', () {
     var cashBalance = CashBalance(100.0);
     cashBalance = cashBalance.remove(150.0);
-    expect(cashBalance.amountX, 0.0);
+    expect(cashBalance.amount, 0.0);
   });
 
   test('remove negative', () {
     var cashBalance = CashBalance(100.0);
     cashBalance = cashBalance.remove(-50.0);
-    expect(cashBalance.amountX, 150.0);
+    expect(cashBalance.amount, 150.0);
   });
 
   test('constructor with NaN', () {
     var cashBalance = CashBalance(double.nan);
-    expect(cashBalance.amountX, 0.0);
+    expect(cashBalance.amount, 0.0);
   });
 
   test('constructor with negative', () {
     var cashBalance = CashBalance(-100.0);
-    expect(cashBalance.amountX, -100.0); // or 0.0 if negative amounts should not be allowed.
+    expect(cashBalance.amount, -100.0); // or 0.0 if negative amounts should not be allowed.
   });
 
   // TODO: MARCELO

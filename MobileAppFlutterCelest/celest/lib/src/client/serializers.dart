@@ -17,7 +17,7 @@ final class CashBalanceSerializer extends Serializer<CashBalance> {
 
   @override
   Map<String, Object?> serialize(CashBalance value) =>
-      {r'amountX': value.amountX};
+      {r'amountX': value.amount};
 }
 
 final class StockSerializer extends Serializer<Stock> {
