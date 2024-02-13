@@ -18,6 +18,6 @@ void main() async {
     abTesting: AbTesting.A,
   );
 
-  celest.init();
+  celest.init(environment: CelestEnvironment.production);
   startApp(runConfig);
 }

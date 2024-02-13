@@ -34,8 +34,8 @@ class AppPersistor extends Persistor<AppState> {
       // We should log this error, not throw it.
       print('\n'
           'Error while reading from the local persistence:\n'
-          'Error: $error.'
-          'StackTrace: $stackTrace.\n');
+          '  Error: $error.\n'
+          '  StackTrace:\n$stackTrace.\n');
     }
 
     // If we managed to read the saved state, return it.

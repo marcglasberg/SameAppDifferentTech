@@ -1,8 +1,8 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:i18n_extension/i18n_extension.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension_core/i18n_extension_core.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
@@ -145,7 +145,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         Text('Missing translation keys'.i18n, style: Font.small + AppColor.textDimmed),
         space12,
         for (TranslatedString ts in Translations.missingKeys)
-          Text('${ts.locale}: "${ts.text}"', style: Font.small)
+          Text('${ts.locale}: "${ts.key}"', style: Font.small)
       ],
     );
   }
@@ -160,7 +160,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         Text('Missing translations'.i18n, style: Font.small + AppColor.textDimmed),
         space12,
         for (TranslatedString ts in Translations.missingTranslations)
-          Text('${ts.locale}: "${ts.text}"', style: Font.small)
+          Text('${ts.locale}: "${ts.key}"', style: Font.small)
       ],
     );
   }

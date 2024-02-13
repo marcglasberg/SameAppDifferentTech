@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:i18n_extension/i18n_extension.dart';
+import 'package:i18n_extension_core/i18n_extension_core.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/simulated_dao.dart';
 

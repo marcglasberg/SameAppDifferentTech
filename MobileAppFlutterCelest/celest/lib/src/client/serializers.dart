@@ -12,12 +12,12 @@ final class CashBalanceSerializer extends Serializer<CashBalance> {
   @override
   CashBalance deserialize(Object? value) {
     final serialized = assertWireType<Map<String, Object?>>(value);
-    return CashBalance((serialized[r'amountX'] as num).toDouble());
+    return CashBalance((serialized[r'amount'] as num).toDouble());
   }
 
   @override
   Map<String, Object?> serialize(CashBalance value) =>
-      {r'amountX': value.amount};
+      {r'amount': value.amount};
 }
 
 final class StockSerializer extends Serializer<Stock> {

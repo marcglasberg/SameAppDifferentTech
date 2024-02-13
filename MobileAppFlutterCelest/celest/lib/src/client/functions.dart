@@ -143,7 +143,7 @@ class CelestFunctionsPortfolio {
   }
 
   /// Buys the given [availableStock] and return the [Stock] bought.
-  /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+  /// This may thrown the same [CloudUserException] thrown by [Portfolio].
   ///
   Future<({CashBalance cashBalance, Stock stock})> buyStock(
     AvailableStock availableStock, {
@@ -186,7 +186,7 @@ class CelestFunctionsPortfolio {
   /// Sells the given [availableStock] and return the [Stock] bought.
   /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
   ///
-  /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+  /// This may thrown the same [CloudUserException] thrown by [Portfolio].
   ///
   Future<({CashBalance cashBalance, Stock stock})> sellStock(
     AvailableStock availableStock, {

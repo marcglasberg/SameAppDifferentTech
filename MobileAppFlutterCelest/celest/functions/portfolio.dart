@@ -17,7 +17,7 @@ Future<CashBalance> removeCashBalance(double howMuch) async {
 Future<CashBalance> readCashBalance() async => db.portfolio.cashBalance;
 
 /// Buys the given [availableStock] and return the [Stock] bought.
-/// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+/// This may thrown the same [CloudUserException] thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> buyStock(
   AvailableStock availableStock, {
@@ -34,7 +34,7 @@ Future<({Stock stock, CashBalance cashBalance})> buyStock(
 /// Sells the given [availableStock] and return the [Stock] bought.
 /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
 ///
-/// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
+/// This may thrown the same [CloudUserException] thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> sellStock(
   AvailableStock availableStock, {

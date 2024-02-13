@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: celest
-      sha256: fa5f2cf62073d2e71a2ce4c559d703886c2a48062b08752040d3afcc4531b846
+      sha256: "19553d56c2e6cf444fd25c55dde3dc90c6dc72631880b85a8ede3d92d6c7c8f1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0-dev.2"
   celest_backend:
     dependency: "direct main"
     description:
@@ -92,10 +92,10 @@ packages:
     dependency: "direct main"
     description:
       name: celest_core
-      sha256: c5d6408d047816f2b81c63b75c8f270377768612ee47272a5782ed48af887e55
+      sha256: "615af7aede8f15dd3355ca66ae43baff88a3359e6a9e6ba92af0b0c61bf8c798"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0-dev"
   characters:
     dependency: "direct main"
     description:
@@ -168,14 +168,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
-  equatable:
-    dependency: transitive
-    description:
-      name: equatable
-      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -272,10 +264,18 @@ packages:
     dependency: "direct main"
     description:
       name: i18n_extension
-      sha256: "695c2e1220e9da0bcd8302129a965121de751a7500f9a158f70d443dbe4ebc40"
+      sha256: "813da89a434e617e3065a5d729f148a4d2d93d227e4d1ed4e77660eda6fa58c2"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.2"
+    version: "10.0.3"
+  i18n_extension_core:
+    dependency: transitive
+    description:
+      name: i18n_extension_core
+      sha256: ca21cd966fc0f1d62e299676171a8f735b3c3b3bee90ad8be4dbeb55fac652ed
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   intl:
     dependency: "direct main"
     description:

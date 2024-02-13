@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  celest_core: ^0.1.0
+  celest_core: ^0.2.0-dev
   celest_backend:
     path: celest/
   async_redux: ^21.4.0

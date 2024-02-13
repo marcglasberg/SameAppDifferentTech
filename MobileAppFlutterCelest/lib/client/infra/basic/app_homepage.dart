@@ -1,5 +1,6 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -40,28 +41,30 @@ class AppHomePage extends StatelessWidget {
 
     return Themed(
       currentTheme: Business.store.state.ui.isDarkMode ? darkTheme : null,
-      child: StoreProvider<AppState>(
-        store: Business.store,
-        child: AppLifecycleManager(
-          child: MaterialApp(
-            theme: ThemeData(
-              primaryColor: Colors.green.shade800,
-              colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.green.shade600),
+      child: CelestLocalBanner(
+        child: StoreProvider<AppState>(
+          store: Business.store,
+          child: AppLifecycleManager(
+            child: MaterialApp(
+              theme: ThemeData(
+                primaryColor: Colors.green.shade800,
+                colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.green.shade600),
+              ),
+              title: "Demo App",
+              navigatorKey: Client.navigatorKey,
+              debugShowCheckedModeBanner: false,
+              builder: navigatorRoutesWrapper,
+              initialRoute: '/',
+              navigatorObservers: [
+                Client.routeObserver,
+                //
+                // TODO: Hook for analytics.
+                // FirebaseAnalyticsObserver(analytics: Dao.firebaseAnalytics),
+              ],
+              localizationsDelegates: AppLocalizations.delegates,
+              supportedLocales: AppLocalizations.supportedLocales(),
+              onGenerateRoute: AppRoutes.onGenerateRoute,
             ),
-            title: "Demo App",
-            navigatorKey: Client.navigatorKey,
-            debugShowCheckedModeBanner: false,
-            builder: navigatorRoutesWrapper,
-            initialRoute: '/',
-            navigatorObservers: [
-              Client.routeObserver,
-              //
-              // TODO: Hook for analytics.
-              // FirebaseAnalyticsObserver(analytics: Dao.firebaseAnalytics),
-            ],
-            localizationsDelegates: AppLocalizations.delegates,
-            supportedLocales: AppLocalizations.supportedLocales(),
-            onGenerateRoute: AppRoutes.onGenerateRoute,
           ),
         ),
       ),
@@ -119,5 +122,24 @@ class AppLocalizations {
       const Locale('en', 'US'),
       const Locale('sp', 'ES'),
     ];
+  }
+}
+
+class CelestLocalBanner extends StatelessWidget {
+  final Widget child;
+
+  const CelestLocalBanner({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return (celest.currentEnvironment != CelestEnvironment.local)
+        ? child
+        : Banner(
+            message: 'Celest local',
+            location: BannerLocation.topEnd,
+            layoutDirection: TextDirection.ltr,
+            textDirection: TextDirection.ltr,
+            child: child,
+          );
   }
 }

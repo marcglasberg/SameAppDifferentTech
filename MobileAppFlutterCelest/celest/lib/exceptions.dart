@@ -1,23 +1,22 @@
 // By convention, any custom exception types thrown by an API must be defined
 // in this file or exported from this file.
 
-/// This will be turned into a `UserException` on the client, and its message
-/// will be translated to the user language, and shown in a dialog.
+/// Use [CloudUserException] in Celest functions. It will be turned into a `UserException`
+/// on the client, and its message shown in a dialog. This does not represent a function
+/// error, but a user error (should not be logged).
 ///
 /// Usage:
 /// ```
-/// throw TranslatableUserException('Cannot sell %d shares of stock you do not own', 3);
-/// throw TranslatableUserException('Stock %s not found.', 'IBM');
+/// throw CloudUserException('Cannot sell %d shares of stock you do not own', 3);
+/// throw CloudUserException('Stock %s not found.', 'IBM');
 /// ```
-class TranslatableUserException implements Exception {
-  const TranslatableUserException(this.message, {this.s, this.d});
+class CloudUserException implements Exception {
+  CloudUserException(this.message);
 
   final String message;
-  final String? s;
-  final int? d;
 }
 
-/// This should be used when validating input.
+/// Use [ValidateError] when validating input fails.
 class ValidateError extends TypeError {
   String msg;
 
@@ -35,7 +34,7 @@ class ValidateError extends TypeError {
   int get hashCode => msg.hashCode;
 }
 
-/// Used when something will be implemented in the future.
+/// Use [NotYetImplementedError] when a feature is not yet implemented.
 class NotYetImplementedError extends AssertionError {
   final String msg;
 

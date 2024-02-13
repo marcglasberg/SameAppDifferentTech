@@ -15,21 +15,54 @@ import 'src/client/serializers.dart';
 
 final Celest celest = Celest();
 
+enum CelestEnvironment {
+  local,
+  production;
+
+  Uri get baseUri => switch (this) {
+        local => kIsWeb || !Platform.isAndroid
+            ? Uri.parse('http://localhost:7778')
+            : Uri.parse('http://10.0.2.2:7778'),
+        production => Uri.parse(
+            'https://mobile-app-flutter-celest-jhmx-v76lntiq7q-rj.a.run.app'),
+      };
+}
+
 class Celest {
+  var _initialized = false;
+
+  late CelestEnvironment _currentEnvironment;
+
   late http.Client httpClient = http.Client();
 
-  late final Uri baseUri = kIsWeb || !Platform.isAndroid
-      ? Uri.parse('http://localhost:7777')
-      : Uri.parse('http://10.0.2.2:7777');
+  late Uri _baseUri;
 
-  final functions = CelestFunctions();
+  final _functions = CelestFunctions();
 
-  void init() {
+  T _checkInitialized<T>(T Function() value) {
+    if (!_initialized) {
+      throw StateError(
+          'Celest has not been initialized. Make sure to call `celest.init()` at the start of your `main` method.');
+    }
+    return value();
+  }
+
+  CelestEnvironment get currentEnvironment =>
+      _checkInitialized(() => _currentEnvironment);
+
+  Uri get baseUri => _checkInitialized(() => _baseUri);
+
+  CelestFunctions get functions => _checkInitialized(() => _functions);
+
+  void init({CelestEnvironment environment = CelestEnvironment.local}) {
+    _currentEnvironment = environment;
+    _baseUri = environment.baseUri;
     Serializers.instance.put(const CashBalanceSerializer());
     Serializers.instance.put(const StockSerializer());
     Serializers.instance.put(const Record$z4p9fhSerializer());
     Serializers.instance.put(const AvailableStockSerializer());
     Serializers.instance.put(const IListAvailableStockSerializer());
     Serializers.instance.put(const Record$ma0bzgSerializer());
+    _initialized = true;
   }
 }

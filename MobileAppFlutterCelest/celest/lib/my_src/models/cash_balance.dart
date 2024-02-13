@@ -8,7 +8,7 @@ class CashBalance {
 
   final double amount;
 
-  CashBalance(double amountX) : amount = amountX.isNaN ? 0 : round(amountX);
+  CashBalance(double amount) : amount = amount.isNaN ? 0 : round(amount);
 
   const CashBalance._(this.amount);
 

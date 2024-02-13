@@ -177,29 +177,31 @@ The generated `sayHello()` starts by sending an HTTP POST request to the backend
 by doing `await celest.httpClient.post(url, ...)`, and will resolve the URL
 with `baseUri.resolve('/greeting/say-hello')`.
 
-If you ran Celest with `celest start`, this will be your `baseUri`:
+This is your `baseUri`:
 
 ```dart
-baseUri = kIsWeb || !Platform.isAndroid
-    ? Uri.parse('http://localhost:7777')
-    : Uri.parse('http://10.0.2.2:7777');
+Uri get baseUri => switch (this) {
+      local => kIsWeb || !Platform.isAndroid
+          ? Uri.parse('http://localhost:7778')
+          : Uri.parse('http://10.0.2.2:7778'),
+      production => Uri.parse(
+          'https://mobile-app-flutter-celest-xxxx-xxxxxxxxxx-xx.a.run.app'),
+    };
 ```
 
-We have `http://localhost:7777` for web, and `http://10.0.2.2:7777` for Android, where `10.0.2.2` is
-a special alias to the host loopback interface (i.e., `127.0.0.1` on my development machine) when
-using the Android Emulator.
+When you ran Celest with `celest start`, you are using `CelestEnvironment.local`,
+which means `http://localhost:7777` for web, and `http://10.0.2.2:7777` for Android,
+where `10.0.2.2` is a special alias to the host loopback interface (i.e., `127.0.0.1` on my
+development machine) when using the Android Emulator.
 
-By running locally, Celest will then spin up a local server on port `7777`
-and the generated `sayHello()` function will send the HTTP POST request
-to `http://...:7777/greeting/say-hello`.
+Celest then spins up a local server on port `7777`, and the generated `sayHello()` function will
+send the HTTP POST request to `http://...:7777/greeting/say-hello`.
 
-If instead you ran Celest with `celest deploy`, your `baseUri` will be something like this
+If instead you ran Celest with `celest deploy`, you'll be running
+with `CelestEnvironment.production`, and your `baseUri` will be something
+like `https://mobile-app-flutter-celest-xxxx-xxxxxxxxxx-xx.a.run.app`.
 
-```dart
-late final Uri baseUri = Uri.parse('https://mobile-app-flutter-celest-xxxx-xxxxxxxxxx-xx.a.run.app');
-```
-
-In the backend, as seen in file `celest-0.1.1\lib\src\runtime\serve.dart`
+In the backend code, as seen in file `celest-0.1.1\lib\src\runtime\serve.dart`
 from https://pub.dev/packages/celest, Celest will:
 
 * Decode the Json with `request.decodeJson()`

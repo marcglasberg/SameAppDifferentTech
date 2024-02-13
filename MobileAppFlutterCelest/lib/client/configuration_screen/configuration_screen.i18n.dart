@@ -1,4 +1,4 @@
-import 'package:i18n_extension/i18n_extension.dart';
+import 'package:i18n_extension_core/i18n_extension_core.dart';
 
 extension Localization on String {
   static final _t = Translations.byLocale("en_us") +

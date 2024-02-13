@@ -10,6 +10,7 @@ dependencies:
   celest_core: ^0.2.0-0
   http: ">=0.13.0 <2.0.0"
   fast_immutable_collections: ^10.1.0
+  i18n_extension_core: ^2.0.0
   meta: ^1.10.0
   collection: ^1.17.2
   intl: 0.18.1
