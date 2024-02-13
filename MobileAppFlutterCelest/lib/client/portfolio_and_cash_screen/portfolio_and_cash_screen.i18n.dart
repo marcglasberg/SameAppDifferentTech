@@ -4,23 +4,23 @@ extension Localization on String {
   static final _t = Translations("en_us") +
       {
         "en_us": "Buy",
-        "sp_es": "Comprar",
+        "es_es": "Comprar",
       } +
       {
         "en_us": "Sell",
-        "sp_es": "Vender",
+        "es_es": "Vender",
       } +
       {
         "en_us": "shares".one("share"),
-        "sp_es": "acciones".one("acción"),
+        "es_es": "acciones".one("acción"),
       } +
       {
         "en_us": "Cash Balance:",
-        "sp_es": "Efectivo:",
+        "es_es": "Efectivo:",
       } +
       {
         "en_us": "Portfolio:",
-        "sp_es": "Cartera:",
+        "es_es": "Cartera:",
       };
 
   String get i18n => localize(this, _t);

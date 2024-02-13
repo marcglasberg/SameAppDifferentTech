@@ -4,7 +4,7 @@ extension Localization on String {
   static final _t = Translations("en_us") +
       {
         "en_us": "Stocks App Demo",
-        "sp_es": "Demo de la App de Acciones",
+        "es_es": "Demo de la App de Acciones",
       };
 
   String get i18n => localize(this, _t);

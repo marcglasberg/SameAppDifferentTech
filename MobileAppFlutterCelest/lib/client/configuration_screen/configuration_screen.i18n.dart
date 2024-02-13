@@ -1,4 +1,4 @@
-import 'package:i18n_extension_core/i18n_extension_core.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
   static final _t = Translations.byLocale("en_us") +
@@ -16,7 +16,7 @@ extension Localization on String {
           'Missing translation keys': 'Missing translation keys',
           'Missing translations': 'Missing translations',
         },
-        "sp_es": {
+        "es_es": {
           'Configuration': 'Configuración',
           'Light mode': 'Modo claro',
           'Dark mode': 'Modo oscuro',

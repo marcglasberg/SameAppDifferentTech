@@ -189,7 +189,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   }
 
   Widget _option2() {
-    bool isSpanish = (I18n.language == 'sp');
+    bool isSpanish = (I18n.language == 'es');
 
     return Item(
       child: Row(
@@ -203,7 +203,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             value: isSpanish,
             onChanged: (_) {
               setState(() {
-                var newLocale = isSpanish ? const Locale("en", "US") : const Locale("sp", "ES");
+                var newLocale = isSpanish ? const Locale("en", "US") : const Locale("es", "ES");
                 print('Changing locale to $newLocale.');
 
                 I18n.of(context).locale = newLocale;
