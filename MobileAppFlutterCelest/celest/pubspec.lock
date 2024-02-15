@@ -109,10 +109,10 @@ packages:
     dependency: "direct main"
     description:
       name: fast_immutable_collections
-      sha256: "97fc98d7304013421b4ad802386949578d1311c549f0c15ff1d61052cb8fc2ce"
+      sha256: "6df5b5bb29f52644c4c653ef0ae7d26c8463f8d6551b0ac94561103ff6c5ca17"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.0"
+    version: "10.1.1"
   file:
     dependency: transitive
     description:
@@ -173,10 +173,10 @@ packages:
     dependency: "direct main"
     description:
       name: i18n_extension_core
-      sha256: ca21cd966fc0f1d62e299676171a8f735b3c3b3bee90ad8be4dbeb55fac652ed
+      sha256: "4679d7d8e86f1f209d27c1b67ab5082d772497545e68a46339633923771ef509"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   intl:
     dependency: "direct main"
     description:

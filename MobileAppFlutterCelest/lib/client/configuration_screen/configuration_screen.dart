@@ -1,8 +1,7 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:i18n_extension/i18n_widget.dart';
-import 'package:i18n_extension_core/i18n_extension_core.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
