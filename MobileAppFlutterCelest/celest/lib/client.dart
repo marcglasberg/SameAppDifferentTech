@@ -21,8 +21,8 @@ enum CelestEnvironment {
 
   Uri get baseUri => switch (this) {
         local => kIsWeb || !Platform.isAndroid
-            ? Uri.parse('http://localhost:7778')
-            : Uri.parse('http://10.0.2.2:7778'),
+            ? Uri.parse('http://localhost:7782')
+            : Uri.parse('http://10.0.2.2:7782'),
         production => Uri.parse(
             'https://mobile-app-flutter-celest-jhmx-v76lntiq7q-rj.a.run.app'),
       };
@@ -57,10 +57,12 @@ class Celest {
   void init({CelestEnvironment environment = CelestEnvironment.local}) {
     _currentEnvironment = environment;
     _baseUri = environment.baseUri;
+    Serializers.instance.put(const CloudUserExceptionSerializer());
+    Serializers.instance.put(const PortfolioSerializer());
+    Serializers.instance.put(const AvailableStockSerializer());
     Serializers.instance.put(const CashBalanceSerializer());
     Serializers.instance.put(const StockSerializer());
     Serializers.instance.put(const Record$z4p9fhSerializer());
-    Serializers.instance.put(const AvailableStockSerializer());
     Serializers.instance.put(const IListAvailableStockSerializer());
     Serializers.instance.put(const Record$ma0bzgSerializer());
     _initialized = true;

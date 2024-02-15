@@ -7,8 +7,10 @@ library;
 import 'dart:convert';
 
 import 'package:celest/celest.dart';
+import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/my_src/models/available_stock.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
+import 'package:celest_backend/my_src/models/portfolio.dart';
 import 'package:celest_backend/my_src/models/stock.dart';
 import 'package:celest_core/src/exception/cloud_exception.dart';
 import 'package:fast_immutable_collections/src/ilist/ilist.dart';
@@ -16,11 +18,82 @@ import 'package:fast_immutable_collections/src/ilist/ilist.dart';
 import '../../client.dart';
 
 class CelestFunctions {
+  final admin = CelestFunctionsAdmin();
+
   final database = CelestFunctionsDatabase();
 
   final portfolio = CelestFunctionsPortfolio();
 
   final stocks = CelestFunctionsStocks();
+}
+
+class CelestFunctionsAdmin {
+  Future<void> doSomething() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/admin/do-something'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body = (jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode == 200) {
+      return;
+    }
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'CloudUserException':
+        throw Serializers.instance.deserialize<CloudUserException>($details);
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case _:
+        switch ($response.statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
+
+  Future<void> setDatabase(
+    Portfolio portfolio,
+    Iterable<AvailableStock> availableStocks,
+  ) async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/admin/set-database'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+      body: jsonEncode({
+        r'portfolio': Serializers.instance.serialize<Portfolio>(portfolio),
+        r'availableStocks': availableStocks
+            .map((el) => Serializers.instance.serialize<AvailableStock>(el))
+            .toList(),
+      }),
+    );
+    final $body = (jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode == 200) {
+      return;
+    }
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case _:
+        switch ($response.statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
 }
 
 class CelestFunctionsDatabase {

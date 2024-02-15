@@ -1,10 +1,69 @@
 // ignore_for_file: type=lint, unused_local_variable, unnecessary_cast, unnecessary_import
 
 import 'package:celest/celest.dart';
+import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/my_src/models/available_stock.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
+import 'package:celest_backend/my_src/models/portfolio.dart';
 import 'package:celest_backend/my_src/models/stock.dart';
 import 'package:fast_immutable_collections/src/ilist/ilist.dart';
+
+final class CloudUserExceptionSerializer
+    extends Serializer<CloudUserException> {
+  const CloudUserExceptionSerializer();
+
+  @override
+  CloudUserException deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, Object?>>(value);
+    return CloudUserException((serialized[r'msg'] as String));
+  }
+
+  @override
+  Map<String, Object?> serialize(CloudUserException value) =>
+      {r'msg': value.msg};
+}
+
+final class PortfolioSerializer extends Serializer<Portfolio> {
+  const PortfolioSerializer();
+
+  @override
+  Portfolio deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, dynamic>?>(value);
+    return Portfolio(
+      stocks: ((serialized?[r'stocks'] as Iterable<Object?>?)
+              ?.map((el) => Serializers.instance.deserialize<Stock>(el))
+              .toList()) ??
+          null,
+      cashBalance: (Serializers.instance
+              .deserialize<CashBalance?>(serialized?[r'cashBalance'])) ??
+          CashBalance.ZERO,
+    );
+  }
+
+  @override
+  Map<String, dynamic> serialize(Portfolio value) => value.toJson();
+}
+
+final class AvailableStockSerializer extends Serializer<AvailableStock> {
+  const AvailableStockSerializer();
+
+  @override
+  AvailableStock deserialize(Object? value) {
+    final serialized = assertWireType<Map<String, Object?>>(value);
+    return AvailableStock(
+      (serialized[r'ticker'] as String),
+      name: (serialized[r'name'] as String),
+      currentPrice: (serialized[r'currentPrice'] as num).toDouble(),
+    );
+  }
+
+  @override
+  Map<String, Object?> serialize(AvailableStock value) => {
+        r'ticker': value.ticker,
+        r'name': value.name,
+        r'currentPrice': value.currentPrice,
+      };
+}
 
 final class CashBalanceSerializer extends Serializer<CashBalance> {
   const CashBalanceSerializer();
@@ -59,27 +118,6 @@ final class Record$z4p9fhSerializer extends Serializer<Record$z4p9fh> {
         r'cashBalance':
             Serializers.instance.serialize<CashBalance>(value.cashBalance),
         r'stock': Serializers.instance.serialize<Stock>(value.stock),
-      };
-}
-
-final class AvailableStockSerializer extends Serializer<AvailableStock> {
-  const AvailableStockSerializer();
-
-  @override
-  AvailableStock deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return AvailableStock(
-      (serialized[r'ticker'] as String),
-      name: (serialized[r'name'] as String),
-      currentPrice: (serialized[r'currentPrice'] as num).toDouble(),
-    );
-  }
-
-  @override
-  Map<String, Object?> serialize(AvailableStock value) => {
-        r'ticker': value.ticker,
-        r'name': value.name,
-        r'currentPrice': value.currentPrice,
       };
 }
 

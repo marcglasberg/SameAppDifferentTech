@@ -1,5 +1,6 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
+import 'package:celest_backend/client.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/buy_or_sell.dart';
 import "package:flutter_test/flutter_test.dart";
@@ -13,7 +14,10 @@ import 'test_utils/store_tester_matchers.dart';
 void main() {
   var feature = BddFeature('Average Price');
 
-  setUp(RunConfig.setTestInstance);
+  setUp(() {
+    RunConfig.setTestInstance();
+    celest.init(environment: CelestEnvironment.local);
+  });
 
   Bdd(feature)
       .scenario('Buying and Selling stocks changes the average price.')
@@ -63,6 +67,11 @@ void main() {
         availableStocks: [avbStock],
         stocks: [stock],
       ),
+    );
+
+    await celest.functions.admin.setDatabase(
+      storeTester.state.portfolio,
+      storeTester.state.availableStocks.list,
     );
 
     // When:

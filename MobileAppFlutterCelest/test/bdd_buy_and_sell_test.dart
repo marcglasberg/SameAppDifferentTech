@@ -1,5 +1,7 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
+import 'package:celest_backend/client.dart';
+import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +15,10 @@ import 'test_utils/matchers.dart';
 void main() {
   var feature = BddFeature('Buying and Selling Stocks');
 
-  setUp(RunConfig.setTestInstance);
+  setUp(() {
+    RunConfig.setTestInstance();
+    celest.init(environment: CelestEnvironment.local);
+  });
 
   Bdd(feature)
       .scenario('Buying stocks.')
@@ -27,12 +32,17 @@ void main() {
     // Given:
     var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30.00);
 
-    var state = AppState.from(
-      cashBalance: 120.00,
-      availableStocks: [ibm],
+    var storeTester = StoreTester(
+      initialState: AppState.from(
+        cashBalance: 120.00,
+        availableStocks: [ibm],
+      ),
     );
 
-    var storeTester = StoreTester(initialState: state);
+    await celest.functions.admin.setDatabase(
+      storeTester.state.portfolio,
+      storeTester.state.availableStocks.list,
+    );
 
     // When:
     await storeTester.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
@@ -97,6 +107,8 @@ void main() {
 
     var storeTester = StoreTester(initialState: state);
 
+    await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
+
     // When:
     var ibm = state.availableStocks.findBySymbol('IBM');
     var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
@@ -128,6 +140,8 @@ void main() {
     //
     //  var storeTester = StoreTester(initialState: state);
     //
+    //  await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
+    //
     //  // When:
     //  var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
     //
@@ -150,21 +164,19 @@ void main() {
       .run((ctx) async {
     // Given:
     var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30.00);
-
-    var state = AppState.from(
-      cashBalance: 120.00,
-      availableStocks: [ibm],
-    );
-
+    var state = AppState.from(cashBalance: 120.00, availableStocks: [ibm]);
     expect(state.portfolio.stocks, isEmpty); // No IBM.
 
     var storeTester = StoreTester(initialState: state);
+    await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
 
     // When:
-    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    var info = await storeTester.dispatchAndWait(
+      SellStock_Action(ibm, howMany: 1),
+    );
 
     // Then:
-    expect(info.error, isAError('Cannot sell stock you do not own'));
+    expect(info.error, isAError<CloudUserException>('Cannot sell stock you do not own'));
     expect(info.state.portfolio.howManyStocks(ibm.ticker), 0);
     expect(info.state.portfolio.cashBalance, CashBalance(120.00));
   });

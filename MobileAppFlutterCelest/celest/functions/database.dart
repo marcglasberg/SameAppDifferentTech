@@ -1,4 +1,5 @@
 import 'package:celest_backend/models.dart';
+import 'package:collection/collection.dart';
 
 /// For the moment, Celest has no database features, so I'm simulating a global database.
 /// As soon as Celest has a database I'm going to remove this and replace it with the real thing.
@@ -13,6 +14,24 @@ class _Database {
       _availableStocks.toList();
 
   Portfolio get portfolio => _portfolio;
+
+  /// Admin backdoor to set the state of the database.
+  Future<void> setState(Portfolio portfolio, Iterable<AvailableStock> availableStocks) async {
+    _portfolio = portfolio;
+
+    for (var stock in availableStocks) {
+      removeAvailableStock(stock.ticker);
+      _availableStocks.add((ticker: stock.ticker, name: stock.name, price: stock.currentPrice));
+    }
+  }
+
+  void removeAvailableStock(String ticker) {
+    _availableStocks.removeWhere((s) => s.ticker == ticker);
+  }
+
+  ({String ticker, String name, double price})? getAvailableStock(String ticker) {
+    return _availableStocks.firstWhereOrNull((s) => s.ticker == ticker);
+  }
 
   void addCashBalance(double howMuch) {
     _portfolio = _portfolio.addCashBalance(howMuch);

@@ -11,9 +11,20 @@
 /// throw CloudUserException('Stock %s not found.', 'IBM');
 /// ```
 class CloudUserException implements Exception {
-  CloudUserException(this.message);
+  CloudUserException(this.msg);
 
-  final String message;
+  final String msg;
+
+  @override
+  String toString() => 'CloudUserException: $msg';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CloudUserException && runtimeType == other.runtimeType && msg == other.msg;
+
+  @override
+  int get hashCode => msg.hashCode;
 }
 
 /// Use [ValidateError] when validating input fails.

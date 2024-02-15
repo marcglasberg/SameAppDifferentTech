@@ -3,7 +3,7 @@ import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 
-class BuyStock_Action extends AppAction with WithWaitState  {
+class BuyStock_Action extends AppAction with WithWaitState {
   //
   final AvailableStock availableStock;
   final int howMany;
