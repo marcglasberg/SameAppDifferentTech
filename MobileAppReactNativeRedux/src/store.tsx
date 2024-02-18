@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from './counterSlice.ts';
+import portfolioReducer from './portfolioSlice.ts';
+import avbStocksReducer from './avbStocksSlice.ts';
+import uiReducer from './uiSlice.ts';
 
 export const store
   = configureStore({
   reducer: {
-    counter: counterReducer
+    portfolio: portfolioReducer,
+    avbStocks: avbStocksReducer,
+    ui: uiReducer
   }
 });
 

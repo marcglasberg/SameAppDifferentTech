@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { decrement, increment } from './counterSlice';
+import { decrement, increment } from './counterSlice.ts';
 import { RootState } from './store.tsx';
 import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 
