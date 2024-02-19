@@ -10,7 +10,6 @@ import { CashBalanceAndPortfolio } from './ui/cashBalanceAndPortfolio/CashBalanc
 import { AvailableStocksListContainer } from './ui/cashBalanceAndPortfolio/AvailableStocksList.container';
 import Color from './ui/theme/Color';
 import ConfigButton from './ui/appBar/ConfigButton';
-import { usePortfolio, useUi } from './business/state/Hooks';
 import { RootState, store } from './store.tsx';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 
@@ -41,18 +40,15 @@ function App() {
 const AppContent: React.FC = () => {
 
   const storageManager = StorageManager.use();
-
   const portfolio = useSelector((state: RootState) => state.portfolio);
   const ui = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
-
-  PAREI AQUI!!!!!!!!!!!!!!
 
   // When the app is shutting down, stop the save timer,
   // and save one last time (if necessary).
   useEffect(() => {
 
-    storageManager.processPortfolio(portfolio, setPortfolio).then();
+    storageManager.processPortfolio(portfolio, dispatch).then();
 
     const handleAppShutdown = async () => {
       try {

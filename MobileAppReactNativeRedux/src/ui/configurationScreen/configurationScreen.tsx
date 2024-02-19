@@ -12,11 +12,14 @@ import { Column, Row, Spacer } from '../utils/Layout';
 import { AbTesting } from '../../business/RunConfig/ABTesting';
 import { print } from '../../business/utils/utils';
 import { Font } from '../theme/Font';
-import { useUi } from '../../business/state/Hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
+import { toggleConfigScreen, toggleLightAndDarkMode } from '../../uiSlice.ts';
+
 
 const ConfigurationScreen: React.FC = () => {
 
-  const { ui, setUi } = useUi();
+  const ui = useSelector((state: RootState) => state.ui);
 
   // Note: RunConfig is a global constant, just like the Dao and the Storage (all injected in index.ts).
   // However, during development we treat it as mutable value, do that we can manipulate it in the config screen.
@@ -41,9 +44,7 @@ const ConfigurationScreen: React.FC = () => {
         <MaterialButton label="Done"
                         backgroundColor={'green'}
                         padding={10}
-                        onPress={() => {
-                          setUi(ui.toggleConfigScreen());
-                        }} />
+                        onPress={() => toggleConfigScreen} />
       </Column>
     </Column>
   );
@@ -55,7 +56,7 @@ const ConfigurationScreen: React.FC = () => {
           <Text style={Font.medium()}>{ui.isLightMode ? 'Light' : 'Dark'} mode</Text>
           <AppSwitch
             value={ui.isLightMode}
-            onValueChange={(_) => setUi(ui.toggleLightAndDarkMode())}
+            onValueChange={(_) => toggleLightAndDarkMode}
           />
         </>
       } />;

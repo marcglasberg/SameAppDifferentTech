@@ -1,44 +1,44 @@
 import React from 'react';
-import {Text} from 'react-native';
+import { Text } from 'react-native';
 import { Stock } from '../../business/state/Stock';
-import {Space} from '../theme/Space';
-import {Column, Row} from '../utils/Layout';
-import {Font} from '../theme/Font';
+import { Space } from '../theme/Space';
+import { Column, Row } from '../utils/Layout';
+import { Font } from '../theme/Font';
 
 export const PortfolioView: React.FC<{
-    portfolioIsEmpty: boolean;
-    stocks: Stock[];
+  portfolioIsEmpty: boolean;
+  stocks: Stock[];
 }> = (
-    {
-        portfolioIsEmpty,
-        stocks,
-    }) => {
+  {
+    portfolioIsEmpty,
+    stocks
+  }) => {
 
-    return (
-        <Column style={{paddingVertical: 16, paddingHorizontal: 16, alignItems: 'flex-start'}}>
+  return (
+    <Column style={{ paddingVertical: 16, paddingHorizontal: 16, alignItems: 'flex-start' }}>
 
-            <Row>
-                <Text style={Font.medium()}>Portfolio:</Text>
-                <Space.px8/>
-                {portfolioIsEmpty && <Text style={Font.medium()}>—</Text>}
-            </Row>
+      <Row>
+        <Text style={Font.medium()}>Portfolio:</Text>
+        <Space.px8 />
+        {portfolioIsEmpty && <Text style={Font.medium()}>—</Text>}
+      </Row>
 
-            <Space.px4/>
+      <Space.px4 />
 
-            {stocks.map((stock, index) => (
-                <StockInPortfolio key={index} stock={stock}/>
-            ))}
+      {stocks.map((stock, index) => (
+        <StockInPortfolio key={index} stock={stock} />
+      ))}
 
-        </Column>
-    );
+    </Column>
+  );
 };
 
 const StockInPortfolio: React.FC<{ stock: Stock }>
-    = ({stock}) => {
+  = ({ stock }) => {
 
-    return (
-        <Text style={{...Font.small(), paddingTop: 2}}>
-            {`${stock.ticker} (${stock.howManyShares} shares @ US$ ${stock.averagePriceStr})`}
-        </Text>
-    );
+  return (
+    <Text style={{ ...Font.small(), paddingTop: 2 }}>
+      {`${stock.ticker} (${stock.howManyShares} shares @ US$ ${stock.averagePriceStr})`}
+    </Text>
+  );
 };

@@ -2,11 +2,14 @@
 import React, { useEffect } from 'react';
 import AvailableStocksListView from './AvailableStocksList.view';
 import { AvailableStocks } from '../../business/state/AvailableStocks';
-import { useAvailableStocks } from '../../business/state/Hooks';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
+import { setAvailableStocks } from '../../avbStocksSlice.ts';
 
 export const AvailableStocksListContainer: React.FC<{}> = () => {
 
-  const { availableStocks, setAvailableStocks } = useAvailableStocks();
+  const availableStocks = useSelector((state: RootState) => state.avbStocks);
+  const dispatch = useDispatch();
 
   /**
    * On mount, we load the available stocks (the ones the user can buy)
@@ -15,9 +18,9 @@ export const AvailableStocksListContainer: React.FC<{}> = () => {
   async function onMount(): Promise<void> {
 
     let loadedAvailableStocks = await AvailableStocks.loadAvailableStocks();
-    setAvailableStocks(loadedAvailableStocks);
+    dispatch(setAvailableStocks(loadedAvailableStocks));
 
-    availableStocks.startListeningToStockPriceUpdates(setAvailableStocks);
+    availableStocks.startListeningToStockPriceUpdates();
   }
 
   useEffect(() => {

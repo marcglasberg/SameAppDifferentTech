@@ -4,9 +4,6 @@ import { AvailableStock } from '../../business/state/AvailableStock';
 import { AvailableStockContainer } from './AvailableStock.container';
 import { AvailableStocks } from '../../business/state/AvailableStocks';
 
-// Alternative with Hooks:
-// import { AvailableStockWithHooks } from './alternative_implementations/hooks/AvailableStock.hook';
-
 const AvailableStocksListView: React.FC<{ availableStocks: AvailableStocks; }>
   = ({ availableStocks }) => {
   return (
@@ -21,9 +18,6 @@ const AvailableStocksListView: React.FC<{ availableStocks: AvailableStocks; }>
 
   function renderItem({ item }: { item: AvailableStock }) {
     return <AvailableStockContainer availableStock={item} />;
-
-    // Alternative with Hooks:
-    // return <AvailableStockWithHooks availableStock={item} />;
   }
 };
 

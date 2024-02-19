@@ -2,20 +2,25 @@ import React from 'react';
 import { runConfig } from '../../inject';
 import { AvailableStock } from '../../business/state/AvailableStock';
 import { AvailableStockView } from './AvailableStock.view';
-import { usePortfolio, UseSet } from '../../business/state/Hooks';
 import { Portfolio } from '../../business/state/Portfolio';
+import { buyStock, sellStock } from '../../portfolioSlice.ts';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
+import { Dispatch } from '@reduxjs/toolkit';
+
 
 export const AvailableStockContainer: React.FC<{
   availableStock: AvailableStock
 }> = ({ availableStock }) => {
-  const { portfolio, setPortfolio } = usePortfolio();
-  return <AvailableStockView {...viewModel(availableStock, portfolio, setPortfolio)} />;
+  const portfolio = useSelector((state: RootState) => state.portfolio);
+  const dispatch = useDispatch();
+  return <AvailableStockView {...viewModel(availableStock, portfolio, dispatch)} />;
 };
 
 export function viewModel(
   availableStock: AvailableStock,
   portfolio: Portfolio,
-  setPortfolio: UseSet<Portfolio>
+  dispatch: Dispatch
 ) {
 
   return {
@@ -25,11 +30,15 @@ export function viewModel(
     abTesting: runConfig.abTesting,
 
     onBuy: () => {
-      setPortfolio(prevPortfolio => prevPortfolio.buy(availableStock, 1));
+      dispatch(
+        buyStock({ availableStock: availableStock, howMany: 1 })
+      );
     },
 
     onSell: () => {
-      setPortfolio(prevPortfolio => prevPortfolio.sell(availableStock, 1));
+      dispatch(
+        sellStock({ availableStock: availableStock, howMany: 1 })
+      );
     }
   };
 }

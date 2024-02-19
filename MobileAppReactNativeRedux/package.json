@@ -29,6 +29,7 @@
     "@react-native/typescript-config": "0.73.1",
     "@types/react": "^18.2.6",
     "@types/react-test-renderer": "^18.0.0",
+    "@types/react-native-vector-icons": "^6.4.18",
     "babel-jest": "^29.6.3",
     "easy-bdd-tool-jest": "^1.0.0",
     "eslint": "^8.19.0",

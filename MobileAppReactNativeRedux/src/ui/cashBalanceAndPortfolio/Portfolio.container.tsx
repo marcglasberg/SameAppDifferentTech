@@ -1,11 +1,12 @@
 import React from 'react';
 import { PortfolioView } from './Portfolio.view';
 import { Portfolio } from '../../business/state/Portfolio';
-import { usePortfolio } from '../../business/state/Hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
 
 export const PortfolioContainer: React.FC
   = () => {
-  const { portfolio } = usePortfolio();
+  const portfolio = useSelector((state: RootState) => state.portfolio);
   return <PortfolioView {...viewModel(portfolio)} />;
 };
 

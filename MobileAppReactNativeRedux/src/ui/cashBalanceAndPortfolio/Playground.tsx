@@ -7,12 +7,13 @@ import { AvailableStock } from '../../business/state/AvailableStock';
 import { Column } from '../utils/Layout';
 import { CashBalanceAndPortfolio } from './CashBalanceAndPortfolio';
 import { AvailableStocks } from '../../business/state/AvailableStocks';
-import { useAvailableStocks, usePortfolio } from '../../business/state/Hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
 
 export const Playground: React.FC<{}> = ({}) => {
 
-  const { portfolio } = usePortfolio();
-  const { availableStocks } = useAvailableStocks();
+  const portfolio = useSelector((state: RootState) => state.portfolio);
+  const availableStocks = useSelector((state: RootState) => state.avbStocks);
 
   return (
     <Column style={{

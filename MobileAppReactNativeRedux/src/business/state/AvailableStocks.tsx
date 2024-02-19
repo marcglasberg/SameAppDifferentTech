@@ -1,7 +1,9 @@
 import { AvailableStock } from './AvailableStock';
 import { dao } from '../../inject';
 import { print } from '../utils/utils';
-import { UseSet } from './Hooks';
+import { Dispatch } from '@reduxjs/toolkit';
+import { UnknownAction } from 'redux';
+import { updateAvailableStocks } from '../../avbStocksSlice.ts';
 
 export class AvailableStocks {
   readonly list: AvailableStock[];
@@ -38,25 +40,12 @@ export class AvailableStocks {
   }
 
   /** Continuously get stock price updates from the backend. */
-  startListeningToStockPriceUpdates(setAvailableStocks: UseSet<AvailableStocks>) {
+  startListeningToStockPriceUpdates() {
     print('Listening to stock price updates...');
 
     dao.listenToStockPriceUpdates(
       (ticker: string, price: number) => {
-        setAvailableStocks((prevAvailableStocks) => {
-          let availableStock = prevAvailableStocks.findBySymbolOrNull(ticker);
-          if (availableStock) {
-            let avbStockWithUpdatedPrice = availableStock.withCurrentPrice(price);
-            let newAvailableStocks = prevAvailableStocks.withAvailableStock(avbStockWithUpdatedPrice);
-
-            print('Updated ' + ticker + ' price to ' + price + '.');
-
-            return newAvailableStocks;
-          }
-
-          // If the stock is not found, return the previous state
-          return prevAvailableStocks;
-        });
+        updateAvailableStocks({ ticker: ticker, price: price });
       }
     );
   }

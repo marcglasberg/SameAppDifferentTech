@@ -1,28 +1,33 @@
 import React from 'react';
 import { CashBalanceView } from './CashBalance.view';
 import { Portfolio } from '../../business/state/Portfolio';
-import { usePortfolio, UseSet } from '../../business/state/Hooks';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store.tsx';
+import { addCashBalance, removeCashBalance } from '../../portfolioSlice.ts';
+import { Dispatch } from '@reduxjs/toolkit';
 
 export const CashBalanceContainer
   = () => {
-  const { portfolio, setPortfolio } = usePortfolio();
-  return <CashBalanceView {...viewModel(portfolio, setPortfolio)} />;
+  const portfolio = useSelector((state: RootState) => state.portfolio);
+  const dispatch = useDispatch();
+  return <CashBalanceView {...viewModel(portfolio, dispatch)} />;
 };
 
-export function viewModel(
-  portfolio: Portfolio,
-  setPortfolio: UseSet<Portfolio>
-) {
+export function viewModel(portfolio: Portfolio, dispatch: Dispatch) {
 
   return {
     cashBalance: portfolio.cashBalance,
 
     onAdd: () => {
-      setPortfolio(prevPortfolio => prevPortfolio.addCashBalance(100));
+      dispatch(
+        addCashBalance({ howMuch: 100 })
+      );
     },
 
     onRemove: () => {
-      setPortfolio(prevPortfolio => prevPortfolio.removeCashBalance(100));
+      dispatch(
+        removeCashBalance({ howMuch: 100 })
+      );
     }
   };
 }

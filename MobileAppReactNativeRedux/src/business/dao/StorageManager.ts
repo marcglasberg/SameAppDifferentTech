@@ -3,7 +3,9 @@ import { print, printError } from '../utils/utils';
 import React, { createContext, useContext } from 'react';
 import { Portfolio } from '../state/Portfolio';
 import { Persistor } from './Persistor';
-import { UseSet } from '../state/Hooks';
+import { setPortfolio } from '../../portfolioSlice.ts';
+import { Dispatch } from '@reduxjs/toolkit';
+
 
 /**
  * The StorageManager is the high-level code that actually loads the state when the app opens,
@@ -43,15 +45,13 @@ export class StorageManager {
    * something actually changed. This is a good compromise between saving too often and saving
    * too little. But you can change the 2 sec interval, depending on the requirements of your app.
    */
-  async processPortfolio(portfolio: Portfolio,
-                         setPortfolio: UseSet<Portfolio>
-  ) {
+  async processPortfolio(portfolio: Portfolio, dispatch: Dispatch) {
 
     this.portfolioPersistor.current = portfolio;
 
     async function loadPortfolio() {
       const loaded = await dao.loadPortfolio();
-      setPortfolio(loaded);
+      dispatch(setPortfolio(loaded));
       return loaded;
     }
 
