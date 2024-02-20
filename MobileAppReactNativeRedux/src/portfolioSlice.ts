@@ -27,9 +27,7 @@ export const portfolioSlice = createSlice({
     },
 
     addCashBalance: (state, action: PayloadAction<{ howMuch: number }>) => {
-      print('CASH BALANCE BEFORE ======================' + state);
       state = state.addCashBalance(action.payload.howMuch);
-      print('CASH BALANCE AFTER ======================' + state);
       return state;
     },
 

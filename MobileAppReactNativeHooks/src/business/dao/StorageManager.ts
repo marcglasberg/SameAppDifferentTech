@@ -115,8 +115,8 @@ export class StorageManager {
     storageManager: StorageManager;
     setStorageManager: React.Dispatch<React.SetStateAction<StorageManager>>
   }>({
-    storageManager: new StorageManager(), setStorageManager: () => {
-    }
+    storageManager: new StorageManager(),
+    setStorageManager: () => { }
   });
 
   static use(): StorageManager {
