@@ -1,4 +1,4 @@
-import { Store } from './store.tsx';
+import { Store } from './Store.tsx';
 
 export abstract class ReduxAction<St> {
 

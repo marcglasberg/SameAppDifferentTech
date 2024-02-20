@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { State } from './state.ts';
-import { Store, StoreProvider, useStore } from './AsyncRedux/store.tsx';
+import { Store, StoreProvider, UserExceptionDialog, useStore } from './AsyncRedux/Store.tsx';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AddTodoAction, ToggleTodoAction } from './actions.ts';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import { AddTodoAction } from './AddTodoAction.ts';
+import { ToggleTodoAction } from './ToggleTodoAction.ts';
 
 function App() {
 
   const store = new Store<State>({
-    initialState: State.initialState
+    initialState: State.initialState,
+    userExceptionDialog: userExceptionDialog
   });
 
   return (
@@ -20,6 +22,15 @@ function App() {
     </StoreProvider>
   );
 }
+
+const userExceptionDialog: UserExceptionDialog =
+  (error, next) => {
+    Alert.alert(
+      error.title || error.message,
+      error.title ? error.message : '',
+      [{ text: 'OK', onPress: (value?: string) => next }]
+    );
+  };
 
 const AppContent: React.FC = () => {
   return (
@@ -109,23 +120,20 @@ const TodoList: React.FC = () => {
     <View>
       {store.state.todos.items.map(
         (item, index) => (
-          <>
-            <BouncyCheckbox
-              size={30}
-              style={styles.checkbox}
-              key={index + item.text}
-              isChecked={item.completed}
-              disableBuiltInState={true}
-              fillColor="#555"
-              unfillColor="#FFE"
-              text={item.text}
-              iconStyle={{ borderColor: 'red' }}
-              innerIconStyle={{ borderWidth: 2 }}
-              onPress={(_) => {
-                store.dispatch(new ToggleTodoAction(item));
-              }}
-            />
-          </>
+          <BouncyCheckbox
+            size={30}
+            style={styles.checkbox}
+            key={index + item.text}
+            isChecked={item.completed}
+            disableBuiltInState={true}
+            fillColor="#555"
+            unfillColor="#FFE"
+            text={item.text}
+            innerIconStyle={{ borderWidth: 2 }}
+            onPress={(_) => {
+              store.dispatch(new ToggleTodoAction(item));
+            }}
+          />
         ))}
     </View>
   );
