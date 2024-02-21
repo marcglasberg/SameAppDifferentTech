@@ -1,5 +1,5 @@
-import { State } from './state.ts';
-import { TodoItem } from './todos.ts';
+import { State } from './State.ts';
+import { TodoItem } from './Todos.ts';
 import { Action } from './action.ts';
 
 export class ToggleTodoAction extends Action {

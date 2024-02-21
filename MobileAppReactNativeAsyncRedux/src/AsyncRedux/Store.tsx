@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState } from 'react';
 import { ReduxAction } from './ReduxAction.ts';
 import { UserException } from './UserException.ts';
 import { StoreException } from './StoreException.ts';
-import { Wait } from './Wait';
 
 export type UserExceptionDialog = (exception: UserException, next: () => void) => void;
 
@@ -16,21 +15,20 @@ export class Store<St> {
 
   private _state: St;
 
-  // A queue of errors of type UserException, thrown by actions.
-  // They are shown to the user using the function `userExceptionDialog`.
-  readonly _errors: UserException[];
-
   // A function that shows UserExceptions to the user, using some UI like a dialog or a toast.
   // This function is passed to the constructor. If not passed, the UserException is ignored.
   readonly _userExceptionDialog: UserExceptionDialog;
 
-  // Hols the wait states of async operations in progress.
-  readonly _wait: Wait;
+  // A queue of errors of type UserException, thrown by actions.
+  // They are shown to the user using the function `userExceptionDialog`.
+  readonly _userExceptionsQueue: UserException[];
+
+  // Hold the wait states of async operations in progress.
+  private readonly _actionsInProgress: Set<ReduxAction<St>>;
 
   private _setState: ((state: St) => void) | null;
   private _forceUpdate: (() => void) | null;
-
-  private _autoRegisterWaitStates: boolean;
+  readonly _autoRegisterWaitStates: boolean;
 
   public constructor({
                        initialState,
@@ -40,9 +38,9 @@ export class Store<St> {
     userExceptionDialog?: (exception: UserException, next: () => void) => void,
   }) {
     this._state = initialState;
-    this._errors = [];
+    this._userExceptionsQueue = [];
     this._userExceptionDialog = userExceptionDialog || this._noopExceptionDialog;
-    this._wait = new Wait();
+    this._actionsInProgress = new Set();
     this._setState = null;
     this._forceUpdate = null;
     this._autoRegisterWaitStates = true;
@@ -55,66 +53,92 @@ export class Store<St> {
     return this._state;
   }
 
-  public dispatch(action: ReduxAction<St>) {  //
+  public dispatch(action: ReduxAction<St>) {
 
     if (this._setState === null) throw new StoreException('Store not set in dispatch');
 
     action._injectStore(this);
     console.log('Dispatched: ' + action);
 
-    let isWaiting: boolean = false;
+    let reducerResult: St | Promise<St | null> | null = null;
 
     try {
-      const reducerResult = action.reducer();
-
-      // Async reducer
-      if (reducerResult instanceof Promise) {
-
-        if (this._autoRegisterWaitStates) {
-          isWaiting = true;
-          this._wait.add(action);
-          this._forceUpdate?.();
-        }
-
-        reducerResult.then((asyncResult) => {
-          if (asyncResult !== null) {
-            if (this._setState === null) throw new StoreException('Store not set');
-            let stateChangeDescription = Store.describeStateChange(this.state, asyncResult);
-            if (stateChangeDescription !== '') console.log(stateChangeDescription);
-            this._setState(asyncResult);
-          }
-        });
-      }
-
-      // Sync reducer
-      else if (reducerResult !== null) {
-        let stateChangeDescription = Store.describeStateChange(this.state, reducerResult);
-        if (stateChangeDescription !== '') console.log(stateChangeDescription);
-
-        this._setState(reducerResult);
-      }
-
-      // Reducer returned null
-      else {
-        // We simply do nothing.
-      }
-    } catch (error) {
+      // - Runs the sync reducer; OR
+      // - Runs the initial sync part of the async reducer
+      reducerResult = action.reducer();
+    }
+      //
+    catch (error) {
 
       // Errors of type UserException are added to the error queue, not thrown.
       if (error instanceof UserException) {
-        this.addError(error);
+        this._addUserException(error);
         this._showUserExceptionDialog();
       }
       //
       else throw error;
-    } finally {
-      if (this._autoRegisterWaitStates && isWaiting) {
-        this._wait.remove(action);
-        this._forceUpdate?.();
-      }
+    }
+
+    // If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
+    if (reducerResult === null || reducerResult === this.state) {
+      return;
+    }
+    // If the reducer is ASYNC, we still have to process the rest of the reducer to generate the new state.
+    else if (reducerResult instanceof Promise<St>) {
+      this._runRestOfTheAsyncReducerAndApplyResult(action, reducerResult).then();
+    }
+    // If the reducer is SYNC, we already have the new state, and we simply must apply it.
+    else {
+      this._applySyncReducerResult(reducerResult);
     }
   }
 
+  private async _runRestOfTheAsyncReducerAndApplyResult(action: ReduxAction<St>, reducerResult: Promise<St | null>) {
+
+    if (this._autoRegisterWaitStates) {
+      this._actionsInProgress.add(action);
+      this._forceUpdate?.();
+    }
+
+    let asyncResult: St | null = null;
+
+    try {
+      asyncResult = await reducerResult;
+    }
+      //
+    catch (error) {
+      // Errors of type UserException are added to the error queue, not thrown.
+      if (error instanceof UserException) {
+        this._addUserException(error);
+        this._showUserExceptionDialog();
+      }
+      //
+      else throw error;
+    }
+      //
+    finally {
+      if (this._autoRegisterWaitStates) {
+        this._actionsInProgress.delete(action);
+        this._forceUpdate?.();
+      }
+    }
+
+    if (asyncResult !== null) {
+      let stateChangeDescription = Store.describeStateChange(this.state, asyncResult);
+      if (stateChangeDescription !== '') console.log(stateChangeDescription);
+
+      if (this._setState === null) throw new StoreException('Store not set');
+      this._setState(asyncResult);
+    }
+  }
+
+  private _applySyncReducerResult(reducerResult: St) {
+
+    let stateChangeDescription = Store.describeStateChange(this.state, reducerResult);
+    if (stateChangeDescription !== '') console.log(stateChangeDescription);
+
+    this._setState?.(reducerResult);
+  }
 
   /**
    * We check to see if any errors are in the queue and if so, we show the first one.
@@ -135,23 +159,36 @@ export class Store<St> {
    * ```
    */
   private _showUserExceptionDialog() {
-    let currentError = this._errors.shift();
+    let currentError = this.getNextUserExceptionInQueue();
     if (currentError !== undefined)
       this._userExceptionDialog?.(currentError, () => {
         this._showUserExceptionDialog();
       });
   };
 
-  public getNextError(): UserException | undefined {
-    return this._errors.shift();
+  public getNextUserExceptionInQueue(): UserException | undefined {
+    return this._userExceptionsQueue.shift();
   }
 
-  public hasErrors(): boolean {
-    return this._errors.length > 0;
+  public hasUserExceptionInQueue(): boolean {
+    return this._userExceptionsQueue.length > 0;
   }
 
-  private addError(error: UserException) {
-    this._errors.push(error);
+  private _addUserException(error: UserException) {
+    this._userExceptionsQueue.push(error);
+  }
+
+  isInProgress<T extends ReduxAction<St>>(type: { new(...args: any[]): T }): boolean {
+
+    console.log('1. ACTIONS (' + this._actionsInProgress.size + '): ' + Array.from(this._actionsInProgress).join(', '));
+
+    // Returns true if an action of the given type is in progress.
+    for (const action of this._actionsInProgress) {
+      if (action instanceof type) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // TODO: MARCELO Hide this internally.
@@ -232,6 +269,7 @@ export function StoreProvider<St>({ store, children }: StoreProviderProps<St>): 
   };
 
   const forceUpdate = () => {
+    console.log('Force update ' + dispatchCounter);
     _forceUpdate(++dispatchCounter);
   };
 

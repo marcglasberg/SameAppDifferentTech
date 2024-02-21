@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { State } from './state.ts';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { State } from './State.ts';
 import { Store, StoreProvider, UserExceptionDialog, useStore } from './AsyncRedux/Store.tsx';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { AddTodoAction } from './AddTodoAction.ts';
 import { ToggleTodoAction } from './ToggleTodoAction.ts';
+import { RemoveAllTodosAction } from './RemoveAllTodosAction.ts';
 
 function App() {
 
@@ -39,6 +49,7 @@ const AppContent: React.FC = () => {
       <TodoInput />
       <TodoList />
       <Filter />
+      <RemoveAllButton />
     </View>
   );
 };
@@ -88,7 +99,7 @@ const styles = StyleSheet.create({
     paddingRight: 10
   },
   label: {
-    marginBottom: 8 // Add some space between the label and the input field
+    marginBottom: 8
   },
   button: {
     backgroundColor: '#007bff',
@@ -97,6 +108,13 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#ffffff'
+  },
+  footerButton: {
+    alignItems: 'center',
+    backgroundColor: '#222',
+    padding: 15,
+    paddingHorizontal: 25,
+    margin: 10
   },
   input: {
     flex: 1,
@@ -117,24 +135,31 @@ const TodoList: React.FC = () => {
   const store = useStore<State>();
 
   return (
-    <View>
-      {store.state.todos.items.map(
-        (item, index) => (
-          <BouncyCheckbox
-            size={30}
-            style={styles.checkbox}
-            key={index + item.text}
-            isChecked={item.completed}
-            disableBuiltInState={true}
-            fillColor="#555"
-            unfillColor="#FFE"
-            text={item.text}
-            innerIconStyle={{ borderWidth: 2 }}
-            onPress={(_) => {
-              store.dispatch(new ToggleTodoAction(item));
-            }}
-          />
-        ))}
+    <View style={{ flex: 1 }}>
+
+      <ScrollView>
+        {store.state.todos.items.map(
+          (item, index) => (
+            <BouncyCheckbox
+              size={30}
+              style={styles.checkbox}
+              key={index + item.text}
+              isChecked={item.completed}
+              disableBuiltInState={true}
+              fillColor="#555"
+              unfillColor="#FFE"
+              text={item.text}
+              innerIconStyle={{ borderWidth: 2 }}
+              onPress={(_) => {
+                store.dispatch(new ToggleTodoAction(item));
+              }}
+            />
+          ))}
+      </ScrollView>
+      <View
+        style={{ backgroundColor: '#CCC', height: 0.75, marginTop: 10, marginHorizontal: 15 }
+        }
+      />
     </View>
   );
 };
@@ -144,8 +169,34 @@ const Filter: React.FC = () => {
   const store = useStore<State>();
 
   return (
-    <View style={{ flex: 1, paddingVertical: 20 }}>
+    <View style={{ paddingVertical: 20 }}>
       <Text style={{ textAlign: 'center' }}>Filter: {store.state.filter}</Text>
     </View>
   );
 };
+
+const RemoveAllButton: React.FC = () => {
+
+  const store = useStore<State>();
+  let disabled = store.isInProgress(RemoveAllTodosAction);
+
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        store.dispatch(new RemoveAllTodosAction());
+      }}
+      style={styles.footerButton}
+      disabled={disabled}
+    >
+
+      {disabled ? (
+        <ActivityIndicator size="small" color="#ffffff" />
+      ) : (
+        <Text style={styles.buttonText}>Remove All Todos</Text>
+      )}
+
+    </TouchableOpacity>
+  );
+};
+
+

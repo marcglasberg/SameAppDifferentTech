@@ -1,5 +1,3 @@
-import { UserException } from './AsyncRedux/UserException.ts';
-
 export class TodoItem {
   constructor(
     public text: string,
@@ -55,5 +53,11 @@ export class Todos {
       (itemInList === item) ? item.toggleCompleted() : itemInList
     );
     return new Todos(newTodos);
+  }
+
+  * [Symbol.iterator]() {
+    for (let i = 0; i < this.items.length; i++) {
+      yield this.items[i];
+    }
   }
 }

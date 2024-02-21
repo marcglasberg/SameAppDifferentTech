@@ -1,4 +1,4 @@
-import { State } from './state.ts';
+import { State } from './State.ts';
 import { Action } from './action.ts';
 import { UserException } from './AsyncRedux/UserException';
 

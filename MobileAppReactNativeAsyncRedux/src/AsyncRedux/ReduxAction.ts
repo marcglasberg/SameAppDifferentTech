@@ -18,8 +18,8 @@ export abstract class ReduxAction<St> {
   }
 
   // Dispatches an action to the Redux store.
-  protected get dispatch(): (action: ReduxAction<St>) => void {
-    return this.store?.dispatch;
+  protected dispatch(action: ReduxAction<St>): void {
+    return this.store.dispatch(action);
   }
 
   // For Async Redux internal use only.

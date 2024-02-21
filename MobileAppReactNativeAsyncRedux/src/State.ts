@@ -1,5 +1,5 @@
-import { Todos } from './todos.ts';
-import { Filter } from './filter.ts';
+import { Todos } from './Todos.ts';
+import { Filter } from './Filter.ts';
 
 export class State {
 
