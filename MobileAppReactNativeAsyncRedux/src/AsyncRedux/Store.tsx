@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState } from 'react';
 import { ReduxAction } from './ReduxAction.ts';
 import { UserException } from './UserException.ts';
 import { StoreException } from './StoreException.ts';
+import { Persistor } from './Persistor.tsx';
+import { ProcessPersistence } from './ProcessPersistence.ts';
 
 export type UserExceptionDialog = (exception: UserException, next: () => void) => void;
 
@@ -17,25 +19,28 @@ export class Store<St> {
 
   // A function that shows UserExceptions to the user, using some UI like a dialog or a toast.
   // This function is passed to the constructor. If not passed, the UserException is ignored.
-  readonly _userExceptionDialog: UserExceptionDialog;
+  private readonly _userExceptionDialog: UserExceptionDialog;
 
   // A queue of errors of type UserException, thrown by actions.
   // They are shown to the user using the function `userExceptionDialog`.
-  readonly _userExceptionsQueue: UserException[];
+  private readonly _userExceptionsQueue: UserException[];
 
   // Hold the wait states of async operations in progress.
   private readonly _actionsInProgress: Set<ReduxAction<St>>;
 
   private _setState: ((state: St) => void) | null;
   private _forceUpdate: (() => void) | null;
-  readonly _autoRegisterWaitStates: boolean;
+  private readonly _autoRegisterWaitStates: boolean;
+  private _processPersistence: ProcessPersistence<St> | null;
 
   public constructor({
                        initialState,
-                       userExceptionDialog
+                       userExceptionDialog,
+                       persistor
                      }: {
     initialState: St,
     userExceptionDialog?: (exception: UserException, next: () => void) => void,
+    persistor?: Persistor<St>,
   }) {
     this._state = initialState;
     this._userExceptionsQueue = [];
@@ -44,6 +49,7 @@ export class Store<St> {
     this._setState = null;
     this._forceUpdate = null;
     this._autoRegisterWaitStates = true;
+    this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
   }
 
   // This just removes all exceptions from the queue.
