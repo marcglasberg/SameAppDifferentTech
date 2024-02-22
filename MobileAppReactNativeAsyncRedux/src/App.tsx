@@ -17,28 +17,17 @@ import { AddTodoAction } from './AddTodoAction.ts';
 import { ToggleTodoAction } from './ToggleTodoAction.ts';
 import { RemoveAllTodosAction } from './RemoveAllTodosAction.ts';
 import { ClassPersistor } from './AsyncRedux/ClassPersistor.tsx';
+import { TodoItem, Todos } from './Todos.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NextFilterAction } from './NextFilterAction.ts';
+import { Filter } from './Filter.ts';
 
-function App() {
+export function App() {
 
   const store = new Store<State>({
     initialState: State.initialState,
     userExceptionDialog: userExceptionDialog,
-    persistor: new ClassPersistor(
-      async () => {
-        console.log('----------- LOADED -----------');
-        return await AsyncStorage.getItem('database');
-      },
-      async (json) => {
-        console.log('----------- SAVED -----------');
-        console.log(json);
-        await AsyncStorage.setItem('database', json);
-      },
-      async () => {
-        console.log('----------- DELETED -----------');
-        await AsyncStorage.clear();
-      }
-    )
+    persistor: getPersistor()
   });
 
   return (
@@ -48,6 +37,24 @@ function App() {
       </SafeAreaProvider>
     </StoreProvider>
   );
+
+  // Uses AsyncStorage, since this is a React Native app. If it was a React web app,
+  // we would use localStorage or IndexedDB.
+  function getPersistor() {
+    return new ClassPersistor<State>(
+      async () => {
+        return await AsyncStorage.getItem('state');
+      },
+      async (serialized) => {
+        await AsyncStorage.setItem('state', serialized);
+      },
+      async () => {
+        await AsyncStorage.clear();
+      },
+      // All custom classes that are part of the state (except native JavaScript classes).
+      [State, Todos, TodoItem, FilterButton]
+    );
+  }
 }
 
 const userExceptionDialog: UserExceptionDialog =
@@ -65,14 +72,11 @@ const AppContent: React.FC = () => {
       <Text style={{ textAlign: 'center', padding: 16, fontSize: 35, color: '#A44' }}>Todos</Text>
       <TodoInput />
       <TodoList />
-      <Filter />
+      <FilterButton />
       <RemoveAllButton />
     </View>
   );
 };
-
-export default App;
-
 
 const TodoInput: React.FC = () => {
 
@@ -90,16 +94,158 @@ const TodoInput: React.FC = () => {
           const capitalizedText = text.charAt(0).toUpperCase() + text.slice(1);
           setInputText(capitalizedText);
         }}
+        onSubmitEditing={() => {
+          store.dispatch(new AddTodoAction(inputText));
+          setInputText(''); // Clear the input after adding the todo
+        }}
       />
 
       <TouchableOpacity onPress={() => {
         store.dispatch(new AddTodoAction(inputText));
         setInputText('');
       }} style={styles.button}>
-        <Text style={styles.buttonText}>Add</Text>
+        <Text style={styles.footerButtonText}>Add</Text>
       </TouchableOpacity>
 
     </View>
+  );
+};
+
+const NoTodosWarning: React.FC = () => {
+
+  const store = useStore<State>();
+  let filter = store.state.filter;
+  let count = store.state.todos.count(filter);
+  let countCompleted = store.state.todos.count(Filter.showCompleted);
+  let countActive = store.state.todos.count(Filter.showActive);
+
+  if (count == 0) {
+    if (filter == Filter.showAll)
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={styles.dimmedText}>No todos</Text>
+        </View>
+      );
+    else if (filter == Filter.showActive) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          {countCompleted !== 0 ? (
+            <>
+              <Text style={styles.dimmedText}>No active todos</Text>
+              <Text style={styles.dimmedText}>(change filter to
+                see {countCompleted} completed)</Text>
+            </>
+          ) : (
+            <Text style={styles.dimmedText}>No active todos</Text>
+          )}
+        </View>
+      );
+    } else if (filter == Filter.showCompleted) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          {countActive !== 0 ? (
+            <>
+              <Text style={styles.dimmedText}>No completed todos</Text>
+              <Text style={styles.dimmedText}>(change filter to see {countActive} active)</Text>
+            </>
+          ) : (
+            <Text style={styles.dimmedText}>No active todos</Text>
+          )}
+        </View>
+      );
+    } else throw new Error('Invalid filter: ' + filter);
+  }
+  //
+  else return <View></View>;
+};
+
+const TodoList: React.FC = () => {
+
+  const store = useStore<State>();
+  let filter = store.state.filter;
+  let count = store.state.todos.count(filter);
+  if (count == 0) return <NoTodosWarning />;
+
+  const filterTodos = (item: TodoItem) => {
+    switch (store.state.filter) {
+      case Filter.showCompleted:
+        return item.completed;
+      case Filter.showActive:
+        return !item.completed;
+      case Filter.showAll:
+      default:
+        return true;
+    }
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+
+      <ScrollView>
+        {store.state.todos.items.filter(filterTodos).map((item, index) => (
+          <BouncyCheckbox
+            size={30}
+            style={styles.checkbox}
+            key={index + item.text}
+            isChecked={item.completed}
+            disableBuiltInState={true}
+            fillColor="#555"
+            unfillColor="#FFE"
+            text={item.text}
+            innerIconStyle={{ borderWidth: 2 }}
+            onPress={(_) => {
+              store.dispatch(new ToggleTodoAction(item));
+            }}
+          />
+        ))}
+      </ScrollView>
+      <View
+        style={{ backgroundColor: '#CCC', height: 0.75, marginTop: 10, marginHorizontal: 15 }
+        }
+      />
+    </View>
+  );
+};
+
+const FilterButton: React.FC = () => {
+
+  const store = useStore<State>();
+
+  // <View style={{ paddingVertical: 20 }}>
+  return (
+
+    <TouchableOpacity
+      onPress={() => {
+        store.dispatch(new NextFilterAction());
+      }}
+      style={styles.filterButton}
+    >
+      <Text style={styles.filterButtonText}>Filter: {store.state.filter}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const RemoveAllButton: React.FC = () => {
+
+  const store = useStore<State>();
+  let disabled = store.isInProgress(RemoveAllTodosAction);
+
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        store.dispatch(new RemoveAllTodosAction());
+      }}
+      style={styles.footerButton}
+      disabled={disabled}
+    >
+
+      {disabled ? (
+        <ActivityIndicator size="small" color="#ffffff" />
+      ) : (
+        <Text style={styles.footerButtonText}>Remove All Todos</Text>
+      )}
+
+    </TouchableOpacity>
   );
 };
 
@@ -123,8 +269,15 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingHorizontal: 25
   },
-  buttonText: {
-    color: '#ffffff'
+  footerButtonText: {
+    color: '#fff'
+  },
+  filterButtonText: {
+    color: '#000'
+  },
+  dimmedText: {
+    fontSize: 20,
+    color: '#BBB'
   },
   footerButton: {
     alignItems: 'center',
@@ -132,6 +285,15 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingHorizontal: 25,
     margin: 10
+  },
+  filterButton: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#222',
+    padding: 15,
+    paddingHorizontal: 25,
+    marginHorizontal: 10
   },
   input: {
     flex: 1,
@@ -145,75 +307,3 @@ const styles = StyleSheet.create({
     paddingVertical: 6
   }
 });
-
-
-const TodoList: React.FC = () => {
-
-  const store = useStore<State>();
-
-  return (
-    <View style={{ flex: 1 }}>
-
-      <ScrollView>
-        {store.state.todos.items.map(
-          (item, index) => (
-            <BouncyCheckbox
-              size={30}
-              style={styles.checkbox}
-              key={index + item.text}
-              isChecked={item.completed}
-              disableBuiltInState={true}
-              fillColor="#555"
-              unfillColor="#FFE"
-              text={item.text}
-              innerIconStyle={{ borderWidth: 2 }}
-              onPress={(_) => {
-                store.dispatch(new ToggleTodoAction(item));
-              }}
-            />
-          ))}
-      </ScrollView>
-      <View
-        style={{ backgroundColor: '#CCC', height: 0.75, marginTop: 10, marginHorizontal: 15 }
-        }
-      />
-    </View>
-  );
-};
-
-const Filter: React.FC = () => {
-
-  const store = useStore<State>();
-
-  return (
-    <View style={{ paddingVertical: 20 }}>
-      <Text style={{ textAlign: 'center' }}>Filter: {store.state.filter}</Text>
-    </View>
-  );
-};
-
-const RemoveAllButton: React.FC = () => {
-
-  const store = useStore<State>();
-  let disabled = store.isInProgress(RemoveAllTodosAction);
-
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        store.dispatch(new RemoveAllTodosAction());
-      }}
-      style={styles.footerButton}
-      disabled={disabled}
-    >
-
-      {disabled ? (
-        <ActivityIndicator size="small" color="#ffffff" />
-      ) : (
-        <Text style={styles.buttonText}>Remove All Todos</Text>
-      )}
-
-    </TouchableOpacity>
-  );
-};
-
-

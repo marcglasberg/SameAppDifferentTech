@@ -1,3 +1,5 @@
+import { Filter } from './Filter.ts';
+
 export class TodoItem {
   constructor(
     public text: string,
@@ -7,6 +9,18 @@ export class TodoItem {
   // Returns a new item with the same text, but with the opposite completed status.
   toggleCompleted() {
     return new TodoItem(this.text, !this.completed);
+  }
+
+  showsWhenFilterIs(filter: Filter) {
+    switch (filter) {
+      case Filter.showCompleted:
+        return this.completed;
+      case Filter.showActive:
+        return !this.completed;
+      case Filter.showAll:
+      default:
+        return true;
+    }
   }
 
   toString() {
@@ -57,6 +71,12 @@ export class Todos {
       (itemInList === item) ? item.toggleCompleted() : itemInList
     );
     return new Todos(newTodos);
+  }
+
+  // Count the number of todos that appear when the given filter is applied.
+  // If no filter is given, count all todos.
+  count(filter?: Filter) {
+    return this.items.filter(item => item.showsWhenFilterIs(filter ?? Filter.showAll)).length;
   }
 
   isEmpty() {

@@ -5,7 +5,7 @@ import { Persistor } from './Persistor.tsx';
 import { State } from '../State.ts';
 import { TodoItem, Todos } from '../Todos.ts';
 import { Filter } from '../Filter.ts';
-import { ESSerializer } from '../Esserializer';
+import { ClassOrEnum, ESSerializer } from '../Esserializer';
 
 /**
  * Use it like this:
@@ -33,21 +33,35 @@ export class ClassPersistor<St> extends Persistor<St> {
 
   constructor(
     /**
-     * Loads from localStorage (React), AsyncStorage (React Native) or other.
+     * Returns the serialized state. You can use this to load from localStorage or IndexedDB
+     * (in React web), or AsyncStorage (in React Native) or other.
+     * It should return a Promise that resolves to the serialized state, or to null if the state
+     * is not yet persisted.
      */
-    public loadJson: () => Promise<string | null>,
+    public loadSerialized: () => Promise<string | null>,
+    //
     /**
-     * Saves to localStorage (React), AsyncStorage (React Native) or other.
+     * Saves the given serialized state. You can use this to save to localStorage or IndexedDB
+     * (in React web), or AsyncStorage (in React Native) or other.
+     * It should return a Promise that resolves when the state is saved.
      */
-    public saveJson: (json: string) => Promise<void>,
+    public saveSerialized: (serialized: string) => Promise<void>,
+    //
     /**
-     * Deletes from localStorage (React), AsyncStorage (React Native) or other.
+     * Deletes the serialized state. You can use this to delete from the localStorage or IndexedDB
+     * (in React web), or AsyncStorage (in React Native) or other.
+     * It should return a Promise that resolves when the state is deleted.
      */
-    public deleteJson: () => Promise<void>
+    public deleteSerialized: () => Promise<void>,
+    //
     /**
-     * Given the JavaScript Object, returns the state.
+     * You HAVE to list here all the custom classes that are part of your state, directly or
+     * indirectly. Note: You don't need to list native JavaScript classes, like Date.
+     * For example, suppose you have a class `State` that has a property `todos` of type `Todos`.
+     * And the class `Todos` has a property `items` of type `Array<TodoItem>`.
+     * Then you have to list all three classes here: `[State, Todos, TodoItem]`.
      */
-    // public jsObjToState: (jsObj: any) => St
+    public classesToSerialize: Array<ClassOrEnum>
   ) {
     super();
   }
@@ -63,55 +77,32 @@ export class ClassPersistor<St> extends Persistor<St> {
   async readState(): Promise<St | null> {
 
     // Reads the JSON file as a string.
-    const serializedString = await this.loadJson();
+    const serializedString = await this.loadSerialized();
     if (serializedString === null) return null;
 
     ESSerializer.registerClasses([
       State,
       Todos,
       TodoItem,
-      Filter,
+      Filter
     ]);
 
-    // TODO: MARCELO move this to the Store constructor.
-    const state = ESSerializer.deserialize(serializedString,
-      [
-        State,
-        Todos,
-        TodoItem,
-        // Filter
-      ]);
-
-    // TODO: REMOVE
-    // // Reads the JSON file as a string.
-    // const json = await this.loadJson();
-    // if (json === null) return null;
-    //
-    // // Converts the JSON string into a JavaScript Object value
-    // // (Object, Array, string, number, boolean, or null) corresponding to
-    // // the given JSON text. Throws SyntaxError if the string to parse fails.
-    // const jsObj: any = JSON.parse(json);
-    //
-    // // Converts the JavaScript Object value into State.
-    // const state = this.jsObjToState(jsObj);
-
-    return state;
+    return ESSerializer.deserialize(serializedString);
   }
 
   /**
    * Save an initial-state to the persistence.
    */
   async saveInitialState(state: St) {
-    // let json = JSON.stringify(state);
     const serializedString = ESSerializer.serialize(state);
-    await this.saveJson(serializedString);
+    await this.saveSerialized(serializedString);
   }
 
   /**
    * Delete the saved state from the persistence.
    */
   async deleteState() {
-    return this.deleteJson();
+    return this.deleteSerialized();
   }
 
   /**
@@ -121,8 +112,8 @@ export class ClassPersistor<St> extends Persistor<St> {
     lastPersistedState: St | null;
     newState: St
   }) {
-    let json = JSON.stringify(stateChange.newState);
-    await this.saveJson(json);
+    const serializedString = ESSerializer.serialize(stateChange.newState);
+    await this.saveSerialized(serializedString);
   }
 }
 

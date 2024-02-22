@@ -1,5 +1,5 @@
 import { AppRegistry, Platform, UIManager } from 'react-native';
-import App from './src/App';
+import { App } from './src/App';
 import { name as appName } from './app.json';
 
 // TODO: MARCELO
