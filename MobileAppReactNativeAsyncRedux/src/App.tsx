@@ -164,47 +164,52 @@ const TodoList: React.FC = () => {
   const store = useStore<State>();
   let filter = store.state.filter;
   let count = store.state.todos.count(filter);
+
+  // No todos to show with the current filter.
   if (count == 0) return <NoTodosWarning />;
+    //
+  // Show the list of todoItems.
+  else {
+    const filterTodos = (item: TodoItem) => {
+      switch (store.state.filter) {
+        case Filter.showCompleted:
+          return item.completed;
+        case Filter.showActive:
+          return !item.completed;
+        case Filter.showAll:
+        default:
+          return true;
+      }
+    };
 
-  const filterTodos = (item: TodoItem) => {
-    switch (store.state.filter) {
-      case Filter.showCompleted:
-        return item.completed;
-      case Filter.showActive:
-        return !item.completed;
-      case Filter.showAll:
-      default:
-        return true;
-    }
-  };
+    return (
+      <View style={{ flex: 1 }}>
 
-  return (
-    <View style={{ flex: 1 }}>
-
-      <ScrollView>
-        {store.state.todos.items.filter(filterTodos).map((item, index) => (
-          <BouncyCheckbox
-            size={30}
-            style={styles.checkbox}
-            key={index + item.text}
-            isChecked={item.completed}
-            disableBuiltInState={true}
-            fillColor="#555"
-            unfillColor="#FFE"
-            text={item.text}
-            innerIconStyle={{ borderWidth: 2 }}
-            onPress={(_) => {
-              store.dispatch(new ToggleTodoAction(item));
-            }}
-          />
-        ))}
-      </ScrollView>
-      <View
-        style={{ backgroundColor: '#CCC', height: 0.75, marginTop: 10, marginHorizontal: 15 }
-        }
-      />
-    </View>
-  );
+        <ScrollView>
+          {store.state.todos.items.filter(filterTodos).map((item, index) => (
+            <BouncyCheckbox
+              size={30}
+              style={styles.checkbox}
+              key={index + item.text}
+              isChecked={item.completed}
+              disableBuiltInState={true}
+              fillColor="#555"
+              unfillColor="#FFE"
+              text={item.text}
+              innerIconStyle={{ borderWidth: 2 }}
+              onPress={(_) => {
+                store.dispatch(new ToggleTodoAction(item));
+              }}
+            />
+          ))}
+        </ScrollView>
+        <View
+          style={{ backgroundColor: '#CCC', height: 0.75, marginTop: 10, marginHorizontal: 15 }
+          }
+        />
+      </View>
+    );
+  }
 };
 
 const FilterButton: React.FC = () => {
@@ -220,7 +225,7 @@ const FilterButton: React.FC = () => {
       }}
       style={styles.filterButton}
     >
-      <Text style={styles.filterButtonText}>Filter: {store.state.filter}</Text>
+      <Text style={styles.filterButtonText}>{store.state.filter}</Text>
     </TouchableOpacity>
   );
 };

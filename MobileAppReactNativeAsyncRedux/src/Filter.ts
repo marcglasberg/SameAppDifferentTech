@@ -1,5 +1,5 @@
 export enum Filter {
-  showAll = 'Show all',
-  showCompleted = 'Show completed',
-  showActive = 'Show active',
+  showAll = 'Showing all',
+  showCompleted = 'Showing COMPLETED',
+  showActive = 'Showing ACTIVE',
 }
