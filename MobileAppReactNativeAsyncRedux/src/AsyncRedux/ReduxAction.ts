@@ -1,4 +1,9 @@
 import { Store } from './Store.tsx';
+import { Action } from '../action.ts';
+import { State } from '../State.ts';
+import { RemoveTodoAction } from '../RemoveTodoAction.ts';
+import { TodoItem } from '../Todos.ts';
+import { StoreException } from './StoreException.ts';
 
 export abstract class ReduxAction<St> {
 
@@ -8,7 +13,7 @@ export abstract class ReduxAction<St> {
 
   // Returns the Redux store.
   protected get store(): Store<St> {
-    if (this._store === null) throw new Error('Store not set in action');
+    if (this._store === null) throw new StoreException('Store not set in action');
     return this._store;
   }
 
@@ -23,7 +28,7 @@ export abstract class ReduxAction<St> {
   }
 
   // For Async Redux internal use only.
-  public _injectStore(_store: Store<St>) {
+  _injectStore(_store: Store<St>) {
     this._store = _store;
   }
 

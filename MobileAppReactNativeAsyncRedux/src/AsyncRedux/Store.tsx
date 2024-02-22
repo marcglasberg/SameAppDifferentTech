@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, Dispatch, SetStateAction, useContext, useState } from 'react';
 import { ReduxAction } from './ReduxAction.ts';
 import { UserException } from './UserException.ts';
 import { StoreException } from './StoreException.ts';
@@ -6,6 +6,14 @@ import { Persistor } from './Persistor.tsx';
 import { ProcessPersistence } from './ProcessPersistence.ts';
 
 export type UserExceptionDialog = (exception: UserException, next: () => void) => void;
+
+export function print(obj: any): void {
+  _print(obj);
+}
+
+let _print = (obj: any) => {
+  console.log(obj);
+};
 
 /**
  * The store holds the state of the application and allows the state to be updated
@@ -28,43 +36,56 @@ export class Store<St> {
   // Hold the wait states of async operations in progress.
   private readonly _actionsInProgress: Set<ReduxAction<St>>;
 
-  private _setState: ((state: St) => void) | null;
-  private _forceUpdate: (() => void) | null;
+  private _forceUpdate: Dispatch<SetStateAction<number>> | null;
   private readonly _autoRegisterWaitStates: boolean;
-  private _processPersistence: ProcessPersistence<St> | null;
+  private readonly _processPersistence: ProcessPersistence<St> | null;
 
-  public constructor({
+  private _dispatchCounter = 0;
+
+  constructor({
                        initialState,
                        userExceptionDialog,
-                       persistor
+                       persistor,
+                       print
                      }: {
     initialState: St,
     userExceptionDialog?: (exception: UserException, next: () => void) => void,
     persistor?: Persistor<St>,
+    print?: (obj: any) => void | undefined,
   }) {
     this._state = initialState;
     this._userExceptionsQueue = [];
     this._userExceptionDialog = userExceptionDialog || this._noopExceptionDialog;
     this._actionsInProgress = new Set();
-    this._setState = null;
     this._forceUpdate = null;
     this._autoRegisterWaitStates = true;
     this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
+
+    if (print) _print = print;
+
+    if (this._processPersistence != null) {
+      this._processPersistence.readInitialState(this, initialState).then();
+    }
   }
 
-  // This just removes all exceptions from the queue.
-  private _noopExceptionDialog: UserExceptionDialog = (error, next) => next;
-
-  public get state(): St {
+  get state(): St {
     return this._state;
   }
 
-  public dispatch(action: ReduxAction<St>) {
+  get dispatchCounter() {
+    return this._dispatchCounter;
+  }
 
-    if (this._setState === null) throw new StoreException('Store not set in dispatch');
+  // Removes all user-exceptions from the queue.
+  private _noopExceptionDialog: UserExceptionDialog = (error, next) => next;
+
+
+  dispatch(action: ReduxAction<St>) {
+
+    if (this._forceUpdate === null) throw new StoreException('Store not set in dispatch');
 
     action._injectStore(this);
-    console.log('Dispatched: ' + action);
+    print('Dispatched: ' + action);
 
     let reducerResult: St | Promise<St | null> | null = null;
 
@@ -95,7 +116,7 @@ export class Store<St> {
     }
     // If the reducer is SYNC, we already have the new state, and we simply must apply it.
     else {
-      this._applySyncReducerResult(reducerResult);
+      this._applySyncReducerResult(action, reducerResult);
     }
   }
 
@@ -103,7 +124,7 @@ export class Store<St> {
 
     if (this._autoRegisterWaitStates) {
       this._actionsInProgress.add(action);
-      this._forceUpdate?.();
+      this._forceUpdate?.(++this._dispatchCounter);
     }
 
     let asyncResult: St | null = null;
@@ -125,25 +146,38 @@ export class Store<St> {
     finally {
       if (this._autoRegisterWaitStates) {
         this._actionsInProgress.delete(action);
-        this._forceUpdate?.();
+        this._forceUpdate?.(++this._dispatchCounter);
       }
     }
 
     if (asyncResult !== null) {
       let stateChangeDescription = Store.describeStateChange(this.state, asyncResult);
-      if (stateChangeDescription !== '') console.log(stateChangeDescription);
-
-      if (this._setState === null) throw new StoreException('Store not set');
-      this._setState(asyncResult);
+      if (stateChangeDescription !== '') print(stateChangeDescription);
+      this._registerState(action, asyncResult);
     }
   }
 
-  private _applySyncReducerResult(reducerResult: St) {
+  private _applySyncReducerResult(action: ReduxAction<St>, reducerResult: St) {
 
     let stateChangeDescription = Store.describeStateChange(this.state, reducerResult);
-    if (stateChangeDescription !== '') console.log(stateChangeDescription);
+    if (stateChangeDescription !== '') print(stateChangeDescription);
+    this._registerState(action, reducerResult);
+  }
 
-    this._setState?.(reducerResult);
+  //
+  private _registerState(action: ReduxAction<St>, stateEnd: St) {
+    if (this._forceUpdate === null) throw new StoreException('Store not set');
+
+    if (stateEnd !== null && stateEnd !== this._state) {
+      this._state = stateEnd;
+      this._forceUpdate(++this._dispatchCounter);
+    }
+
+    if (this._processPersistence != null)
+      this._processPersistence.process(
+        action,
+        stateEnd
+      );
   }
 
   /**
@@ -172,11 +206,11 @@ export class Store<St> {
       });
   };
 
-  public getNextUserExceptionInQueue(): UserException | undefined {
+  getNextUserExceptionInQueue(): UserException | undefined {
     return this._userExceptionsQueue.shift();
   }
 
-  public hasUserExceptionInQueue(): boolean {
+  hasUserExceptionInQueue(): boolean {
     return this._userExceptionsQueue.length > 0;
   }
 
@@ -185,8 +219,6 @@ export class Store<St> {
   }
 
   isInProgress<T extends ReduxAction<St>>(type: { new(...args: any[]): T }): boolean {
-
-    console.log('1. ACTIONS (' + this._actionsInProgress.size + '): ' + Array.from(this._actionsInProgress).join(', '));
 
     // Returns true if an action of the given type is in progress.
     for (const action of this._actionsInProgress) {
@@ -198,13 +230,7 @@ export class Store<St> {
   }
 
   // TODO: MARCELO Hide this internally.
-  _mutateState(state: St) {
-    this._state = state;
-  }
-
-  // TODO: MARCELO Hide this internally.
-  _inject(setStore: (state: St) => void, forceUpdate: () => void) {
-    this._setState = setStore;
+  _inject(forceUpdate: Dispatch<SetStateAction<number>>) {
     this._forceUpdate = forceUpdate;
   }
 
@@ -235,6 +261,75 @@ export class Store<St> {
     }
     return differences;
   }
+
+  /**
+   * Pause the Persistor temporarily.
+   *
+   * When pausePersistor is called, the Persistor will not start a new persistence process, until method
+   * resumePersistor is called. This will not affect the current persistence process, if one is currently
+   * running.
+   *
+   * Note: A persistence process starts when the Persistor.persistDifference method is called,
+   * and finishes when the future returned by that method completes.
+   */
+  pausePersistor(): void {
+    this._processPersistence?.pause();
+  }
+
+  /**
+   * Persists the current state (if it's not yet persisted), then pauses the Persistor temporarily.
+   *
+   * When persistAndPausePersistor is called, this will not affect the current persistence
+   * process, if one is currently running. If no persistence process was running, it will
+   * immediately start a new persistence process (ignoring Persistor.throttle).
+   *
+   * Then, the Persistor will not start another persistence process, until method
+   * resumePersistor is called.
+   *
+   * Note: A persistence process starts when the Persistor.persistDifference method is called,
+   * and finishes when the future returned by that method completes.
+   */
+  persistAndPausePersistor(): void {
+    this._processPersistence?.persistAndPause();
+  }
+
+  /**
+   * Resumes persistence by the Persistor,
+   * after calling pausePersistor or persistAndPausePersistor.
+   */
+  resumePersistor(): void {
+    this._processPersistence?.resume();
+  }
+
+  /**
+   * Asks the Persistor to save the initialState in the local persistence.
+   */
+  async saveInitialStateInPersistence(initialState: St): Promise<void> {
+    return this._processPersistence?.saveInitialState(initialState);
+  }
+
+  /**
+   * Asks the Persistor to read the state from the local persistence.
+   * Important: If you use this, you MUST put this state into the store.
+   * The Persistor will assume that's the case, and will not work properly otherwise.
+   */
+  async readStateFromPersistence(): Promise<St | null> {
+    return this._processPersistence?.readState() || null;
+  }
+
+  /**
+   * Asks the Persistor to delete the saved state from the local persistence.
+   */
+  async deleteStateFromPersistence(): Promise<void> {
+    return this._processPersistence?.deleteState();
+  }
+
+  /**
+   * Gets, from the Persistor, the last state that was saved to the local persistence.
+   */
+  getLastPersistedStateFromPersistor(): St | null {
+    return this._processPersistence?.lastPersistedState || null;
+  }
 }
 
 interface StoreProviderProps<St> {
@@ -244,13 +339,10 @@ interface StoreProviderProps<St> {
 
 interface StoreContextType<St> {
   store: Store<St> | null;
-  setState: (state: St | null) => void;
 }
 
 const StoreContext = createContext<StoreContextType<any>>({
-  store: null,
-  setState: () => {
-  } // Dummy function
+  store: null
 });
 
 export function useStore<St>(): Store<St> {
@@ -261,28 +353,14 @@ export function useStore<St>(): Store<St> {
   return context.store as Store<St>;
 }
 
-let dispatchCounter = 0;
-
 export function StoreProvider<St>({ store, children }: StoreProviderProps<St>): JSX.Element {
   const [_store] = useState<Store<St>>(store);
-  const [, _forceUpdate] = useState(dispatchCounter);
+  const [_, forceUpdate] = useState(store.dispatchCounter);
 
-  const setState = (state: St | null) => {
-    if (state !== null && state !== store.state) {
-      _store?._mutateState(state);
-      _forceUpdate(++dispatchCounter);
-    }
-  };
-
-  const forceUpdate = () => {
-    console.log('Force update ' + dispatchCounter);
-    _forceUpdate(++dispatchCounter);
-  };
-
-  _store?._inject(setState, forceUpdate);
+  _store?._inject(forceUpdate);
 
   return (
-    <StoreContext.Provider value={{ store: _store, setState }}>
+    <StoreContext.Provider value={{ store: _store }}>
       {children}
     </StoreContext.Provider>
   );

@@ -1,6 +1,7 @@
 // Assuming the existence of a Redux-like store and state management system in your TypeScript project
 
 import { ReduxAction } from './ReduxAction.ts';
+import { print } from './Store.tsx';
 
 /**
  * Use it like this:
@@ -34,25 +35,32 @@ export abstract class Persistor<St> {
    * case, if we think the state is corrupted and cannot be fixed, one alternative is deleting
    * all persisted files and returning null.
    */
-  abstract readState: () => Promise<St | null>;
+  abstract readState(): Promise<St | null>;
 
   /**
    * Delete the saved state from the persistence.
    */
-  abstract deleteState: () => Promise<void>;
+  abstract deleteState(): Promise<void>;
 
   /**
    * Save the new state to the persistence.
+   * @param stateChange.lastPersistedState The last state that was persisted. It may be null.
+   * @param stateChange.newState The new state to be persisted.
+   *
+   * Note you have to make sure that newState is persisted after this method is called.
+   * For simpler apps where your state is small, you can just ignore `lastPersistedState` and
+   * persist the whole `newState` every time. But for larger apps, you should compare
+   * `lastPersistedState` and `newState`, to persist only the difference between them.
    */
-  abstract persistDifference: (params: {
+  abstract persistDifference(stateChange: {
     lastPersistedState: St | null;
     newState: St
-  }) => Promise<void>;
+  }): Promise<void>;
 
   /**
    * Save an initial-state to the persistence.
    */
-  abstract saveInitialState: (state: St) => Promise<void>;
+  abstract saveInitialState(state: St): Promise<void>;
 
   /**
    * The default throttle is 2 seconds. Pass null to turn off throttle.
@@ -81,12 +89,12 @@ export class PersistorPrinterDecorator<St> implements Persistor<St> {
   }
 
   async readState(): Promise<St | null> {
-    console.log('Persistor: read state.');
+    print('Persistor: read state.');
     return this._persistor.readState();
   }
 
   async deleteState(): Promise<void> {
-    console.log('Persistor: delete state.');
+    print('Persistor: delete state.');
     return this._persistor.deleteState();
   }
 
@@ -94,14 +102,14 @@ export class PersistorPrinterDecorator<St> implements Persistor<St> {
     lastPersistedState: St | null;
     newState: St
   }): Promise<void> {
-    console.log(`Persistor: persist difference:
+    print(`Persistor: persist difference:
       lastPersistedState = ${lastPersistedState}
       newState = ${newState}`);
     return this._persistor.persistDifference({ lastPersistedState, newState });
   }
 
   async saveInitialState(state: St): Promise<void> {
-    console.log('Persistor: save initial state.');
+    print('Persistor: save initial state.');
     return this._persistor.saveInitialState(state);
   }
 

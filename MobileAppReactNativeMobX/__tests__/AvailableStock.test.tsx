@@ -1,9 +1,7 @@
 import 'react-native';
-import { describe, expect, it } from '@jest/globals';
 import AvailableStock from '../src/business/state/AvailableStock';
 
 describe('AvailableStock', () => {
-
   it('initializes with correct values.', () => {
     const availableStock = new AvailableStock('AAPL', 'Apple Inc.', 150.00);
     expect(availableStock.ticker).toBe('AAPL');

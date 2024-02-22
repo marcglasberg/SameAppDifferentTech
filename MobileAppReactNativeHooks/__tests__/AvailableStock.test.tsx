@@ -1,5 +1,4 @@
 import 'react-native';
-import { describe, expect, it } from '@jest/globals';
 import { AvailableStock } from '../src/business/state/AvailableStock';
 
 describe('AvailableStock', () => {

@@ -8,17 +8,21 @@ export class TodoItem {
   toggleCompleted() {
     return new TodoItem(this.text, !this.completed);
   }
+
+  toString() {
+    return `TodoItem{text=${this.text}, completed=${this.completed}}`;
+  }
 }
 
 export class Todos {
 
   // The list of items.
-  public readonly items: ReadonlyArray<TodoItem>;
+  readonly items: TodoItem[];
 
-  static empty: Todos = new Todos([]);
+  static empty: Todos = new Todos();
 
-  constructor(items: TodoItem[] = []) {
-    this.items = items;
+  constructor(items?: TodoItem[]) {
+    this.items = items ?? [];
   }
 
   addTodoFromText(text: string): Todos {
@@ -55,9 +59,19 @@ export class Todos {
     return new Todos(newTodos);
   }
 
+  isEmpty() {
+    return this.items.length === 0;
+  }
+
   * [Symbol.iterator]() {
     for (let i = 0; i < this.items.length; i++) {
       yield this.items[i];
     }
   }
+
+  toString() {
+    return `Todos{${this.items.join(',')}}`;
+  }
+
+
 }

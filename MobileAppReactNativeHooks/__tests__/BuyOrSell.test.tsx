@@ -1,5 +1,4 @@
 import 'react-native';
-import { describe, expect, it, test } from '@jest/globals';
 import { BuyOrSell } from '../src/business/state/BuyOrSell';
 
 describe('BuyOrSell', () => {

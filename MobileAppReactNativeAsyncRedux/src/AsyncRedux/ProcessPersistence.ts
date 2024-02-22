@@ -1,4 +1,6 @@
 import { PersistAction, Persistor } from './Persistor';
+import { ReduxAction } from './ReduxAction.ts';
+import { print, Store } from './Store.tsx';
 
 export class ProcessPersistence<St> {
   persistor: Persistor<St>;
@@ -17,24 +19,49 @@ export class ProcessPersistence<St> {
     this.newestState = null;
   }
 
-  public get throttle(): number {
+  async readInitialState(store: Store<St>, initialState: St) {
+
+    let stateReadFromPersistor = null;
+
+    try {
+      stateReadFromPersistor = await this.persistor.readState();
+    } catch (error) {
+      print('Error reading state:' + error + '. State will reset.');
+      await this.persistor.deleteState();
+    }
+
+    if (stateReadFromPersistor === null) {
+      // If it was not possible to read the persisted state, we persist the initial-state
+      // passed to the Store constructor.
+      await this.persistor.saveInitialState(initialState);
+    }
+    //
+    else {
+      // If the saved state was read successfully, we replace the store state with it.
+      // In this case, the initial-state passed in the Store constructor was used
+      // only while the persisted state is loading.
+      store.dispatch(new SetStateAction(stateReadFromPersistor));
+    }
+  }
+
+  get throttle(): number {
     return this.persistor.throttle || 0;
   }
 
-  public async saveInitialState(initialState: St): Promise<void> {
+  async saveInitialState(initialState: St): Promise<void> {
     this.lastPersistedState = initialState;
     await this.persistor.saveInitialState(initialState);
   }
 
   // Same as [Persistor.readState] but will remember the read state as the [lastPersistedState].
-  public async readState(): Promise<St | null> {
+  async readState(): Promise<St | null> {
     const state = await this.persistor.readState();
     this.lastPersistedState = state;
     return state;
   }
 
   // Same as [Persistor.deleteState] but will clear the [lastPersistedState].
-  public async deleteState(): Promise<void> {
+  async deleteState(): Promise<void> {
     this.lastPersistedState = null;
     await this.persistor.deleteState();
   }
@@ -46,7 +73,7 @@ export class ProcessPersistence<St> {
   // Return true if the persist process started.
   // Return false if persistence was postponed.
   //
-  public process(action: PersistAction<St> | null, newState: St): boolean {
+  process(action: ReduxAction<St> | null, newState: St): boolean {
     this.isInit = true;
     this.newestState = newState;
 
@@ -128,7 +155,7 @@ export class ProcessPersistence<St> {
   // Note: A persistence process starts when the [persistDifference] method is called, and
   // finishes when the future returned by that method completes.
   //
-  public pause(): void {
+  pause(): void {
     this.isPaused = true;
   }
 
@@ -146,7 +173,7 @@ export class ProcessPersistence<St> {
   // Note: A persistence process starts when the [persistDifference] method is called, and
   // finishes when the future returned by that method completes.
   //
-  public persistAndPause(): void {
+  persistAndPause(): void {
     this.isPaused = true;
 
     this._cancelTimer();
@@ -158,8 +185,23 @@ export class ProcessPersistence<St> {
   }
 
   // Resumes persistence by the [Persistor], after calling [pause] or [persistAndPause].
-  public resume(): void {
+  resume(): void {
     this.isPaused = false;
     if (this.isInit) this.process(null, this.newestState as St);
   }
 }
+
+/**
+ * This simply replaces all the store state with the given state.
+ */
+export class SetStateAction<St> extends ReduxAction<St> {
+
+  constructor(readonly newState: St) {
+    super();
+  }
+
+  reducer(): St {
+    return this.newState;
+  }
+}
+

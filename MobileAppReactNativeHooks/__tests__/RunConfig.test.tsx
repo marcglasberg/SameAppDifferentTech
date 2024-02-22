@@ -1,5 +1,4 @@
 import 'react-native';
-import { beforeEach, describe, expect, it } from '@jest/globals';
 import { AbTesting } from '../src/business/RunConfig/ABTesting';
 import RunConfig from '../src/business/RunConfig/RunConfig';
 import React from 'react';

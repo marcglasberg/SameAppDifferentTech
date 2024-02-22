@@ -21,4 +21,12 @@ export class State {
   withFilter(filter: Filter): State {
     return new State({ todos: this.todos, filter: filter || this.filter });
   }
+
+  hasTodos(): boolean {
+    return !this.todos.isEmpty();
+  }
+
+  toString() {
+    return `State{todos=${this.todos}, filter=${this.filter}}`;
+  }
 }

@@ -1,5 +1,4 @@
 import 'react-native';
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import Color from '../src/ui/theme/Color';
 import { ScaledSize } from 'react-native';
 import { Ui } from '../src/ui/utils/Ui';

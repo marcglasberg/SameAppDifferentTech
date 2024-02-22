@@ -16,12 +16,29 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { AddTodoAction } from './AddTodoAction.ts';
 import { ToggleTodoAction } from './ToggleTodoAction.ts';
 import { RemoveAllTodosAction } from './RemoveAllTodosAction.ts';
+import { ClassPersistor } from './AsyncRedux/ClassPersistor.tsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function App() {
 
   const store = new Store<State>({
     initialState: State.initialState,
-    userExceptionDialog: userExceptionDialog
+    userExceptionDialog: userExceptionDialog,
+    persistor: new ClassPersistor(
+      async () => {
+        console.log('----------- LOADED -----------');
+        return await AsyncStorage.getItem('database');
+      },
+      async (json) => {
+        console.log('----------- SAVED -----------');
+        console.log(json);
+        await AsyncStorage.setItem('database', json);
+      },
+      async () => {
+        console.log('----------- DELETED -----------');
+        await AsyncStorage.clear();
+      }
+    )
   });
 
   return (

@@ -1,6 +1,4 @@
 import 'react-native';
-import { beforeEach, describe, expect, it } from '@jest/globals';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Storage } from '../src/business/dao/Storage';
 

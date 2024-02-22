@@ -1,5 +1,4 @@
 import 'react-native';
-import { describe, expect, it } from '@jest/globals';
 import { AbTesting } from '../src/business/RunConfig/ABTesting';
 
 describe('AbTesting', () => {
