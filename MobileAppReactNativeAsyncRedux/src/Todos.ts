@@ -79,8 +79,10 @@ export class Todos {
     return this.items.filter(item => item.showsWhenFilterIs(filter ?? Filter.showAll)).length;
   }
 
-  isEmpty() {
-    return this.items.length === 0;
+  // Returns true if there are no todos that appear when the given filter is applied.
+  // If no filter is given, checks if there are no todos at all.
+  isEmpty(filter?: Filter) {
+    return this.count(filter) == 0;
   }
 
   * [Symbol.iterator]() {

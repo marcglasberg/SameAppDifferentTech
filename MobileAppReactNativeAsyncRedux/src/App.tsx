@@ -15,12 +15,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { AddTodoAction } from './AddTodoAction.ts';
 import { ToggleTodoAction } from './ToggleTodoAction.ts';
-import { RemoveAllTodosAction } from './RemoveAllTodosAction.ts';
+import { RemoveCompletedTodosAction } from './RemoveCompletedTodosAction.ts';
 import { ClassPersistor } from './AsyncRedux/ClassPersistor.tsx';
 import { TodoItem, Todos } from './Todos.ts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NextFilterAction } from './NextFilterAction.ts';
 import { Filter } from './Filter.ts';
+import { AddRandomTodoAction } from './AddRandomTodoAction.ts';
 
 export function App() {
 
@@ -73,6 +74,7 @@ const AppContent: React.FC = () => {
       <TodoInput />
       <TodoList />
       <FilterButton />
+      <AddRandomTodoButton />
       <RemoveAllButton />
     </View>
   );
@@ -233,12 +235,12 @@ const FilterButton: React.FC = () => {
 const RemoveAllButton: React.FC = () => {
 
   const store = useStore<State>();
-  let disabled = store.isInProgress(RemoveAllTodosAction);
+  let disabled = store.isDispatching(RemoveCompletedTodosAction);
 
   return (
     <TouchableOpacity
       onPress={() => {
-        store.dispatch(new RemoveAllTodosAction());
+        store.dispatch(new RemoveCompletedTodosAction());
       }}
       style={styles.footerButton}
       disabled={disabled}
@@ -247,7 +249,31 @@ const RemoveAllButton: React.FC = () => {
       {disabled ? (
         <ActivityIndicator size="small" color="#ffffff" />
       ) : (
-        <Text style={styles.footerButtonText}>Remove All Todos</Text>
+        <Text style={styles.footerButtonText}>Remove Completed Todos</Text>
+      )}
+
+    </TouchableOpacity>
+  );
+};
+
+const AddRandomTodoButton: React.FC = () => {
+
+  const store = useStore<State>();
+  let disabled = store.isDispatching(RemoveCompletedTodosAction);
+
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        store.dispatch(new AddRandomTodoAction());
+      }}
+      style={styles.footerButton}
+      disabled={disabled}
+    >
+
+      {disabled ? (
+        <ActivityIndicator size="small" color="#ffffff" />
+      ) : (
+        <Text style={styles.footerButtonText}>Add Random Todo</Text>
       )}
 
     </TouchableOpacity>
@@ -289,7 +315,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     padding: 15,
     paddingHorizontal: 25,
-    margin: 10
+    marginBottom: 10,
+    marginHorizontal: 10
   },
   filterButton: {
     alignItems: 'center',
@@ -298,6 +325,7 @@ const styles = StyleSheet.create({
     borderColor: '#222',
     padding: 15,
     paddingHorizontal: 25,
+    marginBottom: 10,
     marginHorizontal: 10
   },
   input: {
@@ -309,6 +337,7 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     paddingHorizontal: 10,
-    paddingVertical: 6
+    marginRight: 30,
+    paddingVertical: 6,
   }
 });

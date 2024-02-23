@@ -4,7 +4,7 @@ import { Filter } from './Filter.ts';
 
 export class NextFilterAction extends Action {
 
-  reducer(): State {
+  reducer() {
 
     let newFilter = this.state.filter;
 
@@ -32,7 +32,7 @@ export class SetFilterAction extends Action {
     super();
   }
 
-  reducer(): State {
+  reducer() {
     return this.state.withFilter(this.newFilter);
   }
 }

@@ -1,7 +1,7 @@
 // The Esserializer code was copied and adapted from the original copyrighted work, MIT licensed, by cshao.
 // All credit goes to him. See: https://www.npmjs.com/package/esserializer
 
-import SerializeOptions from '../model/SerializeOptions';
+import SerializeOptions from './SerializeOptions.ts';
 import {
   ALL_BUILTIN_ARRAYS,
   ALL_BUILTIN_ERRORS,
@@ -27,8 +27,8 @@ import {
   OPTIONS_FIELD,
   TIMESTAMP_FIELD,
   TO_STRING_FIELD
-} from './constant';
-import { notObject } from './general';
+} from './constant.ts';
+import { notObject } from './general.ts';
 
 function getSerializeValueWithClassName(target: any, options: SerializeOptions = {}): any {
   const serializeValueForBuiltinTypes = _getSerializeValueForBuiltinTypes(target);

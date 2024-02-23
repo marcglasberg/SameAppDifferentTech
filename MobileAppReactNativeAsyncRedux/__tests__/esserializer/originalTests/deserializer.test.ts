@@ -12,7 +12,7 @@ import {
   deserializeFromParsedObjWithClassMapping,
   getClassMappingFromClassArray,
   getParentClassName
-} from '../../../src/Esserializer/utils/deserializer.ts';
+} from '../../../src/Esserializer/deserializer.ts';
 
 const classMapping = {
   SuperClassA: SuperClassA,

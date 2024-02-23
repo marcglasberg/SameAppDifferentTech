@@ -1,11 +1,11 @@
 // The Esserializer code was copied and adapted from the original copyrighted work, MIT licensed, by cshao.
 // All credit goes to him. See: https://www.npmjs.com/package/esserializer
 
-import DeserializeOptions from './model/DeserializationOptions';
-import SerializeOptions from './model/SerializeOptions';
+import DeserializeOptions from './DeserializationOptions.ts';
+import SerializeOptions from './SerializeOptions.ts';
 
-import { getSerializeValueWithClassName } from './utils/serializer';
-import { deserializeFromParsedObj } from './utils/deserializer';
+import { getSerializeValueWithClassName } from './serializer.ts';
+import { deserializeFromParsedObj } from './deserializer.ts';
 
 export type ClassOrEnum = { new(...args: any[]): any } | object;
 

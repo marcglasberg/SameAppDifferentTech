@@ -8,7 +8,7 @@ export class ToggleTodoAction extends Action {
     super();
   }
 
-  reducer(): State {
+  reducer() {
     let newTodos = this.state.todos.toggleTodo(this.item);
     return this.state.withTodos(newTodos);
   }

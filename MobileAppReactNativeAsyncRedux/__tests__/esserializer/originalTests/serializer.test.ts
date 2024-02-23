@@ -2,7 +2,7 @@
 // All credit goes to him. See: https://www.npmjs.com/package/esserializer
 
 import ClassA from './fixture/ClassA.ts';
-import { getSerializeValueWithClassName } from '../../../src/Esserializer/utils/serializer.ts';
+import { getSerializeValueWithClassName } from '../../../src/Esserializer/serializer.ts';
 
 describe('Test getSerializeValueWithClassName', () => {
   test('return special object for undefined', () => {

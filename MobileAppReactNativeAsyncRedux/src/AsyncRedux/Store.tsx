@@ -1,5 +1,5 @@
 import React, { createContext, Dispatch, SetStateAction, useContext, useState } from 'react';
-import { ReduxAction } from './ReduxAction.ts';
+import { AsyncReducer, AsyncReducerResult, ReduxAction, ReduxReducer } from './ReduxAction.ts';
 import { UserException } from './UserException.ts';
 import { StoreException } from './StoreException.ts';
 import { Persistor } from './Persistor.tsx';
@@ -43,11 +43,11 @@ export class Store<St> {
   private _dispatchCounter = 0;
 
   constructor({
-                       initialState,
-                       userExceptionDialog,
-                       persistor,
-                       print
-                     }: {
+                initialState,
+                userExceptionDialog,
+                persistor,
+                print
+              }: {
     initialState: St,
     userExceptionDialog?: (exception: UserException, next: () => void) => void,
     persistor?: Persistor<St>,
@@ -79,7 +79,6 @@ export class Store<St> {
   // Removes all user-exceptions from the queue.
   private _noopExceptionDialog: UserExceptionDialog = (error, next) => next;
 
-
   dispatch(action: ReduxAction<St>) {
 
     if (this._forceUpdate === null) throw new StoreException('Store not set in dispatch');
@@ -87,7 +86,7 @@ export class Store<St> {
     action._injectStore(this);
     print('Dispatched: ' + action);
 
-    let reducerResult: St | Promise<St | null> | null = null;
+    let reducerResult: ReduxReducer<St> = null;
 
     try {
       // - Runs the sync reducer; OR
@@ -110,8 +109,8 @@ export class Store<St> {
     if (reducerResult === null || reducerResult === this.state) {
       return;
     }
-    // If the reducer is ASYNC, we still have to process the rest of the reducer to generate the new state.
-    else if (reducerResult instanceof Promise<St>) {
+    // If the reducer is ASYNC, we still process the rest of the reducer to generate the new state.
+    else if (reducerResult instanceof Promise) {
       this._runRestOfTheAsyncReducerAndApplyResult(action, reducerResult).then();
     }
     // If the reducer is SYNC, we already have the new state, and we simply must apply it.
@@ -120,17 +119,18 @@ export class Store<St> {
     }
   }
 
-  private async _runRestOfTheAsyncReducerAndApplyResult(action: ReduxAction<St>, reducerResult: Promise<St | null>) {
+  private async _runRestOfTheAsyncReducerAndApplyResult(action: ReduxAction<St>, reducerResult: AsyncReducer<St>) {
 
     if (this._autoRegisterWaitStates) {
       this._actionsInProgress.add(action);
       this._forceUpdate?.(++this._dispatchCounter);
     }
 
-    let asyncResult: St | null = null;
+    // After we await this we'll get null or a sync function: `(state: St) => St`
+    let asyncFunctionReturnedByTheReducer: AsyncReducerResult<St> = null;
 
     try {
-      asyncResult = await reducerResult;
+      asyncFunctionReturnedByTheReducer = await reducerResult;
     }
       //
     catch (error) {
@@ -150,10 +150,13 @@ export class Store<St> {
       }
     }
 
-    if (asyncResult !== null) {
-      let stateChangeDescription = Store.describeStateChange(this.state, asyncResult);
-      if (stateChangeDescription !== '') print(stateChangeDescription);
-      this._registerState(action, asyncResult);
+    if (asyncFunctionReturnedByTheReducer !== null) {
+      let newAsyncState = asyncFunctionReturnedByTheReducer(this.state);
+      if (newAsyncState != null) {
+        let stateChangeDescription = Store.describeStateChange(this.state, newAsyncState);
+        if (stateChangeDescription !== '') print(stateChangeDescription);
+        this._registerState(action, newAsyncState);
+      }
     }
   }
 
@@ -218,9 +221,9 @@ export class Store<St> {
     this._userExceptionsQueue.push(error);
   }
 
-  isInProgress<T extends ReduxAction<St>>(type: { new(...args: any[]): T }): boolean {
+  isDispatching<T extends ReduxAction<St>>(type: { new(...args: any[]): T }): boolean {
 
-    // Returns true if an action of the given type is in progress.
+    // Returns true if an action of the given type is still being executed.
     for (const action of this._actionsInProgress) {
       if (action instanceof type) {
         return true;

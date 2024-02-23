@@ -5,7 +5,7 @@ import {
   getValueFromToStringResult,
   isClass,
   notObject
-} from '../../../src/Esserializer/utils/general.ts';
+} from '../../../src/Esserializer/general.ts';
 import ClassA from './fixture/ClassA.ts';
 
 describe('Test getValueFromToStringResult', () => {

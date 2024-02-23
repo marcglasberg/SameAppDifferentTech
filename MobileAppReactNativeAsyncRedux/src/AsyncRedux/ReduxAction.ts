@@ -1,28 +1,68 @@
 import { Store } from './Store.tsx';
-import { Action } from '../action.ts';
-import { State } from '../State.ts';
-import { RemoveTodoAction } from '../RemoveTodoAction.ts';
-import { TodoItem } from '../Todos.ts';
 import { StoreException } from './StoreException.ts';
+
+/**
+ * A SYNC reducer can return:
+ * - `St`: A new state, changed synchronously.
+ * - `null`: No state change
+ *
+ * An ASYNC reducer can return:
+ * - `Promise<(state: St) => St>`: A new state, changed asynchronously.
+ * - `Promise<(state: St) => null>`: No state change
+ * - `Promise<null>`: No state change
+ */
+export type ReduxReducer<St> = SyncReducer<St> | AsyncReducer<St>;
+
+/**
+ * A SYNC reducer can return:
+ * - `St`: A new state, changed synchronously
+ * - `null`: No state change
+ */
+export type SyncReducer<St> = St | null;
+
+/**
+ * An ASYNC reducer can return:
+ * - `Promise<(state: St) => St>`: A new state, changed asynchronously
+ * - `Promise<(state: St) => null>`: No state change
+ * - `Promise<null>`: No state change
+ */
+export type AsyncReducer<St> = Promise<AsyncReducerResult<St>>;
+
+export type AsyncReducerResult<St> = ((state: St) => St | null) | null;
 
 export abstract class ReduxAction<St> {
 
-  abstract reducer(): St | Promise<St | null> | null;
+  /**
+   * Reducer function to be implemented by the action.
+   *
+   * A reducer can return:
+   * - `null`: No state change
+   * - `Promise<null>`: No state change
+   * - `St`: A new state, changed synchronously.
+   * - `Promise<(state: St) => St>`: A new state, changed asynchronously.
+   */
+  abstract reducer(): ReduxReducer<St>;
 
   private _store: Store<St> | null = null;
 
-  // Returns the Redux store.
+  /**
+   * Returns the Redux store. Avoid using this method directly, use `state` and `dispatch` instead.
+   */
   protected get store(): Store<St> {
     if (this._store === null) throw new StoreException('Store not set in action');
     return this._store;
   }
 
-  // Returns the current state of the Redux store.
+  /**
+   * Returns the current state of the Redux store.
+   */
   protected get state(): St {
     return this.store.state;
   }
 
-  // Dispatches an action to the Redux store.
+  /**
+   * Dispatches an action to the Redux store.
+   */
   protected dispatch(action: ReduxAction<St>): void {
     return this.store.dispatch(action);
   }
@@ -32,6 +72,9 @@ export abstract class ReduxAction<St> {
     this._store = _store;
   }
 
+  /**
+   * Prints a readable description of the action, for debugging purposes.
+   */
   toString(): string {
     // Initialize an array to hold key-value pairs as strings
     const keyValuePairs: string[] = [];

@@ -1,7 +1,7 @@
 // The Esserializer code was copied and adapted from the original copyrighted work, MIT licensed, by cshao.
 // All credit goes to him. See: https://www.npmjs.com/package/esserializer
 
-import { getValueFromToStringResult, isClass, notObject } from './general';
+import { getValueFromToStringResult, isClass, notObject } from './general.ts';
 import {
   ARRAY_FIELD,
   BOOLEAN_FIELD,
@@ -47,9 +47,9 @@ import {
   OPTIONS_FIELD,
   TIMESTAMP_FIELD,
   TO_STRING_FIELD
-} from './constant';
-import DeserializeOptions from '../model/DeserializationOptions';
-import { ClassOrEnum } from '../index.ts';
+} from './constant.ts';
+import DeserializeOptions from './DeserializationOptions.ts';
+import { ClassOrEnum } from './index.ts';
 
 const REGEXP_BEGIN_WITH_CLASS = /^\s*class\s+/;
 
