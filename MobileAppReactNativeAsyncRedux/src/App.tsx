@@ -259,7 +259,7 @@ const RemoveAllButton: React.FC = () => {
 const AddRandomTodoButton: React.FC = () => {
 
   const store = useStore<State>();
-  let disabled = store.isDispatching(RemoveCompletedTodosAction);
+  let loading = store.isDispatching(AddRandomTodoAction);
 
   return (
     <TouchableOpacity
@@ -267,10 +267,9 @@ const AddRandomTodoButton: React.FC = () => {
         store.dispatch(new AddRandomTodoAction());
       }}
       style={styles.footerButton}
-      disabled={disabled}
     >
 
-      {disabled ? (
+      {loading ? (
         <ActivityIndicator size="small" color="#ffffff" />
       ) : (
         <Text style={styles.footerButtonText}>Add Random Todo</Text>
@@ -338,6 +337,6 @@ const styles = StyleSheet.create({
   checkbox: {
     paddingHorizontal: 10,
     marginRight: 30,
-    paddingVertical: 6,
+    paddingVertical: 6
   }
 });
