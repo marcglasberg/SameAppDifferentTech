@@ -59,7 +59,7 @@ export function App() {
 }
 
 const userExceptionDialog: ShowUserException =
-  (exception, next) => {
+  (exception, count, next) => {
     Alert.alert(
       exception.title || exception.message,
       exception.title ? exception.message : '',

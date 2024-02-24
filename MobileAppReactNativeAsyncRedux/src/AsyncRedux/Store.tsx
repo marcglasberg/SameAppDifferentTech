@@ -5,7 +5,7 @@ import { StoreException } from './StoreException.ts';
 import { Persistor } from './Persistor.tsx';
 import { ProcessPersistence } from './ProcessPersistence.ts';
 
-export type ShowUserException = (exception: UserException, next: () => void) => void;
+export type ShowUserException = (exception: UserException, count: number, next: () => void) => void;
 
 interface ConstructorParams<St> {
 
@@ -19,13 +19,15 @@ interface ConstructorParams<St> {
    * they can be shown to the user. Usually, this function opens some UI like a dialog or a toast,
    * with the error message.
    *
+   * The `count` parameter is the number of exceptions still in the queue.
+   *
    * You should explicitly call `next` function when the user is ready to see the next exception
    * in the queue, when the user dismisses the dialog or toast. If there are no more exceptions,
    * `next` will do nothing. Otherwise, it will call `showUserException` again. Example:
    *
    * ```typescript
    * const userExceptionDialog: UserExceptionDialog =
-   *   (exception, next) => {
+   *   (exception, count, next) => {
    *     Alert.alert(
    *       exception.title || exception.message,
    *       exception.title ? exception.message : '',
@@ -33,7 +35,7 @@ interface ConstructorParams<St> {
    *     );
    *   };
    */
-  showUserException?: (exception: UserException, next: () => void) => void;
+  showUserException?: (exception: UserException, count: number, next: () => void) => void;
 
   /**
    * The persistor saves and retrieves the application's state from the local device storage,
@@ -137,8 +139,8 @@ export class Store<St> {
   };
 
   // The default Ui just logs all user-exceptions and removes them from the queue.
-  private _defaultShowUserException(exception: UserException, next: () => void) {
-    Store.log(`User got a user exception: ${exception}`);
+  private _defaultShowUserException(exception: UserException, count: number, next: () => void) {
+    Store.log(`User got an exception: ${exception}`);
     next();
   };
 
@@ -466,10 +468,12 @@ export class Store<St> {
    */
   private _showUserExceptionDialog() {
     let currentError = this.getNextUserExceptionInQueue();
-    if (currentError !== undefined)
-      this._showUserException?.(currentError, () => {
+    if (currentError !== undefined) {
+      let count = this._userExceptionsQueue.length;
+      this._showUserException?.(currentError, count, () => {
         this._showUserExceptionDialog();
       });
+    }
   };
 
   getNextUserExceptionInQueue(): UserException | undefined {
