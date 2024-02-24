@@ -1,7 +1,5 @@
-// Assuming the existence of a Redux-like store and state management system in your TypeScript project
-
 import { ReduxAction } from './ReduxAction.ts';
-import { print } from './Store.tsx';
+import { Store } from './Store.tsx';
 
 /**
  * Use it like this:
@@ -89,12 +87,12 @@ export class PersistorPrinterDecorator<St> implements Persistor<St> {
   }
 
   async readState(): Promise<St | null> {
-    print('Persistor: read state.');
+    Store.log('Persistor: read state.');
     return this._persistor.readState();
   }
 
   async deleteState(): Promise<void> {
-    print('Persistor: delete state.');
+    Store.log('Persistor: delete state.');
     return this._persistor.deleteState();
   }
 
@@ -102,14 +100,14 @@ export class PersistorPrinterDecorator<St> implements Persistor<St> {
     lastPersistedState: St | null;
     newState: St
   }): Promise<void> {
-    print(`Persistor: persist difference:
+    Store.log(`Persistor: persist difference:
       lastPersistedState = ${lastPersistedState}
       newState = ${newState}`);
     return this._persistor.persistDifference({ lastPersistedState, newState });
   }
 
   async saveInitialState(state: St): Promise<void> {
-    print('Persistor: save initial state.');
+    Store.log('Persistor: save initial state.');
     return this._persistor.saveInitialState(state);
   }
 

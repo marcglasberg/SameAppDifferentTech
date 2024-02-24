@@ -1,6 +1,6 @@
 import { PersistAction, Persistor } from './Persistor';
 import { ReduxAction } from './ReduxAction.ts';
-import { print, Store } from './Store.tsx';
+import { Store } from './Store.tsx';
 
 export class ProcessPersistence<St> {
   persistor: Persistor<St>;
@@ -26,7 +26,7 @@ export class ProcessPersistence<St> {
     try {
       stateReadFromPersistor = await this.persistor.readState();
     } catch (error) {
-      print('Error reading state:' + error + '. State will reset.');
+      Store.log('Error reading state:' + error + '. State will reset.');
       await this.persistor.deleteState();
     }
 

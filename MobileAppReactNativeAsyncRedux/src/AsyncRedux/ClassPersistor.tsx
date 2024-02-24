@@ -1,7 +1,4 @@
-// Assuming the existence of a Redux-like store and state management system in your TypeScript project
-
 import { Persistor } from './Persistor.tsx';
-
 import { State } from '../State.ts';
 import { TodoItem, Todos } from '../Todos.ts';
 import { Filter } from '../Filter.ts';

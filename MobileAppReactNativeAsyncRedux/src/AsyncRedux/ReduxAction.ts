@@ -82,14 +82,14 @@ export abstract class ReduxAction<St> {
    * ```
    *
    * If you want to disable the error you can return `null`. For example, if you want
-   * to disable errors of type `MyException`:
+   * to disable all errors of type `MyException`:
    *
    * ```
    * wrapError(error) { return (error instanceof MyException) ? null : error }
    * ```
    *
    * IMPORTANT: If instead of RETURNING an error you throw an error inside the `wrapError` method,
-   * Async Redux will catch this error and use it instead the original error. In other words,
+   * AsyncRedux will catch this error and use it instead the original error. In other words,
    * returning an error or throwing an error works the same way. But it's recommended that you
    * return the error instead of throwing it anyway.
    *
@@ -124,7 +124,7 @@ export abstract class ReduxAction<St> {
     return this.store.dispatch(action);
   }
 
-  // For Async Redux internal use only.
+  // For AsyncRedux internal use only.
   _injectStore(_store: Store<St>) {
     this._store = _store;
   }

@@ -5,15 +5,96 @@ import { StoreException } from './StoreException.ts';
 import { Persistor } from './Persistor.tsx';
 import { ProcessPersistence } from './ProcessPersistence.ts';
 
-export type UserExceptionDialog = (exception: UserException, next: () => void) => void;
+export type ShowUserException = (exception: UserException, next: () => void) => void;
 
-export function print(obj: any): void {
-  _print(obj);
+interface ConstructorParams<St> {
+
+  /**
+   * The initial state of the app.
+   */
+  initialState: St;
+
+  /**
+   * AsyncRedux calls this function automatically when actions throw `UserException`s, so that
+   * they can be shown to the user. Usually, this function opens some UI like a dialog or a toast,
+   * with the error message.
+   *
+   * You should explicitly call `next` function when the user is ready to see the next exception
+   * in the queue, when the user dismisses the dialog or toast. If there are no more exceptions,
+   * `next` will do nothing. Otherwise, it will call `showUserException` again. Example:
+   *
+   * ```typescript
+   * const userExceptionDialog: UserExceptionDialog =
+   *   (exception, next) => {
+   *     Alert.alert(
+   *       exception.title || exception.message,
+   *       exception.title ? exception.message : '',
+   *       [{ text: 'OK', onPress: (value?: string) => next }]
+   *     );
+   *   };
+   */
+  showUserException?: (exception: UserException, next: () => void) => void;
+
+  /**
+   * The persistor saves and retrieves the application's state from the local device storage,
+   * ensuring data persistence across app restarts. Without a defined persistor, the app's state
+   * will not be saved.
+   *
+   * The `Persistor` is an abstract base class, allowing developers to easily craft their custom
+   * persistors. AsyncRedux makes it easy, by automatically invoking the persistor upon any state
+   * modification, and passing it the information that needs to be saved as well as the last saved
+   * state.
+   *
+   * AsyncRedux also offers a built-in `ClassPersistor` that can be used to persist the state by
+   * serializing it to a string and saving it to the local device storage.
+   */
+  persistor?: Persistor<St>;
+
+  /**
+   * A function that AsyncRedux uses to log information.
+   * If not defined, the default is printing messages to the console with `console.log()`.
+   * To disable it, pass it as `() => {}`.
+   */
+  logger?: (obj: any) => void | undefined;
+
+  /**
+   * Global wrapError function.
+   *
+   * This global `wrapError` will be given all errors thrown in your actions, including those
+   * of type `UserException`. If and action already has a `wrapError` method, that method will
+   * be called first, and then the global `wrapError` will be called with the result.
+   *
+   * A common use case for this is to have a global place to convert some exceptions into
+   * `UserException`s. For example, Firebase may throw some `PlatformExceptions` in response to
+   * a bad connection to the server. In this case, you may want to show the user a dialog
+   * explaining that the connection is bad, which you can do by converting it to a `UserException`.
+   * While this could also be done in the action's `wrapError`, you'd have to add it to all actions
+   * that use Firebase.
+   *
+   * The global `wrapError` is also a good place to log errors, as all of them will arrive here.
+   * To that end, you'll also get the action that dispatched the error, which you can use not only
+   * to log the action's name, but also to read the action's properties, if any.
+   *
+   * To disable the error, return `null`. For example, if you want to disable all errors
+   * of type `MyException`, but log them:
+   *
+   * ```
+   * wrapError(error, action) {
+   *    if (error instanceof MyException) {
+   *        Logger.error(`Got MyException in action ${action}.`);
+   *        return null;
+   *    }
+   *    else return error;
+   * }
+   * ```
+   *
+   * IMPORTANT: If instead of RETURNING an error you throw an error inside the `wrapError`
+   * function, AsyncRedux will catch this error and use it instead the original error. In other
+   * words, returning an error or throwing an error works the same way. But it's recommended that
+   * you return the error instead of throwing it anyway.
+   */
+  wrapError?: (error: any, action: ReduxAction<St>) => any;
 }
-
-let _print = (obj: any) => {
-  console.log(obj);
-};
 
 /**
  * The store holds the state of the application and allows the state to be updated
@@ -25,9 +106,9 @@ export class Store<St> {
 
   private _state: St;
 
-  // A function that shows UserExceptions to the user, using some UI like a dialog or a toast.
-  // This function is passed to the constructor. If not passed, the UserException is ignored.
-  private readonly _userExceptionDialog: UserExceptionDialog;
+  // A function that shows `UserExceptions` to the user, using some UI like a dialog or a toast.
+  // This function is passed to the constructor. If not passed, the `UserException` is ignored.
+  private readonly _showUserException: ShowUserException;
 
   // A queue of errors of type UserException, thrown by actions.
   // They are shown to the user using the function `userExceptionDialog`.
@@ -42,26 +123,42 @@ export class Store<St> {
 
   private _dispatchCounter = 0;
 
+  private readonly _wrapError: (error: any, action: ReduxAction<St>) => any;
+  public static log: (obj: any) => void;
+
+  // The default wrap error does nothing (returns all errors unaltered).
+  private _defaultWrapError(error: any, action: ReduxAction<St>): any {
+    return error;
+  };
+
+  // The default logger prints messages to the console.
+  private _defaultLogger(obj: any) {
+    console.log(obj);
+  };
+
+  // The default Ui just logs all user-exceptions and removes them from the queue.
+  private _defaultShowUserException(exception: UserException, next: () => void) {
+    Store.log(`User got a user exception: ${exception}`);
+    next();
+  };
+
   constructor({
                 initialState,
-                userExceptionDialog,
+                showUserException,
                 persistor,
-                print
-              }: {
-    initialState: St,
-    userExceptionDialog?: (exception: UserException, next: () => void) => void,
-    persistor?: Persistor<St>,
-    print?: (obj: any) => void | undefined,
-  }) {
+                wrapError,
+                logger
+              }: ConstructorParams<St>
+  ) {
     this._state = initialState;
+    this._showUserException = showUserException || this._defaultShowUserException;
+    this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
+    this._wrapError = wrapError || this._defaultWrapError;
+    Store.log = logger || this._defaultLogger;
     this._userExceptionsQueue = [];
-    this._userExceptionDialog = userExceptionDialog || this._noopExceptionDialog;
     this._actionsInProgress = new Set();
     this._forceUpdate = null;
     this._autoRegisterWaitStates = true;
-    this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
-
-    if (print) _print = print;
 
     if (this._processPersistence != null) {
       this._processPersistence.readInitialState(this, initialState).then();
@@ -76,15 +173,12 @@ export class Store<St> {
     return this._dispatchCounter;
   }
 
-  // Removes all user-exceptions from the queue.
-  private _noopExceptionDialog: UserExceptionDialog = (error, next) => next;
-
   dispatch(action: ReduxAction<St>) {
 
     if (this._forceUpdate === null) throw new StoreException('Store not set in dispatch');
 
     action._injectStore(this);
-    print('Dispatched: ' + action);
+    Store.log('Dispatched: ' + action);
 
     // Adds a wait state for the action in progress.
     if (this._autoRegisterWaitStates) {
@@ -109,24 +203,51 @@ export class Store<St> {
     let ifWentAsync = false;
 
     try {
-      // 2) Runs the given function code.
+      // Runs the given function code.
       ifWentAsync = functionToRun();
     }
       //
     catch (error) {
       //
-      // 3a) If the function code throws an error, we deal with it.
-      // Errors of type UserException are added to the error queue, not thrown.
-      if (error instanceof UserException) {
-        this._addUserException(error);
-        this._showUserExceptionDialog();
+
+      // Any error may optionally be processed by the `wrapError` method of the action.
+      // Usually this is used to wrap the error inside another that better describes the failed
+      // action. It's recommended RETURNING the new error, but if `wrapError` throws an error,
+      // that will be used too.
+      try {
+        error = action.wrapError(error);
+      } catch (thrownError) {
+        error = thrownError;
       }
-      //
-      else {
-        // 3b) Other errors are thrown after the async gap, without interrupting the code flow.
-        queueMicrotask(() => {
-          throw error;
-        });
+
+
+      if (error !== null) {
+
+        // Any error may optionally be processed by the GLOBAL `wrapError` passed to the Store
+        // constructor. This is useful to wrap all errors in a common way. It's recommended
+        // RETURNING the new error, but if `wrapError` throws an error, that will be used too.
+        try {
+          error = this._wrapError(error, action);
+        } catch (thrownError) {
+          error = thrownError;
+        }
+
+        // To completely disable the error, `wrapError` can return `null`.
+        if (error !== null) {
+          // If the function code throws an error, we deal with it.
+          // Errors of type UserException are added to the error queue, not thrown.
+          if (error instanceof UserException) {
+            this._addUserException(error);
+            this._showUserExceptionDialog();
+          }
+          //
+          else {
+            // Other errors are thrown after the async gap, without interrupting the code flow.
+            queueMicrotask(() => {
+              throw error;
+            });
+          }
+        }
       }
     }
       //
@@ -137,7 +258,7 @@ export class Store<St> {
         try {
           action.after();
         } catch (error) {
-          print('The `after()` method of the action ' + action + ' threw an error: ' + error
+          Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
             + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
             'not throw errors.');
         }
@@ -184,7 +305,7 @@ export class Store<St> {
       try {
         action.after();
       } catch (error) {
-        print('The `after()` method of the action ' + action + ' threw an error: ' + error
+        Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
           + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
           'not throw errors.');
       }
@@ -306,7 +427,7 @@ export class Store<St> {
 
     try {
       let stateChangeDescription = Store.describeStateChange(this.state, stateEnd);
-      if (stateChangeDescription !== '') print(stateChangeDescription);
+      if (stateChangeDescription !== '') Store.log(stateChangeDescription);
     } catch (error) {
       // Swallow error and do nothing, as this is just a debug print.
     }
@@ -333,11 +454,11 @@ export class Store<St> {
    *
    * An example using React Native:
    *
-   * ```ts
-   * const userExceptionDialog = (error: UserException, next: () => void) => {
+   * ```typescript
+   * const userExceptionDialog = (exception: UserException, next: () => void) => {
    *     Alert.alert(
-   *       error.title || error.message,
-   *       error.title ? error.message : '',
+   *       exception.title || exception.message,
+   *       exception.title ? exception.message : '',
    *       [{ text: 'OK', onPress: (value?: string) => { next(); }]
    *     );
    *   };
@@ -346,7 +467,7 @@ export class Store<St> {
   private _showUserExceptionDialog() {
     let currentError = this.getNextUserExceptionInQueue();
     if (currentError !== undefined)
-      this._userExceptionDialog?.(currentError, () => {
+      this._showUserException?.(currentError, () => {
         this._showUserExceptionDialog();
       });
   };

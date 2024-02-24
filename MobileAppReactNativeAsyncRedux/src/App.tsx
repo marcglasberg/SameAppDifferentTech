@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 import { State } from './State.ts';
-import { Store, StoreProvider, UserExceptionDialog, useStore } from './AsyncRedux/Store.tsx';
+import { ShowUserException, Store, StoreProvider, useStore } from './AsyncRedux/Store.tsx';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { AddTodoAction } from './AddTodoAction.ts';
@@ -27,7 +27,7 @@ export function App() {
 
   const store = new Store<State>({
     initialState: State.initialState,
-    userExceptionDialog: userExceptionDialog,
+    showUserException: userExceptionDialog,
     persistor: getPersistor()
   });
 
@@ -58,11 +58,11 @@ export function App() {
   }
 }
 
-const userExceptionDialog: UserExceptionDialog =
-  (error, next) => {
+const userExceptionDialog: ShowUserException =
+  (exception, next) => {
     Alert.alert(
-      error.title || error.message,
-      error.title ? error.message : '',
+      exception.title || exception.message,
+      exception.title ? exception.message : '',
       [{ text: 'OK', onPress: (value?: string) => next }]
     );
   };
