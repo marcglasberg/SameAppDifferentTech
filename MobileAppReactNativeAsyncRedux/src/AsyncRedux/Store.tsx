@@ -86,89 +86,231 @@ export class Store<St> {
     action._injectStore(this);
     print('Dispatched: ' + action);
 
-    let reducerResult: ReduxReducer<St> = null;
-
-    try {
-      // - Runs the sync reducer; OR
-      // - Runs the initial sync part of the async reducer
-      reducerResult = action.reducer();
-    }
-      //
-    catch (error) {
-
-      // Errors of type UserException are added to the error queue, not thrown.
-      if (error instanceof UserException) {
-        this._addUserException(error);
-        this._showUserExceptionDialog();
-      }
-      //
-      else throw error;
-    }
-
-    // If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
-    if (reducerResult === null || reducerResult === this.state) {
-      return;
-    }
-    // If the reducer is ASYNC, we still process the rest of the reducer to generate the new state.
-    else if (reducerResult instanceof Promise) {
-      this._runRestOfTheAsyncReducerAndApplyResult(action, reducerResult).then();
-    }
-    // If the reducer is SYNC, we already have the new state, and we simply must apply it.
-    else {
-      this._applySyncReducerResult(action, reducerResult);
-    }
-  }
-
-  private async _runRestOfTheAsyncReducerAndApplyResult(action: ReduxAction<St>, reducerResult: AsyncReducer<St>) {
-
+    // Adds a wait state for the action in progress.
     if (this._autoRegisterWaitStates) {
       this._actionsInProgress.add(action);
       this._forceUpdate?.(++this._dispatchCounter);
     }
 
-    // After we await this we'll get null or a sync function: `(state: St) => St`
-    let asyncFunctionReturnedByTheReducer: AsyncReducerResult<St> = null;
+    this._wraps(
+      action,
+      () => this._runFromStart(action)
+    );
+  }
+
+  // - Catches and processes errors.
+  // - Makes sure the after method runs, always.
+  // - Removes the wait state for the action in progress, always.
+  private _wraps(
+    action: ReduxAction<St>,
+    functionToRun: () => boolean
+  ) {
+
+    let ifWentAsync = false;
 
     try {
-      asyncFunctionReturnedByTheReducer = await reducerResult;
+      // 2) Runs the given function code.
+      ifWentAsync = functionToRun();
     }
       //
     catch (error) {
+      //
+      // 3a) If the function code throws an error, we deal with it.
       // Errors of type UserException are added to the error queue, not thrown.
       if (error instanceof UserException) {
         this._addUserException(error);
         this._showUserExceptionDialog();
       }
       //
-      else throw error;
+      else {
+        // 3b) Other errors are thrown after the async gap, without interrupting the code flow.
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
     }
       //
     finally {
+
+      if (!ifWentAsync) {
+        // 4) We run the `after` method of the action.
+        try {
+          action.after();
+        } catch (error) {
+          print('The `after()` method of the action ' + action + ' threw an error: ' + error
+            + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
+            'not throw errors.');
+        }
+
+        // 5) Removed the wait state for the action in progress.
+        if (this._autoRegisterWaitStates) {
+          this._actionsInProgress.delete(action);
+          this._forceUpdate?.(++this._dispatchCounter);
+        }
+      }
+    }
+  }
+
+  private async _wrapsAsync(
+    action: ReduxAction<St>,
+    functionToRun: () => Promise<void>
+  ) {
+
+    try {
+      // 2) Runs the given function code.
+      await functionToRun();
+    }
+      //
+    catch (error) {
+      //
+      // 3a) If the function code throws an error, we deal with it.
+      // Errors of type UserException are added to the error queue, not thrown.
+      if (error instanceof UserException) {
+        this._addUserException(error);
+        this._showUserExceptionDialog();
+      }
+      //
+      else {
+        // 3b) Other errors are thrown after the async gap, without interrupting the code flow.
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
+    }
+      //
+    finally {
+
+      // 4) We run the `after` method of the action.
+      try {
+        action.after();
+      } catch (error) {
+        print('The `after()` method of the action ' + action + ' threw an error: ' + error
+          + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
+          'not throw errors.');
+      }
+
+      // 5) Removed the wait state for the action in progress.
       if (this._autoRegisterWaitStates) {
         this._actionsInProgress.delete(action);
         this._forceUpdate?.(++this._dispatchCounter);
       }
     }
+  }
 
-    if (asyncFunctionReturnedByTheReducer !== null) {
-      let newAsyncState = asyncFunctionReturnedByTheReducer(this.state);
-      if (newAsyncState != null) {
-        let stateChangeDescription = Store.describeStateChange(this.state, newAsyncState);
-        if (stateChangeDescription !== '') print(stateChangeDescription);
-        this._registerState(action, newAsyncState);
-      }
+  private _runFromStart(action: ReduxAction<St>): boolean {
+
+    // BEFORE
+
+    // 1) Runs the `before` method.
+    // It may be sync or async, but it doesn't return anything.
+    let beforeResult: void | Promise<void> = action.before();
+
+    // 2) If it's async, waits for the `before` method to finish.
+    if (beforeResult instanceof Promise<void>) {
+      this._runAsyncBeforeOnwards(action, beforeResult).then();
+      return true; // Get out of here. Went ASYNC.
+    }
+
+    // REDUCE
+
+    // 3)
+    // - Runs the SYNC `reduce` method; OR
+    // - Runs the initial sync part of the ASYNC `reduce` method.
+    let reduceResult: ReduxReducer<St> = action.reducer();
+
+    // 4) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
+    if (reduceResult === null || reduceResult === this.state) {
+      return false; // Kept SYNC.
+    }
+      //
+    // 5) If the reducer is ASYNC, we still process the rest of the reducer to generate the new state.
+    else if (reduceResult instanceof Promise<AsyncReducerResult<St>>) {
+      this._runAsyncReduceOnwards(action, reduceResult);
+      return true; // Get out of here. Went ASYNC.
+    }
+      //
+    // 6) If the reducer is SYNC, we already have the new state, and we simply must apply it.
+    else {
+      this._registerState(action, reduceResult);
+      return false; // Kept SYNC.
     }
   }
 
-  private _applySyncReducerResult(action: ReduxAction<St>, reducerResult: St) {
+  private async _runAsyncBeforeOnwards(action: ReduxAction<St>, beforeResult: Promise<void>) {
 
-    let stateChangeDescription = Store.describeStateChange(this.state, reducerResult);
-    if (stateChangeDescription !== '') print(stateChangeDescription);
-    this._registerState(action, reducerResult);
+    this._wrapsAsync(action, async () => {
+
+      // 2.1) Method `before` is ASYNC, so we wait for it to finish.
+      await beforeResult;
+
+      // REDUCE
+
+      // 2.2)
+      // - Runs the SYNC `reduce` method; OR
+      // - Runs the initial sync part of the ASYNC `reduce` method.
+      let reduceResult: ReduxReducer<St> | AsyncReducerResult<St> = action.reducer();
+
+      // 2.3) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
+      if (reduceResult === null || reduceResult === this.state) {
+        return; // Get out of here.
+      }
+        //
+      // 2.4) If the reducer is ASYNC, we still process the rest of the reducer to generate the new state.
+      else if (reduceResult instanceof Promise<ReduxReducer<St>>) {
+        reduceResult = await reduceResult as AsyncReducerResult<St>;
+
+        if (reduceResult !== null && reduceResult !== this.state) {
+          let newAsyncState = reduceResult(this.state);
+          if (newAsyncState != null) {
+            this._registerState(action, newAsyncState);
+          }
+        }
+        return; // Get out of here.
+      }
+        //
+      // 2.5) If the reducer is SYNC, we already have the new state, and we simply must apply it.
+      else {
+        this._registerState(action, reduceResult);
+        return; // Get out of here.
+      }
+    }).then();
   }
 
-  //
+  private _runAsyncReduceOnwards(action: ReduxAction<St>, reduceResult: AsyncReducer<St>) {
+
+    this._wrapsAsync(action, async () => {
+
+      // 5.1) Method `reduce` is ASYNC, so we wait for it to finish.
+      let functionalReduceResult: AsyncReducerResult<St> = await reduceResult;
+
+      // 5.2) If the reducer returned null, we simply do nothing.
+      if (functionalReduceResult === null) {
+        return; // Get out of here.
+      }
+        //
+        // 5.3) If the reducer returned a function `(state: St) => (St | null)`,
+      // we still need to run this function to generate the new state.
+      else {
+        let finalReduceState = functionalReduceResult(this.state);
+
+        if (finalReduceState != null) {
+          this._registerState(action, finalReduceState);
+        }
+
+        return; // Get out of here.
+      }
+    }).then();
+  }
+
   private _registerState(action: ReduxAction<St>, stateEnd: St) {
+
+    try {
+      let stateChangeDescription = Store.describeStateChange(this.state, stateEnd);
+      if (stateChangeDescription !== '') print(stateChangeDescription);
+    } catch (error) {
+      // Swallow error and do nothing, as this is just a debug print.
+    }
+
     if (this._forceUpdate === null) throw new StoreException('Store not set');
 
     if (stateEnd !== null && stateEnd !== this._state) {
@@ -240,7 +382,9 @@ export class Store<St> {
   static describeStateChange(obj1: any, obj2: any, path: string = ''): String {
     // Ensure both parameters are objects
     if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null) {
-      throw new StoreException(`Type mismatch or one of the objects is null at path: ${path}`);
+      return '';
+      // Note: This method should not fail.
+      // Throw new StoreException(`Type mismatch or one of the objects is null at path: ${path}`);
     }
 
     let differences = '';

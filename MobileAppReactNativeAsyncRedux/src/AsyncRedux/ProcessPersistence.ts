@@ -21,7 +21,7 @@ export class ProcessPersistence<St> {
 
   async readInitialState(store: Store<St>, initialState: St) {
 
-    let stateReadFromPersistor = null;
+    let stateReadFromPersistor: St | null = null;
 
     try {
       stateReadFromPersistor = await this.persistor.readState();
@@ -40,7 +40,7 @@ export class ProcessPersistence<St> {
       // If the saved state was read successfully, we replace the store state with it.
       // In this case, the initial-state passed in the Store constructor was used
       // only while the persisted state is loading.
-      store.dispatch(new SetStateAction(stateReadFromPersistor));
+      store.dispatch(new SetStateAction<St>(stateReadFromPersistor));
     }
   }
 
