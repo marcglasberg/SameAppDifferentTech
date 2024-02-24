@@ -60,42 +60,107 @@ interface ConstructorParams<St> {
   logger?: (obj: any) => void | undefined;
 
   /**
-   * Global wrapError function.
+   * Global function to wrap errors.
    *
-   * This global `wrapError` will be given all errors thrown in your actions, including those
+   * This `globalWrapError` will be given all errors thrown in your actions, including those
    * of type `UserException`. If and action already has a `wrapError` method, that method will
-   * be called first, and then the global `wrapError` will be called with the result.
+   * be called first, and then the `globalWrapError` will be called with the result.
    *
    * A common use case for this is to have a global place to convert some exceptions into
    * `UserException`s. For example, Firebase may throw some `PlatformExceptions` in response to
    * a bad connection to the server. In this case, you may want to show the user a dialog
    * explaining that the connection is bad, which you can do by converting it to a `UserException`.
-   * While this could also be done in the action's `wrapError`, you'd have to add it to all actions
-   * that use Firebase.
+   * While this could also be done in the action's `wrapError`, you'd have to add it to all
+   * actions that use Firebase.
    *
-   * The global `wrapError` is also a good place to log errors, as all of them will arrive here.
-   * To that end, you'll also get the action that dispatched the error, which you can use not only
-   * to log the action's name, but also to read the action's properties, if any.
-   *
-   * To disable the error, return `null`. For example, if you want to disable all errors
-   * of type `MyException`, but log them:
-   *
-   * ```
-   * wrapError(error, action) {
-   *    if (error instanceof MyException) {
-   *        Logger.error(`Got MyException in action ${action}.`);
-   *        return null;
-   *    }
-   *    else return error;
-   * }
-   * ```
-   *
-   * IMPORTANT: If instead of RETURNING an error you throw an error inside the `wrapError`
+   * IMPORTANT: If instead of RETURNING an error you throw an error inside the `globalWrapError`
    * function, AsyncRedux will catch this error and use it instead the original error. In other
    * words, returning an error or throwing an error works the same way. But it's recommended that
    * you return the error instead of throwing it anyway.
+   *
+   * Note: Don't use the `globalWrapError` to log errors, as you should prefer doing that
+   * in the `ErrorObserver`.
    */
-  wrapError?: (error: any, action: ReduxAction<St>) => any;
+  globalWrapError?: (error: any) => any;
+
+  // TODO: IMPLEMENT!
+  /**
+   * One or more `actionObserver`s can be set during the `Store` creation.
+   * They are called whenever actions are dispatched, and also when they finish.
+   * The action and the dispatch-count are available, as well as the `ini` parameter:
+   * If `ini` is true, this is right before the action is dispatched.
+   * If `ini` is false, this is right after the action finishes.
+   */
+  actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void[];
+
+  /**
+   * One or more `stateObserver`s can be set during the `Store` creation.
+   * They are called for all dispatched actions, right after the reducer returns. That happens
+   * before the `after()` method is called, and before the action's `wrapError()` and the
+   * `globalWrapError()` are called.
+   *
+   * The parameters are:
+   *
+   * - action = The action itself.
+   *
+   * - stateIni = The state right before the new state returned by the reducer is applied. Note
+   *              this may be different from the state when the reducer was called.
+   *
+   * - stateEnd = The state returned by the reducer. Note: If you need to know if the state was
+   *              changed or not by the reducer, you can compare both states:
+   *              `let ifStateChanged = stateIni !=== stateEnd;`
+   *
+   * - error = Is null if the reducer completed with no error and returned. Otherwise, will be the
+   *           error thrown by the reducer (before any wrapError is applied). Note that, in case
+   *           of error, both `stateIni` and `stateEnd` will be the current store state when the
+   *           error is thrown.
+   *
+   * - dispatchCount = The sequential number of the dispatch.
+   *
+   * <br>
+   *
+   * Among other uses, the state-observer is a good place to add METRICS to your application.
+   * For example:
+   *
+   * ```
+   * (stateIni, stateEnd, error, dispatchCount) => trackMetrics(action, stateEnd, error);
+   * ```
+   */
+  stateObserver?: (action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number) => void[];
+
+  /**
+   * An `errorObserver` can be set during the `Store` creation.
+   * This will be given all errors that survive the action's `wrapError` and the `globalWrapError`,
+   * including those of type `UserException`.
+   *
+   * You also get the `action` and a reference to the `store`. IMPORTANT: Don't use the store to
+   * dispatch any actions, as this may have unpredictable results.
+   *
+   * The `errorObserver` is the ideal place to log errors, as you have all the information you may
+   * need, including the `action` that dispatched the error, which you can use to log the action
+   * name, as well as any action properties you may find interesting.
+   *
+   * After you log the error, you may then return `true` to let the error throw,
+   * or `false` to swallow it.
+   *
+   * After logging the error you may To disable the error, return `null`. For example, if you want to disable all errors
+   * of type `MyException`, but log them:
+   *
+   * ```
+   * errorObserver: (error, action) {
+   *
+   *    // In development, we throw the error so that we can see it in the emulator/console.
+   *    if (inDevelopment() || (error instanceof UserException)) return true;
+   *
+   *    // In production, we log the error, and swallow it.
+   *    else {
+   *       Logger.error(`Got ${error} in action ${action}.`);
+   *       return false;
+   *       }
+   * }
+   * ```
+   */
+  errorObserver?: (error: any, action: ReduxAction<St>, store: Store<St>) => boolean;
 }
 
 /**
@@ -125,12 +190,29 @@ export class Store<St> {
 
   private _dispatchCounter = 0;
 
-  private readonly _wrapError: (error: any, action: ReduxAction<St>) => any;
+  private readonly _globalWrapError: (error: any, action: ReduxAction<St>) => any;
+  private readonly _actionObserver: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
+  private readonly _stateObserver?: (action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number) => void;
+  private readonly _errorObserver?: (error: any, action: ReduxAction<St>, store: Store<St>) => boolean;
+
   public static log: (obj: any) => void;
 
   // The default wrap error does nothing (returns all errors unaltered).
-  private _defaultWrapError(error: any, action: ReduxAction<St>): any {
+  private _defaultGlobalWrapError(error: any, action: ReduxAction<St>): any {
     return error;
+  };
+
+  private _defaultActionObserver(action: ReduxAction<St>, dispatchCount: number, ini: boolean): void {
+    // Don't do anything.
+  };
+
+  private _defaultStateObserver(action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number): void {
+    // Don't do anything.
+  };
+
+  private _defaultErrorObserver(error: any, action: ReduxAction<St>, store: Store<St>): boolean {
+    // Throws all errors.
+    return true;
   };
 
   // The default logger prints messages to the console.
@@ -148,14 +230,20 @@ export class Store<St> {
                 initialState,
                 showUserException,
                 persistor,
-                wrapError,
+                globalWrapError,
+                actionObserver,
+                stateObserver,
+                errorObserver,
                 logger
               }: ConstructorParams<St>
   ) {
     this._state = initialState;
     this._showUserException = showUserException || this._defaultShowUserException;
     this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
-    this._wrapError = wrapError || this._defaultWrapError;
+    this._globalWrapError = globalWrapError || this._defaultGlobalWrapError;
+    this._actionObserver = actionObserver || this._defaultActionObserver;
+    this._stateObserver = stateObserver || this._defaultStateObserver;
+    this._errorObserver = errorObserver || this._defaultErrorObserver;
     Store.log = logger || this._defaultLogger;
     this._userExceptionsQueue = [];
     this._actionsInProgress = new Set();
@@ -225,16 +313,16 @@ export class Store<St> {
 
       if (error !== null) {
 
-        // Any error may optionally be processed by the GLOBAL `wrapError` passed to the Store
+        // Any error may optionally be processed by the `globalWrapError` passed to the Store
         // constructor. This is useful to wrap all errors in a common way. It's recommended
-        // RETURNING the new error, but if `wrapError` throws an error, that will be used too.
+        // RETURNING the new error, but if `globalWrapError` throws an error, that will be used too.
         try {
-          error = this._wrapError(error, action);
+          error = this._globalWrapError(error, action);
         } catch (thrownError) {
           error = thrownError;
         }
 
-        // To completely disable the error, `wrapError` can return `null`.
+        // To completely disable the error, `wrapError` or `globalWrapError` may return `null`.
         if (error !== null) {
           // If the function code throws an error, we deal with it.
           // Errors of type UserException are added to the error queue, not thrown.
