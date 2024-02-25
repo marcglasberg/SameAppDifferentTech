@@ -7,7 +7,7 @@ import { ClassOrEnum, ESSerializer } from '../Esserializer';
 /**
  * Use it like this:
  *
- * ```typescript
+ * ```ts
  * const persistor = new MyPersistor();
  *
  * let initialState = await persistor.readState();

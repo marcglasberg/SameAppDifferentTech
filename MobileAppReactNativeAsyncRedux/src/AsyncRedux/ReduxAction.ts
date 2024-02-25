@@ -101,6 +101,8 @@ export abstract class ReduxAction<St> {
   };
 
   private _store: Store<St> | null = null;
+  private _resolve: (() => void) | null = null;
+  private _status = new ActionStatus();
 
   /**
    * Returns the Redux store. Avoid using this method directly, use `state` and `dispatch` instead.
@@ -108,6 +110,19 @@ export abstract class ReduxAction<St> {
   protected get store(): Store<St> {
     if (this._store === null) throw new StoreException('Store not set in action');
     return this._store;
+  }
+
+  get status() {
+    return this._status;
+  }
+
+  /**
+   * Returns true only if the action finished with no errors.
+   * In other words, if the methods before, reduce and after all finished executing
+   * without throwing any errors.
+   */
+  get isFinishedWithNoErrors(): boolean {
+    return this._status.isFinishedWithNoErrors;
   }
 
   /**
@@ -132,6 +147,19 @@ export abstract class ReduxAction<St> {
   }
 
   /**
+   * For AsyncRedux internal use only.
+   */
+  _createPromise(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this._resolve = resolve;
+    });
+  }
+
+  _resolvePromise(): void {
+    this._resolve?.();
+  }
+
+  /**
    * Prints a readable description of the action, for debugging purposes.
    */
   toString(): string {
@@ -151,3 +179,86 @@ export abstract class ReduxAction<St> {
   }
 }
 
+/**
+ * The `status` is a property of the action, used to keep track of the action's lifecycle.
+ * If you have a reference to the action you can check its status at any time with `action.status`:
+ *
+ * ```ts
+ * const action = new MyAction();
+ *  await store.dispatchAndWait(new MyAction());
+ * if (action.isFinishedWithNoErrors) { ... }
+ * ```
+ *
+ * However, `dispatchAndWait` also returns the action status after it finishes:
+ *
+ * ```ts
+ * const status = await store.dispatchAndWait(new MyAction());
+ * if (status.isFinishedWithNoErrors) { ... }
+ * ```
+ */
+export class ActionStatus {
+
+  private readonly _isDispatched: boolean;
+  private readonly _isBeforeDone: boolean;
+  private readonly _isReduceDone: boolean;
+  private readonly _isAfterDone: boolean;
+  private readonly _hasError: boolean;
+
+  constructor(params: {
+    isDispatched?: boolean,
+    isBeforeDone?: boolean,
+    isReduceDone?: boolean,
+    isAfterDone?: boolean
+    hasError?: boolean
+  } = {}) {
+    this._isDispatched = params.isDispatched ?? false;
+    this._isBeforeDone = params.isBeforeDone ?? false;
+    this._isReduceDone = params.isReduceDone ?? false;
+    this._isAfterDone = params.isAfterDone ?? false;
+    this._hasError = params.hasError ?? false;
+  }
+
+  /**
+   * Returns true if the action was already dispatched. An action cannot be dispatched
+   * more than once, which means that you have to create a new action each time.
+   */
+  get isDispatched(): boolean {
+    return this._isDispatched;
+  }
+
+  /**
+   * Returns true if the `before` method finished executing.
+   */
+  get isBeforeDone(): boolean {
+    return this._isBeforeDone;
+  }
+
+  /**
+   * Returns true if the `reduce` method finished executing.
+   */
+  get isReduceDone(): boolean {
+    return this._isReduceDone;
+  }
+
+  /**
+   * Returns true if the `after` method finished executing.
+   */
+  get isAfterDone(): boolean {
+    return this._isAfterDone;
+  }
+
+  /**
+   * Returns true if the action finished with an error.
+   */
+  get hasError(): boolean {
+    return this._hasError;
+  }
+
+  /**
+   * Returns true if the action finished with no errors.
+   */
+  get isFinishedWithNoErrors(): boolean {
+    return this.isBeforeDone && this.isReduceDone
+      && this.isAfterDone && !this.hasError;
+  }
+}

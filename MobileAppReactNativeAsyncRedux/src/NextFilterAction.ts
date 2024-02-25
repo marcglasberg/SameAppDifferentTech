@@ -28,7 +28,7 @@ export class NextFilterAction extends Action {
 
 export class SetFilterAction extends Action {
 
-  constructor(private newFilter: Filter) {
+  constructor(readonly newFilter: Filter) {
     super();
   }
 

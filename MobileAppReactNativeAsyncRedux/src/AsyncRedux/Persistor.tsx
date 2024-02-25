@@ -4,7 +4,7 @@ import { Store } from './Store.tsx';
 /**
  * Use it like this:
  *
- * ```typescript
+ * ```ts
  * const persistor = new MyPersistor();
  *
  * let initialState = await persistor.readState();
@@ -72,7 +72,7 @@ export abstract class Persistor<St> {
  * A decorator to print persistor information to the console.
  * Use it like this:
  *
- * ```typescript
+ * ```ts
  * const store = createStore<AppState>({
  *   ...otherOptions,
  *   persistor: new PersistorPrinterDecorator<AppState>(persistor),

@@ -5,6 +5,7 @@ import { StoreException } from './StoreException.ts';
 import { Persistor } from './Persistor.tsx';
 import { ProcessPersistence } from './ProcessPersistence.ts';
 
+
 export type ShowUserException = (exception: UserException, count: number, next: () => void) => void;
 
 interface ConstructorParams<St> {
@@ -25,7 +26,7 @@ interface ConstructorParams<St> {
    * in the queue, when the user dismisses the dialog or toast. If there are no more exceptions,
    * `next` will do nothing. Otherwise, it will call `showUserException` again. Example:
    *
-   * ```typescript
+   * ```ts
    * const showUserException: UserExceptionDialog =
    *   (exception, count, next) => {
    *     Alert.alert(
@@ -95,7 +96,7 @@ interface ConstructorParams<St> {
    * For example, the following code logs actions to the console in development or test mode.
    * and logs actions to Crashlytics in production mode:
    *
-   * ```typescript
+   * ```ts
    * actionObserver: (action, dispatchCount, ini) => {
    *   if (inDevelopment() || inTests()) {
    *      if (ini) console.log('Action dispatched: ' + action);
@@ -280,9 +281,26 @@ export class Store<St> {
     return this._dispatchCounter;
   }
 
+  /**
+   * Dispatches an action and returns a promise that resolves when the action finishes.
+   * While the state change from the action's reducer will have been applied when the promise
+   * resolves, other independent processes that the action may have started may still be in
+   * progress.
+   *
+   * Usage: `await store.dispatchAndWait(new MyAction())`.
+   */
+  dispatchAndWait(action: ReduxAction<St>): Promise<void> {
+    let promise = action._createPromise();
+    this.dispatch(action);
+    return promise;
+  }
+
   dispatch(action: ReduxAction<St>) {
 
-    if (this._forceUpdate === null) throw new StoreException('Store not set in dispatch');
+    if (this._forceUpdate === null) Store.log('Component tree not wrapped with <StoreProvider store={store}>');
+
+    if (action.status.isDispatched)
+      throw new StoreException('The action was already dispatched. Please, create a new action each time.');
 
     // We inject the store so that the action can access it (and state, dispatch etc)
     // as an object property.
@@ -440,6 +458,9 @@ export class Store<St> {
 
     // The action is dispatched twice. This is the 2nd: when the action ends (ini false).
     this._actionObserver?.(action, this._dispatchCounter, false);
+
+    // This allows us to `await dispatchAndWait(new MyAction())`
+    action._resolvePromise();
   }
 
   private _runFromStart(action: ReduxAction<St>): boolean {
@@ -558,15 +579,13 @@ export class Store<St> {
 
     const prevState = this._state;
 
-    if (this._forceUpdate === null) throw new StoreException('Store not set');
-
     if (newState !== null && newState !== this._state) {
       this._state = newState;
 
       // Observe the state with null error, because the reducer completed normally.
       this._stateObserver?.(action, prevState, newState, null, this._dispatchCounter);
 
-      this._forceUpdate(++this._dispatchCounter);
+      this._forceUpdate?.(++this._dispatchCounter);
     }
 
     if (this._processPersistence != null)
@@ -584,7 +603,7 @@ export class Store<St> {
    *
    * An example using React Native:
    *
-   * ```typescript
+   * ```ts
    * const showUserException = (exception: UserException, next: () => void) => {
    *     Alert.alert(
    *       exception.title || exception.message,
@@ -627,7 +646,7 @@ export class Store<St> {
     return false;
   }
 
-  // TODO: MARCELO Hide this internally.
+  // TODO: MARCELO Change this.
   _inject(forceUpdate: Dispatch<SetStateAction<number>>) {
     this._forceUpdate = forceUpdate;
   }
