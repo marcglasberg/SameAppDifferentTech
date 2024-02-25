@@ -26,7 +26,7 @@ interface ConstructorParams<St> {
    * `next` will do nothing. Otherwise, it will call `showUserException` again. Example:
    *
    * ```typescript
-   * const userExceptionDialog: UserExceptionDialog =
+   * const showUserException: UserExceptionDialog =
    *   (exception, count, next) => {
    *     Alert.alert(
    *       exception.title || exception.message,
@@ -83,50 +83,84 @@ interface ConstructorParams<St> {
    */
   globalWrapError?: (error: any) => any;
 
-  // TODO: IMPLEMENT!
   /**
-   * One or more `actionObserver`s can be set during the `Store` creation.
-   * They are called whenever actions are dispatched, and also when they finish.
+   * An `actionObserver` can be set during the `Store` creation.
+   * It's called whenever actions are dispatched, and also when they finish.
    * The action and the dispatch-count are available, as well as the `ini` parameter:
    * If `ini` is true, this is right before the action is dispatched.
    * If `ini` is false, this is right after the action finishes.
+   *
+   * The `actionObserver` is a good place to log which actions are dispatched by your application.
+   * For example, the following code logs actions to the console in development or test mode.
+   * and logs actions to Crashlytics in production mode:
+   *
+   * ```typescript
+   * actionObserver: (action, dispatchCount, ini) => {
+   *   if (inDevelopment() || inTests()) {
+   *      if (ini) console.log('Action dispatched: ' + action);
+   *      else console.log('Action finished: ' + action);
+   *   }
+   *   else Crashlytics.log('Dispatched: ' + action);
+   * }
+   * ```
    */
-  actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void[];
+  actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
 
   /**
-   * One or more `stateObserver`s can be set during the `Store` creation.
-   * They are called for all dispatched actions, right after the reducer returns. That happens
-   * before the `after()` method is called, and before the action's `wrapError()` and the
-   * `globalWrapError()` are called.
+   * A `stateObserver`s can be set during the `Store` creation.
+   * It's called for all dispatched actions, right after the reducer returns, before
+   * the action's `after()` method, before the action's `wrapError()`, and before
+   * the `globalWrapError()`.
    *
    * The parameters are:
    *
    * - action = The action itself.
    *
-   * - stateIni = The state right before the new state returned by the reducer is applied. Note
-   *              this may be different from the state when the reducer was called.
+   * - prevState = The state right before the new state returned by the reducer is applied. Note
+   *              this may be different from the state when the action was dispatched.
    *
-   * - stateEnd = The state returned by the reducer. Note: If you need to know if the state was
-   *              changed or not by the reducer, you can compare both states:
-   *              `let ifStateChanged = stateIni !=== stateEnd;`
+   * - newState = The state returned by the reducer. Note: If you need to know if the state was
+   *             changed or not by the reducer, you can compare both states:
+   *             `let ifStateChanged = prevState !=== newState;`
    *
    * - error = Is null if the reducer completed with no error and returned. Otherwise, will be the
    *           error thrown by the reducer (before any wrapError is applied). Note that, in case
-   *           of error, both `stateIni` and `stateEnd` will be the current store state when the
-   *           error is thrown.
+   *           of error, both `prevState` and `newState` will be the current store state when the
+   *           error was thrown.
    *
    * - dispatchCount = The sequential number of the dispatch.
    *
    * <br>
    *
-   * Among other uses, the state-observer is a good place to add METRICS to your application.
-   * For example:
+   * The state-observer is a good place to add an interface to the Redux DevTools.
+   * It's also a good place to add METRICS to your application. For example:
    *
    * ```
-   * (stateIni, stateEnd, error, dispatchCount) => trackMetrics(action, stateEnd, error);
+   * (action, prevState, newState, error, dispatchCount) => trackMetrics(action, newState, error);
    * ```
+   *
+   * An interesting idea is to add a method to the Action base class called `setMetrics`, that
+   * allows actions to return tailored custom metrics about the action, and then use it in the
+   * state-observer to track those metrics. For example:
+   *
+   * ```
+   * export abstract class Action extends ReduxAction<State> {
+   *    let metrics: any;
+   *    setMetrics(): any { return null; }
+   * }
+   *
+   * export class AddTodoAction extends Action {
+   *   ...
+   *   setMetrics() { return <someMetrics>; }
+   * }
+   * ...
+   *
+   * (action, prevState, newState, error, dispatchCount) => {
+   *   let metrics = (action instanceof Action) ? action.metrics: null;
+   *   trackMetrics(action, metrics, newState, error);
+   * }
    */
-  stateObserver?: (action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number) => void[];
+  stateObserver?: (action: ReduxAction<St>, prevState: St, newState: St, error: any, dispatchCount: number) => void;
 
   /**
    * An `errorObserver` can be set during the `Store` creation.
@@ -150,7 +184,7 @@ interface ConstructorParams<St> {
    * errorObserver: (error, action) {
    *
    *    // In development, we throw the error so that we can see it in the emulator/console.
-   *    if (inDevelopment() || (error instanceof UserException)) return true;
+   *    if (inDevelopment() || inTests() || (error instanceof UserException)) return true;
    *
    *    // In production, we log the error, and swallow it.
    *    else {
@@ -178,7 +212,7 @@ export class Store<St> {
   private readonly _showUserException: ShowUserException;
 
   // A queue of errors of type UserException, thrown by actions.
-  // They are shown to the user using the function `userExceptionDialog`.
+  // They are shown to the user using the function `showUserException`.
   private readonly _userExceptionsQueue: UserException[];
 
   // Hold the wait states of async operations in progress.
@@ -190,30 +224,12 @@ export class Store<St> {
 
   private _dispatchCounter = 0;
 
-  private readonly _globalWrapError: (error: any, action: ReduxAction<St>) => any;
-  private readonly _actionObserver: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
-  private readonly _stateObserver?: (action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number) => void;
+  private readonly _globalWrapError?: (error: any, action: ReduxAction<St>) => any;
+  private readonly _actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
+  private readonly _stateObserver?: (action: ReduxAction<St>, prevState: St, newState: St, error: any, dispatchCount: number) => void;
   private readonly _errorObserver?: (error: any, action: ReduxAction<St>, store: Store<St>) => boolean;
 
   public static log: (obj: any) => void;
-
-  // The default wrap error does nothing (returns all errors unaltered).
-  private _defaultGlobalWrapError(error: any, action: ReduxAction<St>): any {
-    return error;
-  };
-
-  private _defaultActionObserver(action: ReduxAction<St>, dispatchCount: number, ini: boolean): void {
-    // Don't do anything.
-  };
-
-  private _defaultStateObserver(action: ReduxAction<St>, stateIni: St, stateEnd: St, error: any, dispatchCount: number): void {
-    // Don't do anything.
-  };
-
-  private _defaultErrorObserver(error: any, action: ReduxAction<St>, store: Store<St>): boolean {
-    // Throws all errors.
-    return true;
-  };
 
   // The default logger prints messages to the console.
   private _defaultLogger(obj: any) {
@@ -240,10 +256,10 @@ export class Store<St> {
     this._state = initialState;
     this._showUserException = showUserException || this._defaultShowUserException;
     this._processPersistence = (persistor === undefined) ? null : new ProcessPersistence(persistor, initialState);
-    this._globalWrapError = globalWrapError || this._defaultGlobalWrapError;
-    this._actionObserver = actionObserver || this._defaultActionObserver;
-    this._stateObserver = stateObserver || this._defaultStateObserver;
-    this._errorObserver = errorObserver || this._defaultErrorObserver;
+    this._globalWrapError = globalWrapError;
+    this._actionObserver = actionObserver;
+    this._stateObserver = stateObserver;
+    this._errorObserver = errorObserver;
     Store.log = logger || this._defaultLogger;
     this._userExceptionsQueue = [];
     this._actionsInProgress = new Set();
@@ -267,8 +283,14 @@ export class Store<St> {
 
     if (this._forceUpdate === null) throw new StoreException('Store not set in dispatch');
 
+    // We inject the store so that the action can access it (and state, dispatch etc)
+    // as an object property.
     action._injectStore(this);
+
     Store.log('Dispatched: ' + action);
+
+    // The action is dispatched twice. This is the 1st: when the action starts (ini true).
+    this._actionObserver?.(action, this._dispatchCounter, true);
 
     // Adds a wait state for the action in progress.
     if (this._autoRegisterWaitStates) {
@@ -282,130 +304,141 @@ export class Store<St> {
     );
   }
 
+  // Wraps SYNC actions.
+  // - Runs the before are reduce methods.
+  // - Runs the state observer.
   // - Catches and processes errors.
+  // - Shows some UI if there are user exceptions.
   // - Makes sure the after method runs, always.
   // - Removes the wait state for the action in progress, always.
+  // - Runs the action observer.
   private _wraps(
     action: ReduxAction<St>,
     functionToRun: () => boolean
   ) {
-
     let ifWentAsync = false;
-
     try {
-      // Runs the given function code.
       ifWentAsync = functionToRun();
-    }
-      //
-    catch (error) {
-      //
-
-      // Any error may optionally be processed by the `wrapError` method of the action.
-      // Usually this is used to wrap the error inside another that better describes the failed
-      // action. It's recommended RETURNING the new error, but if `wrapError` throws an error,
-      // that will be used too.
-      try {
-        error = action.wrapError(error);
-      } catch (thrownError) {
-        error = thrownError;
+    } catch (error) {
+      this._processWrapsError(error, action);
+    } finally {
+      if (!ifWentAsync) {
+        this._processWrapsFinally(action);
       }
+    }
+  }
 
+  // Wraps ASYNC actions.
+  // - Runs the before are reduce methods.
+  // - Runs the state observer.
+  // - Catches and processes errors.
+  // - Shows some UI if there are user exceptions.
+  // - Makes sure the after method runs, always.
+  // - Removes the wait state for the action in progress, always.
+  // - Runs the action observer.
+  private async _wrapsAsync(
+    action: ReduxAction<St>,
+    functionToRun: () => Promise<void>
+  ) {
+    try {
+      await functionToRun();
+    } catch (error) {
+      this._processWrapsError(error, action);
+    } finally {
+      this._processWrapsFinally(action);
+    }
+  }
 
-      if (error !== null) {
+  private _processWrapsError(error: any, action: ReduxAction<St>) {
+    //
+    // Observe the state with an error here. We use the current state; no new state was applied.
+    // This is before the action's `after()` and `wrapError()` and `globalWrapError`.
+    this._stateObserver?.(action, this._state, this._state, error, this._dispatchCounter);
 
-        // Any error may optionally be processed by the `globalWrapError` passed to the Store
-        // constructor. This is useful to wrap all errors in a common way. It's recommended
-        // RETURNING the new error, but if `globalWrapError` throws an error, that will be used too.
+    // Any error may optionally be processed by the `wrapError` method of the action.
+    // Usually this is used to wrap the error inside another that better describes the failed
+    // action. It's recommended RETURNING the new error, but if `wrapError` throws an error,
+    // that will be used too.
+    try {
+      error = action.wrapError(error);
+    } catch (thrownError) {
+      error = thrownError;
+    }
+
+    if (error !== null) {
+
+      // The default wrap error does nothing (returns all errors unaltered).
+
+      // Any error may optionally be processed by the `globalWrapError` passed to the Store
+      // constructor. This is useful to wrap all errors in a common way. It's recommended
+      // RETURNING the new error, but if `globalWrapError` throws an error, that will be used too.
+      if (this._globalWrapError != null) {
         try {
           error = this._globalWrapError(error, action);
         } catch (thrownError) {
           error = thrownError;
         }
+      }
 
-        // To completely disable the error, `wrapError` or `globalWrapError` may return `null`.
-        if (error !== null) {
-          // If the function code throws an error, we deal with it.
-          // Errors of type UserException are added to the error queue, not thrown.
-          if (error instanceof UserException) {
-            this._addUserException(error);
-            this._showUserExceptionDialog();
-          }
-          //
-          else {
-            // Other errors are thrown after the async gap, without interrupting the code flow.
+      // To completely disable the error, `wrapError` or `globalWrapError` may return `null`.
+      // But if we got an error, we deal with it here.
+      if (error !== null) {
+
+        // Errors of type `UserException` are added to the error queue,
+        // and show is some Ui (usually a dialog or a toast).
+        if (error instanceof UserException) {
+          this._addUserException(error);
+          this._openSomeUiToShowUserException();
+        }
+
+        // If an error-observer WAS NOT defined in the Store constructor, swallows errors
+        // of type `UserExceptions` (which were already shown to the user in some UI)
+        // and rethrows all others, after the async gap.
+        if (this._errorObserver == null) {
+          if (!(error instanceof UserException)) {
             queueMicrotask(() => {
               throw error;
             });
           }
         }
-      }
-    }
-      //
-    finally {
+        // However, if as error-observer WAS defined in the Store constructor,
+        else {
+          // We call the error-observer.
+          // If it returns `true`, the error throws.
+          // If it returns `false`, the error is swallowed.
+          let shouldThrow = this._errorObserver(error, action, this);
 
-      if (!ifWentAsync) {
-        // 4) We run the `after` method of the action.
-        try {
-          action.after();
-        } catch (error) {
-          Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
-            + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
-            'not throw errors.');
-        }
-
-        // 5) Removed the wait state for the action in progress.
-        if (this._autoRegisterWaitStates) {
-          this._actionsInProgress.delete(action);
-          this._forceUpdate?.(++this._dispatchCounter);
+          // Other errors are thrown after the async gap, without interrupting the code flow.
+          // Note: When the error-observer is defined, we don't make a distinction between
+          // `UserExceptions` and other errors, anymore. We let the error-observer do
+          // that if it wants.
+          if (shouldThrow)
+            queueMicrotask(() => {
+              throw error;
+            });
         }
       }
     }
   }
 
-  private async _wrapsAsync(
-    action: ReduxAction<St>,
-    functionToRun: () => Promise<void>
-  ) {
-
+  private _processWrapsFinally(action: ReduxAction<St>) {
+    // We run the `after` method of the action.
     try {
-      // 2) Runs the given function code.
-      await functionToRun();
+      action.after();
+    } catch (error) {
+      Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
+        + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
+        'not throw errors.');
     }
-      //
-    catch (error) {
-      //
-      // 3a) If the function code throws an error, we deal with it.
-      // Errors of type UserException are added to the error queue, not thrown.
-      if (error instanceof UserException) {
-        this._addUserException(error);
-        this._showUserExceptionDialog();
-      }
-      //
-      else {
-        // 3b) Other errors are thrown after the async gap, without interrupting the code flow.
-        queueMicrotask(() => {
-          throw error;
-        });
-      }
-    }
-      //
-    finally {
 
-      // 4) We run the `after` method of the action.
-      try {
-        action.after();
-      } catch (error) {
-        Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
-          + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
-          'not throw errors.');
-      }
-
-      // 5) Removed the wait state for the action in progress.
-      if (this._autoRegisterWaitStates) {
-        this._actionsInProgress.delete(action);
-        this._forceUpdate?.(++this._dispatchCounter);
-      }
+    // Removed the wait state for the action in progress.
+    if (this._autoRegisterWaitStates) {
+      this._actionsInProgress.delete(action);
+      this._forceUpdate?.(++this._dispatchCounter);
     }
+
+    // The action is dispatched twice. This is the 2nd: when the action ends (ini false).
+    this._actionObserver?.(action, this._dispatchCounter, false);
   }
 
   private _runFromStart(action: ReduxAction<St>): boolean {
@@ -513,26 +546,32 @@ export class Store<St> {
     }).then();
   }
 
-  private _registerState(action: ReduxAction<St>, stateEnd: St) {
+  private _registerState(action: ReduxAction<St>, newState: St) {
 
     try {
-      let stateChangeDescription = Store.describeStateChange(this.state, stateEnd);
+      let stateChangeDescription = Store.describeStateChange(this.state, newState);
       if (stateChangeDescription !== '') Store.log(stateChangeDescription);
     } catch (error) {
       // Swallow error and do nothing, as this is just a debug print.
     }
 
+    const prevState = this._state;
+
     if (this._forceUpdate === null) throw new StoreException('Store not set');
 
-    if (stateEnd !== null && stateEnd !== this._state) {
-      this._state = stateEnd;
+    if (newState !== null && newState !== this._state) {
+      this._state = newState;
+
+      // Observe the state with null error, because the reducer completed normally.
+      this._stateObserver?.(action, prevState, newState, null, this._dispatchCounter);
+
       this._forceUpdate(++this._dispatchCounter);
     }
 
     if (this._processPersistence != null)
       this._processPersistence.process(
         action,
-        stateEnd
+        newState
       );
   }
 
@@ -540,12 +579,12 @@ export class Store<St> {
    * We check to see if any errors are in the queue and if so, we show the first one.
    * We then remove the first error from the queue and call this method again to show the next
    * error, if any. For this to work, we have to pass a function to the constructor of Store that
-   * will show the error to the user. This function is called `userExceptionDialog`.
+   * will show the error to the user. This function is called `showUserException`.
    *
    * An example using React Native:
    *
    * ```typescript
-   * const userExceptionDialog = (exception: UserException, next: () => void) => {
+   * const showUserException = (exception: UserException, next: () => void) => {
    *     Alert.alert(
    *       exception.title || exception.message,
    *       exception.title ? exception.message : '',
@@ -554,12 +593,12 @@ export class Store<St> {
    *   };
    * ```
    */
-  private _showUserExceptionDialog() {
+  private _openSomeUiToShowUserException() {
     let currentError = this.getNextUserExceptionInQueue();
     if (currentError !== undefined) {
       let count = this._userExceptionsQueue.length;
       this._showUserException?.(currentError, count, () => {
-        this._showUserExceptionDialog();
+        this._openSomeUiToShowUserException();
       });
     }
   };

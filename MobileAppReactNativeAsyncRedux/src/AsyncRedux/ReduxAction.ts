@@ -124,7 +124,9 @@ export abstract class ReduxAction<St> {
     return this.store.dispatch(action);
   }
 
-  // For AsyncRedux internal use only.
+  /**
+   * For AsyncRedux internal use only.
+   */
   _injectStore(_store: Store<St>) {
     this._store = _store;
   }
