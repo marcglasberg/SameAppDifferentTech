@@ -34,6 +34,7 @@ interface ConstructorParams<St> {
    *       [{ text: 'OK', onPress: (value?: string) => next }]
    *     );
    *   };
+   * ```
    */
   showUserException?: (exception: UserException, count: number, next: () => void) => void;
 
@@ -150,15 +151,16 @@ interface ConstructorParams<St> {
    * }
    *
    * export class AddTodoAction extends Action {
-   *   ...
+   *   reducer() { ... }
    *   setMetrics() { return <someMetrics>; }
    * }
    * ...
    *
-   * (action, prevState, newState, error, dispatchCount) => {
+   * stateObserver: (action, prevState, newState, error, dispatchCount) => {
    *   let metrics = (action instanceof Action) ? action.metrics: null;
    *   trackMetrics(action, metrics, newState, error);
    * }
+   * ```
    */
   stateObserver?: (action: ReduxAction<St>, prevState: St, newState: St, error: any, dispatchCount: number) => void;
 
@@ -205,11 +207,9 @@ interface ConstructorParams<St> {
  */
 export class Store<St> {
 
-  private _state: St;
+  public static log: (obj: any) => void;
 
-  // A function that shows `UserExceptions` to the user, using some UI like a dialog or a toast.
-  // This function is passed to the constructor. If not passed, the `UserException` is ignored.
-  private readonly _showUserException: ShowUserException;
+  private _state: St;
 
   // A queue of errors of type UserException, thrown by actions.
   // They are shown to the user using the function `showUserException`.
@@ -218,18 +218,19 @@ export class Store<St> {
   // Hold the wait states of async operations in progress.
   private readonly _actionsInProgress: Set<ReduxAction<St>>;
 
-  private _forceUpdate: Dispatch<SetStateAction<number>> | null;
   private readonly _autoRegisterWaitStates: boolean;
   private readonly _processPersistence: ProcessPersistence<St> | null;
-
   private _dispatchCounter = 0;
+  private _forceUpdate: Dispatch<SetStateAction<number>> | null;
+
+  // A function that shows `UserExceptions` to the user, using some UI like a dialog or a toast.
+  // This function is passed to the constructor. If not passed, the `UserException` is ignored.
+  private readonly _showUserException: ShowUserException;
 
   private readonly _globalWrapError?: (error: any, action: ReduxAction<St>) => any;
   private readonly _actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
   private readonly _stateObserver?: (action: ReduxAction<St>, prevState: St, newState: St, error: any, dispatchCount: number) => void;
   private readonly _errorObserver?: (error: any, action: ReduxAction<St>, store: Store<St>) => boolean;
-
-  public static log: (obj: any) => void;
 
   // The default logger prints messages to the console.
   private _defaultLogger(obj: any) {
