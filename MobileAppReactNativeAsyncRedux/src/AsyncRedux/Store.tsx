@@ -302,6 +302,8 @@ export class Store<St> {
     if (action.status.isDispatched)
       throw new StoreException('The action was already dispatched. Please, create a new action each time.');
 
+    action._changeStatus({ isDispatched: true });
+
     // We inject the store so that the action can access it (and state, dispatch etc)
     // as an object property.
     action._injectStore(this);
@@ -370,6 +372,8 @@ export class Store<St> {
 
   private _processWrapsError(error: any, action: ReduxAction<St>) {
     //
+    action._changeStatus({ hasError: true });
+
     // Observe the state with an error here. We use the current state; no new state was applied.
     // This is before the action's `after()` and `wrapError()` and `globalWrapError`.
     this._stateObserver?.(action, this._state, this._state, error, this._dispatchCounter);
@@ -448,6 +452,8 @@ export class Store<St> {
       Store.log('The `after()` method of the action ' + action + ' threw an error: ' + error
         + '. This error will be ignored, but you should fix this, as `after()` methods should ' +
         'not throw errors.');
+    } finally {
+      action._changeStatus({ hasFinishedMethodAfter: true });
     }
 
     // Removed the wait state for the action in progress.
@@ -477,6 +483,8 @@ export class Store<St> {
       return true; // Get out of here. Went ASYNC.
     }
 
+    action._changeStatus({ hasFinishedMethodBefore: true });
+
     // REDUCE
 
     // 3)
@@ -486,6 +494,7 @@ export class Store<St> {
 
     // 4) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
     if (reduceResult === null || reduceResult === this.state) {
+      action._changeStatus({ hasFinishedMethodReduce: true });
       return false; // Kept SYNC.
     }
       //
@@ -497,6 +506,7 @@ export class Store<St> {
       //
     // 6) If the reducer is SYNC, we already have the new state, and we simply must apply it.
     else {
+      action._changeStatus({ hasFinishedMethodReduce: true });
       this._registerState(action, reduceResult);
       return false; // Kept SYNC.
     }
@@ -509,6 +519,8 @@ export class Store<St> {
       // 2.1) Method `before` is ASYNC, so we wait for it to finish.
       await beforeResult;
 
+      action._changeStatus({ hasFinishedMethodBefore: true });
+
       // REDUCE
 
       // 2.2)
@@ -518,12 +530,14 @@ export class Store<St> {
 
       // 2.3) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
       if (reduceResult === null || reduceResult === this.state) {
+        action._changeStatus({ hasFinishedMethodReduce: true });
         return; // Get out of here.
       }
         //
       // 2.4) If the reducer is ASYNC, we still process the rest of the reducer to generate the new state.
       else if (reduceResult instanceof Promise<ReduxReducer<St>>) {
         reduceResult = await reduceResult as AsyncReducerResult<St>;
+        action._changeStatus({ hasFinishedMethodReduce: true });
 
         if (reduceResult !== null && reduceResult !== this.state) {
           let newAsyncState = reduceResult(this.state);
@@ -536,6 +550,7 @@ export class Store<St> {
         //
       // 2.5) If the reducer is SYNC, we already have the new state, and we simply must apply it.
       else {
+        action._changeStatus({ hasFinishedMethodReduce: true });
         this._registerState(action, reduceResult);
         return; // Get out of here.
       }
@@ -548,6 +563,7 @@ export class Store<St> {
 
       // 5.1) Method `reduce` is ASYNC, so we wait for it to finish.
       let functionalReduceResult: AsyncReducerResult<St> = await reduceResult;
+      action._changeStatus({ hasFinishedMethodReduce: true });
 
       // 5.2) If the reducer returned null, we simply do nothing.
       if (functionalReduceResult === null) {

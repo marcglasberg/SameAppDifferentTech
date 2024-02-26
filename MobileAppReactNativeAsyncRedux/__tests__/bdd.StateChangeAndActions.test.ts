@@ -52,6 +52,19 @@ Bdd(feature)
     expect(store.state.age).toBe(30);
   });
 
+class RecordActionSyncNoErrors extends ReduxAction<State> {
+  record = '';
+
+  before() {
+    this.record += '|before|';
+  }
+
+  reducer() {
+    this.record += '|before|';
+    return null;
+  }
+}
+
 class State {
   constructor(readonly userName: string, readonly age: number) {
   }

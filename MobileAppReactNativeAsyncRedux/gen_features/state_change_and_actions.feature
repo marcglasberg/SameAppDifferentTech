@@ -1,11 +1,19 @@
 Feature: State change and actions
 
-  Scenario: Change state by dispatching a SYNC action.
-    Given State has user name Mary and age 30.
-    When A sync action is dispatched to change the name to Lisa.
-    Then The name changes and the age stays the same.
+  Scenario: Action status when dispatching a SYNC action that doesnt change the state.
+    Given A newly created action.
+    When The action is dispatched.
+    And Its reducer returns null.
+    And Finishes without errors.
+    Then The action status evolves to record methods before, reduce, after.
+    And If errors where throw.
+    And If the action has finished or not, with errors or not.
 
-  Scenario: Change state by dispatching an ASYNC action.
-    Given State has user name Mary and age 30.
-    When An async action is dispatched to change the name to Lisa.
-    Then The name changes and the age stays the same.
+  Scenario: Action status when dispatching a SYNC action that changes the state.
+    Given A newly created action.
+    When The action is dispatched.
+    And Its reducer returns null.
+    And Finishes without errors.
+    Then The action status evolves to record methods before, reduce, after.
+    And If errors where throw.
+    And If the action has finished or not, with errors or not.

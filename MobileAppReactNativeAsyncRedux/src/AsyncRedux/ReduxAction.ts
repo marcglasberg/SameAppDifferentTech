@@ -116,19 +116,46 @@ export abstract class ReduxAction<St> {
     return this._status;
   }
 
+
   /**
-   * Returns true only if the action finished with no errors.
+   * Returns true if the action was already dispatched. An action cannot be dispatched
+   * more than once, which means that you have to create a new action each time.
+   *
+   * Note this may be true even if the action has not yet FINISHED dispatching.
+   * To check if it has finished, use `action.isFinished`.
+   */
+  get isDispatched(): boolean {
+    return this._status.isDispatched;
+  }
+
+  /**
+   * Returns true when the action has finished being dispatched.
+   */
+  get isFinished(): boolean {
+    return this._status.hasFinishedMethodAfter;
+  }
+
+  /**
+   * Returns true only if the action finished without errors.
    * In other words, if the methods before, reduce and after all finished executing
    * without throwing any errors.
    */
-  get isFinishedWithNoErrors(): boolean {
-    return this._status.isFinishedWithNoErrors;
+  get isFinishedWithoutErrors(): boolean {
+    return this.isFinished && !this._status.hasError;
+  }
+
+  /**
+   * Returns true only if the action finished with errors.
+   * In other words, if one of the methods before or reduce threw an error.
+   */
+  get isFinishedWithErrors(): boolean {
+    return this.isFinished && this._status.hasError;
   }
 
   /**
    * Returns the current state of the Redux store.
    */
-  protected get state(): St {
+  public get state(): St {
     return this.store.state;
   }
 
@@ -144,6 +171,19 @@ export abstract class ReduxAction<St> {
    */
   _injectStore(_store: Store<St>) {
     this._store = _store;
+  }
+
+  /**
+   * For AsyncRedux internal use only.
+   */
+  _changeStatus(params: {
+    isDispatched?: boolean,
+    hasFinishedMethodBefore?: boolean,
+    hasFinishedMethodReduce?: boolean,
+    hasFinishedMethodAfter?: boolean
+    hasError?: boolean
+  } = {}) {
+    this._status = this._status.copy(params);
   }
 
   /**
@@ -198,67 +238,63 @@ export abstract class ReduxAction<St> {
  */
 export class ActionStatus {
 
-  private readonly _isDispatched: boolean;
-  private readonly _isBeforeDone: boolean;
-  private readonly _isReduceDone: boolean;
-  private readonly _isAfterDone: boolean;
-  private readonly _hasError: boolean;
-
-  constructor(params: {
-    isDispatched?: boolean,
-    isBeforeDone?: boolean,
-    isReduceDone?: boolean,
-    isAfterDone?: boolean
-    hasError?: boolean
-  } = {}) {
-    this._isDispatched = params.isDispatched ?? false;
-    this._isBeforeDone = params.isBeforeDone ?? false;
-    this._isReduceDone = params.isReduceDone ?? false;
-    this._isAfterDone = params.isAfterDone ?? false;
-    this._hasError = params.hasError ?? false;
-  }
-
   /**
    * Returns true if the action was already dispatched. An action cannot be dispatched
    * more than once, which means that you have to create a new action each time.
+   *
+   * Note this may be true even if the action has not yet FINISHED dispatching.
+   * To check if it has finished, use `action.isFinished`.
    */
-  get isDispatched(): boolean {
-    return this._isDispatched;
-  }
+  public readonly isDispatched: boolean;
 
   /**
-   * Returns true if the `before` method finished executing.
+   * Returns true if the `before` method finished executing (normally or with an error).
+   *
    */
-  get isBeforeDone(): boolean {
-    return this._isBeforeDone;
-  }
+  public readonly hasFinishedMethodBefore: boolean;
 
   /**
-   * Returns true if the `reduce` method finished executing.
+   * Returns true if the `reduce` method finished executing. (normally or with an error).
    */
-  get isReduceDone(): boolean {
-    return this._isReduceDone;
-  }
+  public readonly hasFinishedMethodReduce: boolean;
 
   /**
    * Returns true if the `after` method finished executing.
    */
-  get isAfterDone(): boolean {
-    return this._isAfterDone;
-  }
+  public readonly hasFinishedMethodAfter: boolean;
 
   /**
    * Returns true if the action finished with an error.
    */
-  get hasError(): boolean {
-    return this._hasError;
+  public readonly hasError: boolean;
+
+  constructor(params: {
+    isDispatched?: boolean,
+    hasFinishedMethodBefore?: boolean,
+    hasFinishedMethodReduce?: boolean,
+    hasFinishedMethodAfter?: boolean
+    hasError?: boolean
+  } = {}) {
+    this.isDispatched = params.isDispatched ?? false;
+    this.hasFinishedMethodBefore = params.hasFinishedMethodBefore ?? false;
+    this.hasFinishedMethodReduce = params.hasFinishedMethodReduce ?? false;
+    this.hasFinishedMethodAfter = params.hasFinishedMethodAfter ?? false;
+    this.hasError = params.hasError ?? false;
   }
 
-  /**
-   * Returns true if the action finished with no errors.
-   */
-  get isFinishedWithNoErrors(): boolean {
-    return this.isBeforeDone && this.isReduceDone
-      && this.isAfterDone && !this.hasError;
+  copy(params: {
+    isDispatched?: boolean,
+    hasFinishedMethodBefore?: boolean,
+    hasFinishedMethodReduce?: boolean,
+    hasFinishedMethodAfter?: boolean
+    hasError?: boolean
+  }) {
+    return new ActionStatus({
+      isDispatched: params.isDispatched ?? this.isDispatched,
+      hasFinishedMethodBefore: params.hasFinishedMethodBefore ?? this.hasFinishedMethodBefore,
+      hasFinishedMethodReduce: params.hasFinishedMethodReduce ?? this.hasFinishedMethodReduce,
+      hasFinishedMethodAfter: params.hasFinishedMethodAfter ?? this.hasFinishedMethodAfter,
+      hasError: params.hasError ?? this.hasError
+    });
   }
 }
