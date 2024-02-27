@@ -19,7 +19,7 @@ Bdd(feature)
   .given('A SYNC or ASYNC action.')
   .when('The action is dispatched with `dispatchAndWait(action)`.')
   .then('It returns a `Promise` that resolves when the action finishes.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -39,7 +39,7 @@ Bdd(feature)
   .given('A SYNC or ASYNC action.')
   .when('The action is dispatched.')
   .then('We can check if the action is processing with `Store.isDispatching(action)`.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),

@@ -19,7 +19,7 @@ Bdd(feature)
   .and('The action is mocked with a mock-action.')
   .when('The action is dispatched.')
   .then('The mock-action is dispatched instead.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -32,17 +32,17 @@ Bdd(feature)
     expect(store.state.count).toBe(2);
 
     // Now we mock Increment with Add20, which will add 20: 2+20 = 22
-    store.mocks.add(IncrementAction, (action) => new AddAction(20));
+    store.mocks.add(IncrementAction, (_) => new AddAction(20));
     store.dispatch(new IncrementAction());
     expect(store.state.count).toBe(22);
 
     // Now we mock Increment with null, meaning the dispatch will be disabled: 22+0 = 23
-    store.mocks.add(IncrementAction, (action) => null);
+    store.mocks.add(IncrementAction, (_) => null);
     store.dispatch(new IncrementAction());
     expect(store.state.count).toBe(22);
 
     // Now we mock Increment with Add20 again, which will add 20: 22+20 = 42
-    store.mocks.add(IncrementAction, (action) => new AddAction(20));
+    store.mocks.add(IncrementAction, (_) => new AddAction(20));
     store.dispatch(new IncrementAction());
     expect(store.state.count).toBe(42);
 
@@ -52,7 +52,7 @@ Bdd(feature)
     expect(store.state.count).toBe(43);
 
     // Now we mock Increment with Add20 again, which will add 20:
-    store.mocks.add(IncrementAction, (action) => new AddAction(20));
+    store.mocks.add(IncrementAction, (_) => new AddAction(20));
     store.dispatch(new IncrementAction());
     expect(store.state.count).toBe(63);
 
@@ -62,7 +62,7 @@ Bdd(feature)
     expect(store.state.count).toBe(64);
 
     // We can mock an action with itself. It works and won't create any loops.
-    store.mocks.add(AddAction, (action) => new AddAction(1000));
+    store.mocks.add(AddAction, (_) => new AddAction(1000));
     store.dispatch(new AddAction(20));
     expect(store.state.count).toBe(1064);
   });
@@ -73,7 +73,7 @@ Bdd(feature)
   .and('The action is mocked by an action that user the original action.')
   .when('The action is dispatched.')
   .then('The mock-action has access to the original action, to access its fields.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),

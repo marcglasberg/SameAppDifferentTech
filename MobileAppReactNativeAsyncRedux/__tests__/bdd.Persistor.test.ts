@@ -26,7 +26,7 @@ Bdd(feature)
   .then('The initial-state is initially in the store.')
   .and('The initial-state in the store is persisted.')
   .and('The new state created by the dispatched action is persisted.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let persistor = new MyPersistor();
 
@@ -66,7 +66,7 @@ Bdd(feature)
   .then('The initial-state is initially in the store.')
   .and('The persisted state is read into the store.')
   .and('The new state created by the dispatched action is persisted.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     // There is some state already persisted when the store is created.
     let persistor = new MyPersistor();
@@ -108,7 +108,7 @@ Bdd(feature)
   .then('The initial-state is initially in the store.')
   .and('The initial-state in the store is persisted.')
   .and('The new state created by the dispatched action is persisted.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let persistor = new MyPersistorSlow();
 
@@ -160,7 +160,7 @@ Bdd(feature)
   .then('The initial-state is initially in the store.')
   .and('The persisted state is read into the store.')
   .and('The new state created by the dispatched action is persisted.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     // There is some state already persisted when the store is created.
     let persistor = new MyPersistorSlow();
@@ -208,7 +208,7 @@ Bdd(feature)
   .and('An action that changes the state.')
   .when('The action is dispatched twice.')
   .then('The second state is only persisted when the first one finishes.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let persistor = new MyPersistorSlow();
     persistor.savedState = new State(123);

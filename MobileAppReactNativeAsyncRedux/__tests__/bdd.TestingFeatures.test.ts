@@ -19,7 +19,7 @@ Bdd(feature)
   .given('A SYNC or ASYNC action.')
   .when('We dispatch and action and wait for it.')
   .then('We can expect the correct state change.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -41,7 +41,7 @@ Bdd(feature)
   .when('We dispatch this action.')
   .then('We can wait for state to become 42.')
   .and('We can expect the correct state change.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -73,7 +73,7 @@ Bdd(feature)
   .when('We dispatch this action.')
   .then('When the state becomes 42, the reset action is dispatched.')
   .and('The state becomes zero.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -106,7 +106,7 @@ Bdd(feature)
   .when('We dispatch this action.')
   .then('When the state becomes 42.')
   .and('We have the record of everything that happened up until this point.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State(1),
@@ -124,7 +124,7 @@ Bdd(feature)
     store.dispatch(new IncrementAsync());
 
     // Wait for the state to become 42.
-    let state = await store.waitCondition((state: State) => state.count === 42);
+    await store.waitCondition((state: State) => state.count === 42);
 
     // Stop recording.
     store.record.stop();

@@ -21,7 +21,7 @@ Bdd(feature)
   .when('The the actions are dispatched.')
   .then('The SYNC action starts and finishes at once.')
   .and('The ASYNC action first starts, and then finishes after the async gap.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let result = '';
 
@@ -72,7 +72,7 @@ Bdd(feature)
   .when('The the actions are dispatched.')
   .then('The SYNC action starts and finishes at once.')
   .and('The ASYNC action first starts, and then finishes after the async gap.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let result = '';
 

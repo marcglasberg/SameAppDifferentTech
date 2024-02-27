@@ -20,7 +20,7 @@ Bdd(feature)
   .given('A SYNC or ASYNC action.')
   .when('The `before` or `reduce` methods throw a UserException.')
   .then('Function `showUserException` is called.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let result = '';
 
@@ -52,7 +52,7 @@ Bdd(feature)
   .when('Multiple UserExceptions are thrown.')
   .then('Function `showUserException` is initially called only once.')
   .and('When `next` is called and there are more errors, then it calls `showUserException` again.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     let result = '';
 

@@ -19,7 +19,7 @@ Bdd(feature)
   .given('State has user name Mary and age 30.')
   .when('A sync action is dispatched to change the name to Lisa.')
   .then('The name changes and the age stays the same.')
-  .run((ctx) => {
+  .run((_) => {
 
     const store = new Store<State>({
       initialState: new State('Mary', 30),
@@ -37,7 +37,7 @@ Bdd(feature)
   .given('State has user name Mary and age 30.')
   .when('An async action is dispatched to change the name to Lisa.')
   .then('The name changes and the age stays the same.')
-  .run(async (ctx) => {
+  .run(async (_) => {
 
     const store = new Store<State>({
       initialState: new State('Mary', 30),
@@ -50,18 +50,6 @@ Bdd(feature)
     expect(store.state.age).toBe(30);
   });
 
-class RecordActionSyncNoErrors extends ReduxAction<State> {
-  record = '';
-
-  before() {
-    this.record += '|before|';
-  }
-
-  reduce() {
-    this.record += '|before|';
-    return null;
-  }
-}
 
 class State {
   constructor(readonly userName: string, readonly age: number) {
