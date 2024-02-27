@@ -9,9 +9,7 @@ import { UserException } from '../src/AsyncRedux/UserException.ts';
 reporter(new FeatureFileReporter());
 
 const feature = new Feature('StateObserver');
-const logger = (obj: any) => {
-  process.stdout.write(obj + '\n');
-};
+const logger = (obj: any) => process.stdout.write(obj + '\n');
 
 test('Test fixture', async () => {
   expect(new State(1).count).toBe(1);
@@ -46,9 +44,9 @@ Bdd(feature)
     await store.dispatchAndWait(new IncrementAsync());
 
     expect(result).toBe('' +
-      'action: "IncrementSync()", prevState: State(1), newState: State(2), error: null, dispatchCount: 0' +
+      'action: "IncrementSync()", prevState: State(1), newState: State(2), error: null, dispatchCount: 1' +
       '|' +
-      'action: "IncrementAsync()", prevState: State(2), newState: State(3), error: null, dispatchCount: 0' +
+      'action: "IncrementAsync()", prevState: State(2), newState: State(3), error: null, dispatchCount: 2' +
       '|'
     );
 
@@ -61,9 +59,9 @@ Bdd(feature)
     await promise;
 
     expect(result).toBe('' +
-      'action: "IncrementSync()", prevState: State(3), newState: State(4), error: null, dispatchCount: 0' +
+      'action: "IncrementSync()", prevState: State(3), newState: State(4), error: null, dispatchCount: 4' +
       '|' +
-      'action: "IncrementAsync()", prevState: State(4), newState: State(5), error: null, dispatchCount: 0' +
+      'action: "IncrementAsync()", prevState: State(4), newState: State(5), error: null, dispatchCount: 4' +
       '|'
     );
   });
@@ -97,9 +95,9 @@ Bdd(feature)
     await store.dispatchAndWait(new IncrementAsyncWithError());
 
     expect(result).toBe('' +
-      'action: "IncrementSyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 0' +
+      'action: "IncrementSyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 1' +
       '|' +
-      'action: "IncrementAsyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 0' +
+      'action: "IncrementAsyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 2' +
       '|'
     );
 
@@ -112,9 +110,9 @@ Bdd(feature)
     await promise;
 
     expect(result).toBe('' +
-      'action: "IncrementSyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 0' +
+      'action: "IncrementSyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 4' +
       '|' +
-      'action: "IncrementAsyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 0' +
+      'action: "IncrementAsyncWithError()", prevState: State(1), newState: State(1), error: UserException: Error in before., dispatchCount: 4' +
       '|'
     );
   });

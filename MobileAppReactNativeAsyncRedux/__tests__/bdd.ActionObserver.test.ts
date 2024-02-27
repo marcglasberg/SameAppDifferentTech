@@ -8,9 +8,7 @@ import { delayMillis } from '../src/utils/utils.ts';
 reporter(new FeatureFileReporter());
 
 const feature = new Feature('ActionObserver');
-const logger = (obj: any) => {
-  process.stdout.write(obj + '\n');
-};
+const logger = (obj: any) => process.stdout.write(obj + '\n');
 
 test('Test fixture', async () => {
   expect(new State(1).count).toBe(1);
@@ -43,13 +41,13 @@ Bdd(feature)
     await store.dispatchAndWait(new IncrementAsync());
 
     expect(result).toBe('' +
-      'action: "IncrementSync()", dispatchCount: 0, ini' +
+      'action: "IncrementSync()", dispatchCount: 1, ini' +
       '|' +
-      'action: "IncrementSync()", dispatchCount: 0, end' +
+      'action: "IncrementSync()", dispatchCount: 1, end' +
       '|' +
-      'action: "IncrementAsync()", dispatchCount: 0, ini' +
+      'action: "IncrementAsync()", dispatchCount: 2, ini' +
       '|' +
-      'action: "IncrementAsync()", dispatchCount: 0, end' +
+      'action: "IncrementAsync()", dispatchCount: 2, end' +
       '|'
     );
 
@@ -62,13 +60,13 @@ Bdd(feature)
     await promise;
 
     expect(result).toBe('' +
-      'action: "IncrementAsync()", dispatchCount: 0, ini' +
+      'action: "IncrementAsync()", dispatchCount: 3, ini' +
       '|' +
-      'action: "IncrementSync()", dispatchCount: 0, ini' +
+      'action: "IncrementSync()", dispatchCount: 4, ini' +
       '|' +
-      'action: "IncrementSync()", dispatchCount: 0, end' +
+      'action: "IncrementSync()", dispatchCount: 4, end' +
       '|' +
-      'action: "IncrementAsync()", dispatchCount: 0, end' +
+      'action: "IncrementAsync()", dispatchCount: 4, end' +
       '|'
     );
   });

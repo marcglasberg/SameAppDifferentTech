@@ -116,7 +116,6 @@ export abstract class ReduxAction<St> {
     return this._status;
   }
 
-
   /**
    * Returns true if the action was already dispatched. An action cannot be dispatched
    * more than once, which means that you have to create a new action each time.

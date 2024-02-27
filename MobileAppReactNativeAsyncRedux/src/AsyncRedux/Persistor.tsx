@@ -50,10 +50,10 @@ export abstract class Persistor<St> {
    * persist the whole `newState` every time. But for larger apps, you should compare
    * `lastPersistedState` and `newState`, to persist only the difference between them.
    */
-  abstract persistDifference(stateChange: {
-    lastPersistedState: St | null;
+  abstract persistDifference(
+    lastPersistedState: St | null,
     newState: St
-  }): Promise<void>;
+  ): Promise<void>;
 
   /**
    * Save an initial-state to the persistence.
@@ -64,7 +64,7 @@ export abstract class Persistor<St> {
    * The default throttle is 2 seconds. Pass null to turn off throttle.
    */
   get throttle(): number | null {
-    return 2000; // Default throttle is 2 seconds
+    return 2000; // Default throttle is 2 seconds.
   }
 }
 
@@ -96,14 +96,14 @@ export class PersistorPrinterDecorator<St> implements Persistor<St> {
     return this._persistor.deleteState();
   }
 
-  async persistDifference({ lastPersistedState, newState }: {
-    lastPersistedState: St | null;
+  async persistDifference(
+    lastPersistedState: St | null,
     newState: St
-  }): Promise<void> {
+  ): Promise<void> {
     Store.log(`Persistor: persist difference:
       lastPersistedState = ${lastPersistedState}
       newState = ${newState}`);
-    return this._persistor.persistDifference({ lastPersistedState, newState });
+    return this._persistor.persistDifference(lastPersistedState, newState);
   }
 
   async saveInitialState(state: St): Promise<void> {
@@ -128,10 +128,7 @@ export class PersistorDummy<St> implements Persistor<St | null> {
     return;
   }
 
-  async persistDifference({ lastPersistedState, newState }: {
-    lastPersistedState: St | null;
-    newState: St | null
-  }): Promise<void> {
+  async persistDifference(lastPersistedState: St | null, newState: St): Promise<void> {
     return;
   }
 
@@ -162,3 +159,21 @@ export class PersistAction<St> extends ReduxAction<St> {
     return null;
   }
 }
+
+/**
+ * This replaces all the store state with the given state.
+ * However, the persistor will ignore it, and won't persist the state change.
+ * Use this ONLY when you just read the whole state from the persistence, and
+ * you don't want to persist it again.
+ */
+export class SetStateDontPersistAction<St> extends ReduxAction<St> {
+
+  constructor(readonly newState: St) {
+    super();
+  }
+
+  reduce(): St {
+    return this.newState;
+  }
+}
+

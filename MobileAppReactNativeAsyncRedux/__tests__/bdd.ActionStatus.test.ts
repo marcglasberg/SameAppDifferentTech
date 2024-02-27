@@ -8,9 +8,7 @@ import { UserException } from '../src/AsyncRedux/UserException.ts';
 reporter(new FeatureFileReporter());
 
 const feature = new Feature('State change and actions');
-const logger = (obj: any) => {
-  process.stdout.write(obj + '\n');
-};
+const logger = (obj: any) => process.stdout.write(obj + '\n');
 
 test('Test fixture', async () => {
   expect(1).toBe(1); // No fixture.

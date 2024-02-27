@@ -14,4 +14,5 @@ module.exports = {
   // testRunner: 'jest-jasmine2',
   setupFiles: ['./jest.setup.js'],
   transformIgnorePatterns: transformIgnorePatterns,
+  testPathIgnorePatterns: ['/node_modules/', '/fixtures/', '/fixture/', '/.*\\.fixture\\.ts$/'],
 };

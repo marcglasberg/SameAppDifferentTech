@@ -105,11 +105,8 @@ export class ClassPersistor<St> extends Persistor<St> {
   /**
    * We assume the state is small, and we save `newState` everytime, ignoring `lastPersistedState`.
    */
-  async persistDifference(stateChange: {
-    lastPersistedState: St | null;
-    newState: St
-  }) {
-    const serializedString = ESSerializer.serialize(stateChange.newState);
+  async persistDifference(lastPersistedState: St | null, newState: St) {
+    const serializedString = ESSerializer.serialize(newState);
     await this.saveSerialized(serializedString);
   }
 }

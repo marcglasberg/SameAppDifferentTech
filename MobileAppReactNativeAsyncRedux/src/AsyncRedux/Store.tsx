@@ -57,9 +57,10 @@ interface ConstructorParams<St> {
   /**
    * A function that AsyncRedux uses to log information.
    * If not defined, the default is printing messages to the console with `console.log()`.
+   * Note: The result of this function is not used, and can be anything.   *
    * To disable it, pass it as `() => {}`.
    */
-  logger?: (obj: any) => void | undefined;
+  logger?: (obj: any) => any;
 
   /**
    * Global function to wrap errors.
@@ -220,9 +221,16 @@ export class Store<St> {
   // Hold the wait states of async operations in progress.
   private readonly _actionsInProgress: Set<ReduxAction<St>>;
 
+  // Helps implement the waitCondition method.
+  private _waitConditions: Array<{
+    check: (state: St) => boolean,
+    resolve: (state: St) => void
+  }> = [];
+
   private readonly _autoRegisterWaitStates: boolean;
   private readonly _processPersistence: ProcessPersistence<St> | null;
-  private _dispatchCounter = 0;
+  private _updateCount = 0;
+  private _dispatchCount = 0;
   private _forceUpdate: Dispatch<SetStateAction<number>> | null;
 
   // A function that shows `UserExceptions` to the user, using some UI like a dialog or a toast.
@@ -233,6 +241,80 @@ export class Store<St> {
   private readonly _actionObserver?: (action: ReduxAction<St>, dispatchCount: number, ini: boolean) => void;
   private readonly _stateObserver?: (action: ReduxAction<St>, prevState: St, newState: St, error: any, dispatchCount: number) => void;
   private readonly _errorObserver?: (error: any, action: ReduxAction<St>, store: Store<St>) => boolean;
+
+
+  /**
+   * You can use `store.mocks` to mock actions. You should use this for testing purposes, only.
+   *
+   * By adding mock actions to the store, they will be used instead of the original mocked actions,
+   * when dispatching. You can mock an action to return a specific state or to throw an error.
+   * You can also ignore an action by adding a mock action with null.
+   *
+   * Usage
+   *
+   * - `store.mocks.add(actionType, (action: actionType) => mockAction)`:
+   *    Adds a mock action to the store. Whenever an action of type `actionType` is
+   *    dispatched, `mockAction` will be dispatched instead. If you pass `mockAction` as null,
+   *    actions of type `actionType` will be ignored when dispatched.
+   *
+   * - `remove(actionType)`:
+   *    Removes remove a mock action from the store. Note you should pass the
+   *    type of the action that was mocked, and NOT the type of the mock.
+   *
+   * - `clear()`:
+   *    Removes all mock actions from the store.
+   *
+   *  Examples:
+   *
+   * ```ts
+   * // When an IncrementAction is dispatched, AddAction(1) will be dispatched instead.
+   * store.mocks.add(IncrementAction, (action) => new AddAction(1));
+   *
+   * // When an IncrementAction is dispatched, it will be ignored.
+   * store.mocks.add(IncrementAction, null);
+   *
+   * // Removes the mock for Increment.
+   * store.mocks.remove(Increment);
+   *
+   * // Removes all mocks.
+   * store.mocks.clear();
+   *
+   * // When an AddAction is dispatched, the value will be subtracted instead.
+   * store.mocks.add(AddAction, (action) => new AddAction(-action.value));
+   * ```ts
+   */
+  public mocks: Mocks<St> = new Mocks<St>();
+
+  public readonly record = {
+    isRecording: false,
+    changes: [] as Array<{
+      action: ReduxAction<St>,
+      ini: boolean,
+      prevState: St,
+      newState: St,
+      error: any,
+      dispatchCount: number
+    }>,
+    start: () => {
+      this.record.isRecording = true;
+      this.record.changes = [];
+    },
+    stop: () => {
+      this.record.isRecording = false;
+    },
+    result: () => {
+      return this.record.changes;
+    },
+    toString: () => {
+      let count = 0;
+      return '[\n' + this.record.changes.map(change =>
+        `${count++}. ` +
+        `${change.action.constructor.name} ${change.ini ? 'ini-' + change.dispatchCount : 'end'}: ` +
+        ((change.ini) ? change.prevState : `${change.prevState} → ${change.newState}`) +
+        `${change.error ? `, error: ${change.error}` : ''}`
+      ).join('\n') + '\n]';
+    }
+  };
 
   // The default logger prints messages to the console.
   private _defaultLogger(obj: any) {
@@ -278,8 +360,8 @@ export class Store<St> {
     return this._state;
   }
 
-  get dispatchCounter() {
-    return this._dispatchCounter;
+  get dispatchCount() {
+    return this._dispatchCount;
   }
 
   /**
@@ -298,6 +380,21 @@ export class Store<St> {
 
   dispatch(action: ReduxAction<St>) {
 
+    const mockActionFunction = this.mocks.get(action.constructor as new () => ReduxAction<St>);
+    if (mockActionFunction !== undefined) {
+      const mockAction = mockActionFunction(action);
+      if (mockAction === null) {
+        console.log(`Dispatch of ${action} dispatching by mock.`);
+        return;
+      } else {
+        console.log(`Dispatch of ${action} mocked by ${mockAction}.`);
+        action = mockAction;
+      }
+    }
+
+    this._dispatchCount++;
+    console.log(`${this._dispatchCount})${action}`);
+
     if (this._forceUpdate === null) Store.log('Component tree not wrapped with <StoreProvider store={store}>');
 
     if (action.status.isDispatched)
@@ -312,12 +409,14 @@ export class Store<St> {
     Store.log('Dispatched: ' + action);
 
     // The action is dispatched twice. This is the 1st: when the action starts (ini true).
-    this._actionObserver?.(action, this._dispatchCounter, true);
+    this._actionObserver?.(action, this._dispatchCount, true);
+
+    this._record(action, true, this._state, this._state, null);
 
     // Adds a wait state for the action in progress.
     if (this._autoRegisterWaitStates) {
       this._actionsInProgress.add(action);
-      this._forceUpdate?.(++this._dispatchCounter);
+      this._forceUpdate?.(++this._updateCount);
     }
 
     this._wraps(
@@ -377,7 +476,9 @@ export class Store<St> {
 
     // Observe the state with an error here. We use the current state; no new state was applied.
     // This is before the action's `after()` and `wrapError()` and `globalWrapError`.
-    this._stateObserver?.(action, this._state, this._state, error, this._dispatchCounter);
+    this._stateObserver?.(action, this._state, this._state, error, this._dispatchCount);
+
+    this._record(action, false, this._state, this._state, error);
 
     // Any error may optionally be processed by the `wrapError` method of the action.
     // Usually this is used to wrap the error inside another that better describes the failed
@@ -453,11 +554,11 @@ export class Store<St> {
     // Removed the wait state for the action in progress.
     if (this._autoRegisterWaitStates) {
       this._actionsInProgress.delete(action);
-      this._forceUpdate?.(++this._dispatchCounter);
+      this._forceUpdate?.(++this._updateCount);
     }
 
     // The action is dispatched twice. This is the 2nd: when the action ends (ini false).
-    this._actionObserver?.(action, this._dispatchCounter, false);
+    this._actionObserver?.(action, this._dispatchCount, false);
 
     // This allows us to `await dispatchAndWait(new MyAction())`
     action._resolvePromise();
@@ -489,6 +590,7 @@ export class Store<St> {
     // 4) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
     if (reduceResult === null || reduceResult === this.state) {
       action._changeStatus({ hasFinishedMethodReduce: true });
+      this._record(action, false, this.state, this.state, null);
       return false; // Kept SYNC.
     }
       //
@@ -503,6 +605,25 @@ export class Store<St> {
       action._changeStatus({ hasFinishedMethodReduce: true });
       this._registerState(action, reduceResult);
       return false; // Kept SYNC.
+    }
+  }
+
+  private _record(
+    action: ReduxAction<St>,
+    ini: boolean,
+    prevState: St,
+    newState: St,
+    error: any
+  ) {
+    if (this.record.isRecording) {
+      this.record.changes.push({
+        action,
+        ini,
+        prevState: prevState,
+        newState: newState,
+        error: error,
+        dispatchCount: this._dispatchCount
+      });
     }
   }
 
@@ -525,6 +646,7 @@ export class Store<St> {
       // 2.3) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
       if (reduceResult === null || reduceResult === this.state) {
         action._changeStatus({ hasFinishedMethodReduce: true });
+        this._record(action, false, this.state, this.state, null);
         return; // Get out of here.
       }
         //
@@ -533,12 +655,17 @@ export class Store<St> {
         reduceResult = await reduceResult as AsyncReducerResult<St>;
         action._changeStatus({ hasFinishedMethodReduce: true });
 
-        if (reduceResult !== null && reduceResult !== this.state) {
+        if (reduceResult === null || reduceResult === this.state) {
+          this._record(action, false, this.state, this.state, null);
+        }
+        //
+        else {
           let newAsyncState = reduceResult(this.state);
           if (newAsyncState != null) {
             this._registerState(action, newAsyncState);
           }
         }
+
         return; // Get out of here.
       }
         //
@@ -561,6 +688,7 @@ export class Store<St> {
 
       // 5.2) If the reducer returned null, we simply do nothing.
       if (functionalReduceResult === null) {
+        this._record(action, false, this.state, this.state, null);
         return; // Get out of here.
       }
         //
@@ -593,9 +721,20 @@ export class Store<St> {
       this._state = newState;
 
       // Observe the state with null error, because the reducer completed normally.
-      this._stateObserver?.(action, prevState, newState, null, this._dispatchCounter);
+      this._stateObserver?.(action, prevState, newState, null, this._dispatchCount);
 
-      this._forceUpdate?.(++this._dispatchCounter);
+      this._record(action, false, prevState, newState, null);
+
+      this._forceUpdate?.(++this._updateCount);
+
+      // Check the wait-conditions after state change.
+      this._waitConditions = this._waitConditions.filter(condition => {
+        if (condition.check(this.state)) {
+          condition.resolve(this.state);
+          return false; // remove the condition from the array.
+        }
+        return true; // keep the condition in the array.
+      });
     }
 
     if (this._processPersistence != null)
@@ -791,6 +930,22 @@ export class Store<St> {
   getLastPersistedStateFromPersistor(): St | null {
     return this._processPersistence?.lastPersistedState || null;
   }
+
+  /**
+   * Returns a promise that resolves when the store state meets a certain condition.
+   */
+  async waitCondition(param: (state: St) => boolean): Promise<St> {
+    return new Promise((resolve, reject) => {
+      this._waitConditions.push({ check: param, resolve });
+    });
+  }
+
+  /**
+   * Waits until the store state meets a certain condition, and then dispatches an action.
+   */
+  dispatchWhen(action: ReduxAction<St>, condition: (state: St) => boolean): void {
+    this.waitCondition(condition).then(() => this.dispatch(action));
+  }
 }
 
 interface StoreProviderProps<St> {
@@ -816,7 +971,7 @@ export function useStore<St>(): Store<St> {
 
 export function StoreProvider<St>({ store, children }: StoreProviderProps<St>): JSX.Element {
   const [_store] = useState<Store<St>>(store);
-  const [_, forceUpdate] = useState(store.dispatchCounter);
+  const [_, forceUpdate] = useState(store.dispatchCount);
 
   _store?._inject(forceUpdate);
 
@@ -827,3 +982,24 @@ export function StoreProvider<St>({ store, children }: StoreProviderProps<St>): 
   );
 }
 
+class Mocks<St> {
+  private mocks: Map<new (...args: any[]) => ReduxAction<St>, (action: any) => ReduxAction<St> | null> = new Map();
+
+  add<T extends ReduxAction<St>>(
+    actionType: new (...args: any[]) => T,
+    mockAction: (action: T) => ReduxAction<St> | null): void {
+    this.mocks.set(actionType, mockAction);
+  }
+
+  remove(actionType: new () => ReduxAction<St>): void {
+    this.mocks.delete(actionType);
+  }
+
+  clear(): void {
+    this.mocks.clear();
+  }
+
+  get(actionType: new () => ReduxAction<St>): ((action: ReduxAction<St>) => ReduxAction<St> | null) | undefined {
+    return this.mocks.get(actionType);
+  }
+}

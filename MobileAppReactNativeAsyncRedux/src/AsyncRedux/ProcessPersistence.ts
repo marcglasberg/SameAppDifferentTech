@@ -1,4 +1,4 @@
-import { PersistAction, Persistor } from './Persistor';
+import { PersistAction, Persistor, SetStateDontPersistAction } from './Persistor';
 import { ReduxAction } from './ReduxAction.ts';
 import { Store } from './Store.tsx';
 
@@ -40,7 +40,7 @@ export class ProcessPersistence<St> {
       // If the saved state was read successfully, we replace the store state with it.
       // In this case, the initial-state passed in the Store constructor was used
       // only while the persisted state is loading.
-      store.dispatch(new SetStateAction<St>(stateReadFromPersistor));
+      store.dispatch(new SetStateDontPersistAction<St>(stateReadFromPersistor));
     }
   }
 
@@ -67,8 +67,10 @@ export class ProcessPersistence<St> {
   }
 
   // 1) If we're still persisting the last time, don't persist no matter what.
-  // 2) If throttle period is done (or if action is PersistAction), persist.
-  // 3) If throttle period is NOT done, create a timer to persist as soon as it finishes.
+  // 2) If action is of type `SetStateDontPersistAction`, don't persist, but consider the state
+  //    as persisted.
+  // 3) If throttle period is done (or if action is PersistAction), persist.
+  // 4) If throttle period is NOT done, create a timer to persist as soon as it finishes.
   //
   // Return true if the persist process started.
   // Return false if persistence was postponed.
@@ -78,6 +80,11 @@ export class ProcessPersistence<St> {
     this.newestState = newState;
 
     if (this.isPaused || this.lastPersistedState === newState) return false;
+
+    if (action instanceof SetStateDontPersistAction) {
+      this.lastPersistedState = this.newestState;
+      return false;
+    }
 
     // 1) If we're still persisting the last time, don't persist no matter what.
     if (this.isPersisting) {
@@ -128,10 +135,10 @@ export class ProcessPersistence<St> {
     this.isANewStateAvailable = false;
 
     try {
-      await this.persistor.persistDifference({
-        lastPersistedState: this.lastPersistedState,
+      await this.persistor.persistDifference(
+        this.lastPersistedState,
         newState
-      });
+      );
     }
       //
     finally {
@@ -188,20 +195,6 @@ export class ProcessPersistence<St> {
   resume(): void {
     this.isPaused = false;
     if (this.isInit) this.process(null, this.newestState as St);
-  }
-}
-
-/**
- * This simply replaces all the store state with the given state.
- */
-export class SetStateAction<St> extends ReduxAction<St> {
-
-  constructor(readonly newState: St) {
-    super();
-  }
-
-  reduce(): St {
-    return this.newState;
   }
 }
 

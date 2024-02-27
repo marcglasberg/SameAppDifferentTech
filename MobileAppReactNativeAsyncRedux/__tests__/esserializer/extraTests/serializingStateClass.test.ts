@@ -33,7 +33,7 @@ test('State class', () => {
     /*      */'],' +
     /*  */'"*type":"Todos"' +
     /*  */'},' +
-    '"filter":"Show active",' +
+    '"filter":"Showing ACTIVE",' +
     '"*type":"State"' +
     '}');
 
@@ -45,7 +45,7 @@ test('State class', () => {
     .toBe('' +
       'State{' +
       'todos=Todos{TodoItem{text=First, completed=false},TodoItem{text=Second, completed=false},TodoItem{text=Third, completed=true}}, ' +
-      'filter=Show active' +
+      'filter=Showing ACTIVE' +
       '}');
 
   expect(stateDeserialized.hasTodos()).toBeTruthy();

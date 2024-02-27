@@ -20,7 +20,7 @@ test('Filter enum', () => {
   expect(isFilter(deserialized)).toBeTruthy();
 
   let filterDeserialized = deserialized as Filter;
-  expect(serialized).toBe('"Show active"');
-  expect(filterDeserialized.toString()).toBe('Show active');
+  expect(serialized).toBe('"Showing ACTIVE"');
+  expect(filterDeserialized.toString()).toBe('Showing ACTIVE');
 });
 
