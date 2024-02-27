@@ -41,7 +41,7 @@ export abstract class ReduxAction<St> {
    * - `St`: A new state, changed synchronously.
    * - `Promise<(state: St) => St>`: A new state, changed asynchronously.
    */
-  abstract reducer(): ReduxReducer<St>;
+  abstract reduce(): ReduxReducer<St>;
 
   /**
    * The `before()` method MAY be implemented by the action. If implemented, it runs before the
@@ -206,7 +206,7 @@ export abstract class ReduxAction<St> {
     // Initialize an array to hold key-value pairs as strings
     const keyValuePairs: string[] = [];
     for (const key of Object.keys(this)) {
-      if (key !== '_store') { // Continue to exclude base class/internal fields
+      if (!key.startsWith('_')) { // Continue to exclude base class/internal fields
         // For each property, push "key:value" string to the array
         // Note: This simple line assumes that `value` can be meaningfully represented as a string.
         // You might need a more complex handling for objects, arrays, etc.

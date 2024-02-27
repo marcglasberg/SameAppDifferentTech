@@ -191,7 +191,7 @@
 //  * ```
 //  */
 // export class WaitAction<St> extends ReduxAction<St> {
-//   reducer(): St | Promise<St | null> | null {
+//   reduce(): St | Promise<St | null> | null {
 //     let wait: Wait = (this.state as any).wait ?? new Wait();
 //     return (this.state as any).copy(
 //       { wait: wait.process(this.operation, this.flag, this.ref) }

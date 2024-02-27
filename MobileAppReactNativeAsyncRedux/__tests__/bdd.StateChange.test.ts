@@ -7,7 +7,7 @@ import { delayMillis } from '../src/utils/utils.ts';
 
 reporter(new FeatureFileReporter());
 
-const feature = new Feature('State change and actions');
+const feature = new Feature('State change');
 const logger = (obj: any) => {
   process.stdout.write(obj + '\n');
 };
@@ -59,7 +59,7 @@ class RecordActionSyncNoErrors extends ReduxAction<State> {
     this.record += '|before|';
   }
 
-  reducer() {
+  reduce() {
     this.record += '|before|';
     return null;
   }
@@ -75,7 +75,7 @@ class ChangeNameSync extends ReduxAction<State> {
     super();
   }
 
-  reducer() {
+  reduce() {
     return new State(this.newName, this.state.age);
   }
 }
@@ -85,7 +85,7 @@ class ChangeNameAsync extends ReduxAction<State> {
     super();
   }
 
-  async reducer() {
+  async reduce() {
     await delayMillis(50);
     return (state: State) => new State(this.newName, this.state.age);
   }

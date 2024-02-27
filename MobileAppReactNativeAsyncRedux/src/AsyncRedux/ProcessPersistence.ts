@@ -200,7 +200,7 @@ export class SetStateAction<St> extends ReduxAction<St> {
     super();
   }
 
-  reducer(): St {
+  reduce(): St {
     return this.newState;
   }
 }

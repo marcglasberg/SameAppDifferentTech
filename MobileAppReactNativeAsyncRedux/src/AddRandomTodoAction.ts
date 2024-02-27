@@ -10,7 +10,7 @@ import { UserException } from './AsyncRedux/UserException.ts';
  */
 export class AddRandomTodoAction extends Action {
 
-  async reducer() {
+  async reduce() {
 
     let text = await this.getTextFromTheNumbersAPI();
 

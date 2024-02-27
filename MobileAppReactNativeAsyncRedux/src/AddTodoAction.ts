@@ -8,7 +8,7 @@ export class AddTodoAction extends Action {
     super();
   }
 
-  reducer() {
+  reduce() {
 
     if (this.state.todos.ifExists(this.text)) {
       throw new UserException('The item already exists.');

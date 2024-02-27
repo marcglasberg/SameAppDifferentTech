@@ -158,7 +158,7 @@ export class PersistException extends Error {
 }
 
 export class PersistAction<St> extends ReduxAction<St> {
-  reducer(): null {
+  reduce(): null {
     return null;
   }
 }

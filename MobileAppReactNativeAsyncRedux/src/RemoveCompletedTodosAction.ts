@@ -13,7 +13,7 @@ import { delayMillis } from './utils/utils.ts';
  */
 export class RemoveCompletedTodosAction extends Action {
 
-  async reducer() {
+  async reduce() {
 
     // If there are no completed items, do nothing.
     if (this.state.todos.isEmpty(Filter.showCompleted)) return null;

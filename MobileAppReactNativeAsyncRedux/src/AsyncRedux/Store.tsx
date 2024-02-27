@@ -152,7 +152,7 @@ interface ConstructorParams<St> {
    * }
    *
    * export class AddTodoAction extends Action {
-   *   reducer() { ... }
+   *   reduce() { ... }
    *   setMetrics() { return <someMetrics>; }
    * }
    * ...
@@ -214,7 +214,8 @@ export class Store<St> {
 
   // A queue of errors of type UserException, thrown by actions.
   // They are shown to the user using the function `showUserException`.
-  private readonly _userExceptionsQueue: UserException[];
+  // This is public if you need it for advanced stuff, but you should probably not touch it.
+  public readonly userExceptionsQueue: UserException[];
 
   // Hold the wait states of async operations in progress.
   private readonly _actionsInProgress: Set<ReduxAction<St>>;
@@ -263,7 +264,7 @@ export class Store<St> {
     this._stateObserver = stateObserver;
     this._errorObserver = errorObserver;
     Store.log = logger || this._defaultLogger;
-    this._userExceptionsQueue = [];
+    this.userExceptionsQueue = [];
     this._actionsInProgress = new Set();
     this._forceUpdate = null;
     this._autoRegisterWaitStates = true;
@@ -416,29 +417,22 @@ export class Store<St> {
 
         // If an error-observer WAS NOT defined in the Store constructor, swallows errors
         // of type `UserExceptions` (which were already shown to the user in some UI)
-        // and rethrows all others, after the async gap.
+        // and rethrows all others. This means the `dispatch()` method will throw this error.
         if (this._errorObserver == null) {
           if (!(error instanceof UserException)) {
-            queueMicrotask(() => {
-              throw error;
-            });
+            throw error;
           }
         }
         // However, if as error-observer WAS defined in the Store constructor,
         else {
           // We call the error-observer.
-          // If it returns `true`, the error throws.
-          // If it returns `false`, the error is swallowed.
-          let shouldThrow = this._errorObserver(error, action, this);
-
-          // Other errors are thrown after the async gap, without interrupting the code flow.
+          // - If it returns `true`, the `dispatch()` method will throw this error.
+          // - If it returns `false`, the error is swallowed.
           // Note: When the error-observer is defined, we don't make a distinction between
-          // `UserExceptions` and other errors, anymore. We let the error-observer do
-          // that if it wants.
-          if (shouldThrow)
-            queueMicrotask(() => {
-              throw error;
-            });
+          // `UserExceptions` and other errors, anymore. We let the error-observer do a
+          // distinction if it wants by returning true or false depending on the error type.
+          let shouldThrow = this._errorObserver(error, action, this);
+          if (shouldThrow) throw error;
         }
       }
     }
@@ -490,7 +484,7 @@ export class Store<St> {
     // 3)
     // - Runs the SYNC `reduce` method; OR
     // - Runs the initial sync part of the ASYNC `reduce` method.
-    let reduceResult: ReduxReducer<St> = action.reducer();
+    let reduceResult: ReduxReducer<St> = action.reduce();
 
     // 4) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
     if (reduceResult === null || reduceResult === this.state) {
@@ -526,7 +520,7 @@ export class Store<St> {
       // 2.2)
       // - Runs the SYNC `reduce` method; OR
       // - Runs the initial sync part of the ASYNC `reduce` method.
-      let reduceResult: ReduxReducer<St> | AsyncReducerResult<St> = action.reducer();
+      let reduceResult: ReduxReducer<St> | AsyncReducerResult<St> = action.reduce();
 
       // 2.3) If the reducer returned null, or if it returned the unaltered state, we simply do nothing.
       if (reduceResult === null || reduceResult === this.state) {
@@ -612,10 +606,20 @@ export class Store<St> {
   }
 
   /**
-   * We check to see if any errors are in the queue and if so, we show the first one.
-   * We then remove the first error from the queue and call this method again to show the next
-   * error, if any. For this to work, we have to pass a function to the constructor of Store that
-   * will show the error to the user. This function is called `showUserException`.
+   * For this to work, we have to pass a function `showUserException` in the constructor
+   * of the Store, that will open some UI to show the error to the user.
+   *
+   * 1) If the UI is still open, don't do anything.
+   * 2) If no UI is open, check to see if any errors are in the queue.
+   *    If so, remove the first error from the queue and show it in the UI.
+   * 3) In this case, we mark the UI as open, and count the number of errors still in the queue.
+   * 4) When the UI calls `next()`, we mark the UI as closed, and call the method again, to
+   *    process the next error in the queue, if any.
+   *
+   * IMPORTANT: Failing to call `next()` will prevent the UI to ever opening again, because
+   * AsyncRedux will think the previous UI is still open. In contrast, calling `next()` as soon
+   * as the UI opens may result in opening more than one UI on top pf each other.
+   * Also, calling `next()` when there are no more errors in the queue will do nothing.
    *
    * An example using React Native:
    *
@@ -630,30 +634,52 @@ export class Store<St> {
    * ```
    */
   private _openSomeUiToShowUserException() {
-    let currentError = this.getNextUserExceptionInQueue();
-    if (currentError !== undefined) {
-      let count = this._userExceptionsQueue.length;
-      this._showUserException?.(currentError, count, () => {
-        this._openSomeUiToShowUserException();
-      });
+
+    // 1) If the UI is still open, don't do anything.
+    if (this._isUserExceptionUiOpen) return;
+
+    // 2.1) If no UI is open,
+    else {
+      // 2.2) Check to see if any errors are in the queue. If so, remove the first error from the queue.
+      let currentError = this.userExceptionsQueue.shift();
+      if (currentError !== undefined) {
+
+        // 3.1) In this case, we mark the UI as open,
+        this._isUserExceptionUiOpen = true;
+
+        // 3.2) and count the number of errors still in the queue.
+        let queued = this.userExceptionsQueue.length;
+
+        // 2.3) And show it in the UI.
+        this._showUserException?.(currentError, queued,
+
+          // 4.1) When the UI calls `next()`.
+          () => {
+
+            // 4.2) We mark the UI as closed.
+            this._isUserExceptionUiOpen = false;
+
+            // 4.3) And call the method again, to process the next error in the queue, if any.
+            this._openSomeUiToShowUserException();
+          });
+      }
     }
   };
 
-  getNextUserExceptionInQueue(): UserException | undefined {
-    return this._userExceptionsQueue.shift();
-  }
-
-  hasUserExceptionInQueue(): boolean {
-    return this._userExceptionsQueue.length > 0;
-  }
+  private _isUserExceptionUiOpen: boolean = false;
 
   private _addUserException(error: UserException) {
-    this._userExceptionsQueue.push(error);
+    this.userExceptionsQueue.push(error);
   }
 
+  /**
+   * Returns true if an action of the given type is currently being executed.
+   * This is only useful for ASYNC actions, since it will always return `false` if the action is
+   * SYNC. Note an action is ASYNC if it returns a promise from its `before` OR its `reduce`
+   * methods.
+   */
   isDispatching<T extends ReduxAction<St>>(type: { new(...args: any[]): T }): boolean {
 
-    // Returns true if an action of the given type is still being executed.
     for (const action of this._actionsInProgress) {
       if (action instanceof type) {
         return true;
