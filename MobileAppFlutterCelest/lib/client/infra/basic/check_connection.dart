@@ -1,7 +1,7 @@
 import "dart:async";
 
 import "package:async_redux/async_redux.dart";
-import "package:connectivity/connectivity.dart";
+import "package:connectivity_plus/connectivity_plus.dart";
 import 'package:flutter/cupertino.dart';
 
 import "../run_config/run_config.dart";

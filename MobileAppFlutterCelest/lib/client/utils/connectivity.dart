@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import "package:connectivity/connectivity.dart";
+import "package:connectivity_plus/connectivity_plus.dart";
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
 
