@@ -3,11 +3,11 @@ description: The Celest backend for mobile_app_flutter_celest.
 publish_to: none
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: ^3.3.0
 
 dependencies:
   celest: ^0.2.0
-  celest_core: ^0.2.1
+  celest_core: ^0.2.0
   http: ">=0.13.0 <2.0.0"
   fast_immutable_collections: ^10.1.0
   i18n_extension_core: ^2.0.6

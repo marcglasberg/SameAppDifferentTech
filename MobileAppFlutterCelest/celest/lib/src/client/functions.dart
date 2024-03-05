@@ -2,18 +2,21 @@
 // it can be checked into version control.
 // ignore_for_file: type=lint, unused_local_variable, unnecessary_cast, unnecessary_import
 
-library;
+library; // ignore_for_file: no_leading_underscores_for_library_prefixes
 
-import 'dart:convert';
+import 'dart:convert' as _$convert;
 
 import 'package:celest/celest.dart';
-import 'package:celest_backend/exceptions.dart';
-import 'package:celest_backend/my_src/models/available_stock.dart';
-import 'package:celest_backend/my_src/models/cash_balance.dart';
-import 'package:celest_backend/my_src/models/portfolio.dart';
-import 'package:celest_backend/my_src/models/stock.dart';
+import 'package:celest_backend/exceptions.dart' as _$exceptions;
+import 'package:celest_backend/my_src/models/available_stock.dart'
+    as _$available_stock;
+import 'package:celest_backend/my_src/models/cash_balance.dart'
+    as _$cash_balance;
+import 'package:celest_backend/my_src/models/portfolio.dart' as _$portfolio;
+import 'package:celest_backend/my_src/models/stock.dart' as _$stock;
 import 'package:celest_core/src/exception/cloud_exception.dart';
-import 'package:fast_immutable_collections/src/ilist/ilist.dart';
+import 'package:celest_core/src/exception/serialization_exception.dart';
+import 'package:fast_immutable_collections/src/ilist/ilist.dart' as _$ilist;
 
 import '../../client.dart';
 
@@ -28,28 +31,33 @@ class CelestFunctions {
 }
 
 class CelestFunctionsAdmin {
-  Future<void> doSomething() async {
-    final $response = await celest.httpClient.post(
-      celest.baseUri.resolve('/admin/do-something'),
-      headers: const {'Content-Type': 'application/json; charset=utf-8'},
-    );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return;
-    }
+  Never _throwError({
+    required int $statusCode,
+    required Map<String, Object?> $body,
+  }) {
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);
     final $details = ($error['details'] as Map<String, Object?>?);
     switch ($code) {
       case r'CloudUserException':
-        throw Serializers.instance.deserialize<CloudUserException>($details);
+        throw Serializers.instance
+            .deserialize<_$exceptions.CloudUserException>($details);
+      case r'ValidateError':
+        throw Serializers.instance
+            .deserialize<_$exceptions.ValidateError>($details);
+      case r'NotYetImplementedError':
+        throw Serializers.instance
+            .deserialize<_$exceptions.NotYetImplementedError>($details);
       case r'BadRequestException':
         throw Serializers.instance.deserialize<BadRequestException>($details);
       case r'InternalServerException':
         throw Serializers.instance
             .deserialize<InternalServerException>($details);
+      case r'SerializationException':
+        throw Serializers.instance
+            .deserialize<SerializationException>($details);
       case _:
-        switch ($response.statusCode) {
+        switch ($statusCode) {
           case 400:
             throw BadRequestException($code);
           case _:
@@ -58,35 +66,61 @@ class CelestFunctionsAdmin {
     }
   }
 
+  Future<void> doSomething() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/admin/do-something'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
+    }
+    return;
+  }
+
   Future<void> setDatabase(
-    Portfolio portfolio,
-    Iterable<AvailableStock> availableStocks,
+    _$portfolio.Portfolio portfolio,
+    Iterable<_$available_stock.AvailableStock> availableStocks,
   ) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/admin/set-database'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({
-        r'portfolio': Serializers.instance.serialize<Portfolio>(portfolio),
+      body: _$convert.jsonEncode({
+        r'portfolio':
+            Serializers.instance.serialize<_$portfolio.Portfolio>(portfolio),
         r'availableStocks': availableStocks
-            .map((el) => Serializers.instance.serialize<AvailableStock>(el))
+            .map((el) => Serializers.instance
+                .serialize<_$available_stock.AvailableStock>(el))
             .toList(),
       }),
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return;
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
+    return;
+  }
+}
+
+class CelestFunctionsDatabase {
+  Never _throwError({
+    required int $statusCode,
+    required Map<String, Object?> $body,
+  }) {
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);
     final $details = ($error['details'] as Map<String, Object?>?);
     switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
       case _:
-        switch ($response.statusCode) {
+        switch ($statusCode) {
           case 400:
             throw BadRequestException($code);
           case _:
@@ -94,9 +128,7 @@ class CelestFunctionsAdmin {
         }
     }
   }
-}
 
-class CelestFunctionsDatabase {
   /// I'm using the init function to simulate the database initialization.
   /// In reality this would be an admin service that connects to a third-party stock price provider.
   Future<void> init() async {
@@ -104,156 +136,137 @@ class CelestFunctionsDatabase {
       celest.baseUri.resolve('/database/init'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return;
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return;
   }
 }
 
 class CelestFunctionsPortfolio {
-  Future<CashBalance> addCashBalance(double howMuch) async {
+  Never _throwError({
+    required int $statusCode,
+    required Map<String, Object?> $body,
+  }) {
+    final $error = ($body['error'] as Map<String, Object?>);
+    final $code = ($error['code'] as String);
+    final $details = ($error['details'] as Map<String, Object?>?);
+    switch ($code) {
+      case r'CloudUserException':
+        throw Serializers.instance
+            .deserialize<_$exceptions.CloudUserException>($details);
+      case r'ValidateError':
+        throw Serializers.instance
+            .deserialize<_$exceptions.ValidateError>($details);
+      case r'NotYetImplementedError':
+        throw Serializers.instance
+            .deserialize<_$exceptions.NotYetImplementedError>($details);
+      case r'BadRequestException':
+        throw Serializers.instance.deserialize<BadRequestException>($details);
+      case r'InternalServerException':
+        throw Serializers.instance
+            .deserialize<InternalServerException>($details);
+      case r'SerializationException':
+        throw Serializers.instance
+            .deserialize<SerializationException>($details);
+      case _:
+        switch ($statusCode) {
+          case 400:
+            throw BadRequestException($code);
+          case _:
+            throw InternalServerException($code);
+        }
+    }
+  }
+
+  Future<_$cash_balance.CashBalance> addCashBalance(double howMuch) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/add-cash-balance'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({r'howMuch': howMuch}),
+      body: _$convert.jsonEncode({r'howMuch': howMuch}),
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance.deserialize<CashBalance>($body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance
+        .deserialize<_$cash_balance.CashBalance>($body['response']);
   }
 
-  Future<CashBalance> removeCashBalance(double howMuch) async {
+  Future<_$cash_balance.CashBalance> removeCashBalance(double howMuch) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/remove-cash-balance'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({r'howMuch': howMuch}),
+      body: _$convert.jsonEncode({r'howMuch': howMuch}),
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance.deserialize<CashBalance>($body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance
+        .deserialize<_$cash_balance.CashBalance>($body['response']);
   }
 
-  Future<CashBalance> readCashBalance() async {
+  Future<_$cash_balance.CashBalance> readCashBalance() async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/read-cash-balance'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance.deserialize<CashBalance>($body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance
+        .deserialize<_$cash_balance.CashBalance>($body['response']);
   }
 
   /// Buys the given [availableStock] and return the [Stock] bought.
   /// This may thrown the same [CloudUserException] thrown by [Portfolio].
   ///
-  Future<({CashBalance cashBalance, Stock stock})> buyStock(
-    AvailableStock availableStock, {
+  Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
+      buyStock(
+    _$available_stock.AvailableStock availableStock, {
     required int howMany,
   }) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/buy-stock'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({
-        r'availableStock':
-            Serializers.instance.serialize<AvailableStock>(availableStock),
+      body: _$convert.jsonEncode({
+        r'availableStock': Serializers.instance
+            .serialize<_$available_stock.AvailableStock>(availableStock),
         r'howMany': howMany,
       }),
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance
-          .deserialize<({CashBalance cashBalance, Stock stock})>(
-              $body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance.deserialize<
+        ({
+          _$cash_balance.CashBalance cashBalance,
+          _$stock.Stock stock
+        })>($body['response']);
   }
 
   /// Sells the given [availableStock] and return the [Stock] bought.
@@ -261,36 +274,47 @@ class CelestFunctionsPortfolio {
   ///
   /// This may thrown the same [CloudUserException] thrown by [Portfolio].
   ///
-  Future<({CashBalance cashBalance, Stock stock})> sellStock(
-    AvailableStock availableStock, {
+  Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
+      sellStock(
+    _$available_stock.AvailableStock availableStock, {
     required int howMany,
   }) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/sell-stock'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({
-        r'availableStock':
-            Serializers.instance.serialize<AvailableStock>(availableStock),
+      body: _$convert.jsonEncode({
+        r'availableStock': Serializers.instance
+            .serialize<_$available_stock.AvailableStock>(availableStock),
         r'howMany': howMany,
       }),
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance
-          .deserialize<({CashBalance cashBalance, Stock stock})>(
-              $body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
+    return Serializers.instance.deserialize<
+        ({
+          _$cash_balance.CashBalance cashBalance,
+          _$stock.Stock stock
+        })>($body['response']);
+  }
+}
+
+class CelestFunctionsStocks {
+  Never _throwError({
+    required int $statusCode,
+    required Map<String, Object?> $body,
+  }) {
     final $error = ($body['error'] as Map<String, Object?>);
     final $code = ($error['code'] as String);
     final $details = ($error['details'] as Map<String, Object?>?);
     switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
       case _:
-        switch ($response.statusCode) {
+        switch ($statusCode) {
           case 400:
             throw BadRequestException($code);
           case _:
@@ -298,36 +322,24 @@ class CelestFunctionsPortfolio {
         }
     }
   }
-}
 
-class CelestFunctionsStocks {
-  Future<IList<AvailableStock>> readAvailableStocks() async {
+  Future<_$ilist.IList<_$available_stock.AvailableStock>>
+      readAvailableStocks() async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/stocks/read-available-stocks'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance
-          .deserialize<IList<AvailableStock>>($body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance
+        .deserialize<_$ilist.IList<_$available_stock.AvailableStock>>(
+            $body['response']);
   }
 
   /// This function selects a random ticker, updates its price (with some random variation)
@@ -345,27 +357,15 @@ class CelestFunctionsStocks {
       celest.baseUri.resolve('/stocks/read-updated-stock-price'),
       headers: const {'Content-Type': 'application/json; charset=utf-8'},
     );
-    final $body = (jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode == 200) {
-      return Serializers.instance
-          .deserialize<({double price, String ticker})?>($body['response']);
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
     }
-    final $error = ($body['error'] as Map<String, Object?>);
-    final $code = ($error['code'] as String);
-    final $details = ($error['details'] as Map<String, Object?>?);
-    switch ($code) {
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case _:
-        switch ($response.statusCode) {
-          case 400:
-            throw BadRequestException($code);
-          case _:
-            throw InternalServerException($code);
-        }
-    }
+    return Serializers.instance
+        .deserialize<({double price, String ticker})?>($body['response']);
   }
 }

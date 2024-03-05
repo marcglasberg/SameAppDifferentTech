@@ -1,4 +1,3 @@
-import 'package:celest_backend/src/client/serializers.dart';
 import 'package:meta/meta.dart';
 
 import 'utils/json.dart';
@@ -26,9 +25,9 @@ class Stock {
   @override
   String toString() => '$howManyShares $ticker @$averagePrice';
 
-  Json toJsonPersistor() => const StockSerializer().serialize(this);
+  Object? toJsonPersistor() => serialize<Stock>(this);
 
-  factory Stock.fromJsonPersistor(Object? value) => const StockSerializer().deserialize(value);
+  factory Stock.fromJsonPersistor(Object? value) => deserialize<Stock>(value);
 
   // TODO: MARCELO
   // Map<String, dynamic> toJson() => {

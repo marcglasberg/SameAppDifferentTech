@@ -45,11 +45,51 @@ class ValidateError extends TypeError {
   int get hashCode => msg.hashCode;
 }
 
+// JsonValue:
+// /// Use [NotYetImplementedError] when a feature is not yet implemented.
+// class NotYetImplementedError {
+//   final JsonValue msg;
+//
+//   factory NotYetImplementedError([Object? msg]) => NotYetImplementedError._(
+//       JsonValue((msg == null) ? StackTrace.current.toString() : "$msg\n\n${StackTrace.current}"));
+//
+//   NotYetImplementedError._(this.msg);
+//
+//   @override
+//   String toString() => "NOT YET IMPLEMENTED!\n $msg";
+//
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) || other is NotYetImplementedError && runtimeType == other.runtimeType;
+//
+//   @override
+//   int get hashCode => 0;
+// }
+
+// ORIGINAL:
+// /// Use [NotYetImplementedError] when a feature is not yet implemented.
+// class NotYetImplementedError extends AssertionError {
+//   final String msg;
+//
+//   NotYetImplementedError([dynamic msg])
+//       : msg = (msg == null) ? StackTrace.current.toString() : "$msg\n\n${StackTrace.current}";
+//
+//   @override
+//   String toString() => "NOT YET IMPLEMENTED!\n $msg";
+//
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) || other is NotYetImplementedError && runtimeType == other.runtimeType;
+//
+//   @override
+//   int get hashCode => 0;
+// }
+
 /// Use [NotYetImplementedError] when a feature is not yet implemented.
-class NotYetImplementedError extends AssertionError {
+class NotYetImplementedError implements Exception {
   final String msg;
 
-  NotYetImplementedError([dynamic msg])
+  NotYetImplementedError([String? msg])
       : msg = (msg == null) ? StackTrace.current.toString() : "$msg\n\n${StackTrace.current}";
 
   @override

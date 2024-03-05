@@ -48,4 +48,3 @@ Future<({Stock stock, CashBalance cashBalance})> sellStock(
     cashBalance: db.portfolio.cashBalance
   );
 }
-

@@ -1,162 +1,157 @@
 // ignore_for_file: type=lint, unused_local_variable, unnecessary_cast, unnecessary_import
 
+// ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:celest/celest.dart';
-import 'package:celest_backend/exceptions.dart';
-import 'package:celest_backend/my_src/models/available_stock.dart';
-import 'package:celest_backend/my_src/models/cash_balance.dart';
-import 'package:celest_backend/my_src/models/portfolio.dart';
-import 'package:celest_backend/my_src/models/stock.dart';
-import 'package:fast_immutable_collections/src/ilist/ilist.dart';
+import 'package:celest_backend/exceptions.dart' as _$exceptions;
+import 'package:celest_backend/my_src/models/available_stock.dart'
+    as _$available_stock;
+import 'package:celest_backend/my_src/models/cash_balance.dart'
+    as _$cash_balance;
+import 'package:celest_backend/my_src/models/portfolio.dart' as _$portfolio;
+import 'package:celest_backend/my_src/models/stock.dart' as _$stock;
+import 'package:celest_core/src/exception/cloud_exception.dart';
+import 'package:celest_core/src/exception/serialization_exception.dart';
+import 'package:fast_immutable_collections/src/ilist/ilist.dart' as _$ilist;
 
-final class CloudUserExceptionSerializer
-    extends Serializer<CloudUserException> {
-  const CloudUserExceptionSerializer();
-
-  @override
-  CloudUserException deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return CloudUserException((serialized[r'msg'] as String));
-  }
-
-  @override
-  Map<String, Object?> serialize(CloudUserException value) =>
-      {r'msg': value.msg};
+void initSerializers() {
+  Serializers.instance
+      .put(Serializer.define<Record$z4p9fh, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'cashBalance': Serializers.instance
+          .serialize<_$cash_balance.CashBalance>($value.cashBalance),
+      r'stock': Serializers.instance.serialize<_$stock.Stock>($value.stock),
+    },
+    deserialize: ($serialized) {
+      return (
+        cashBalance: Serializers.instance
+            .deserialize<_$cash_balance.CashBalance>(
+                $serialized[r'cashBalance']),
+        stock: Serializers.instance
+            .deserialize<_$stock.Stock>($serialized[r'stock'])
+      );
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<Record$ma0bzg, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'price': $value.price,
+      r'ticker': $value.ticker,
+    },
+    deserialize: ($serialized) {
+      return (
+        price: ($serialized[r'price'] as num).toDouble(),
+        ticker: ($serialized[r'ticker'] as String)
+      );
+    },
+  ));
+  Serializers.instance.put(
+      Serializer.define<_$exceptions.CloudUserException, Map<String, Object?>>(
+    serialize: ($value) => {r'msg': $value.msg},
+    deserialize: ($serialized) {
+      return _$exceptions.CloudUserException(($serialized[r'msg'] as String));
+    },
+  ));
+  Serializers.instance.put(Serializer.define<
+      _$exceptions.NotYetImplementedError, Map<String, Object?>?>(
+    serialize: ($value) => {r'msg': $value.msg},
+    deserialize: ($serialized) {
+      return _$exceptions.NotYetImplementedError(
+          ($serialized?[r'msg'] as String?));
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<_$exceptions.ValidateError, Map<String, Object?>>(
+    serialize: ($value) => {r'msg': $value.msg},
+    deserialize: ($serialized) {
+      return _$exceptions.ValidateError(($serialized[r'msg'] as String));
+    },
+  ));
+  Serializers.instance.put(
+      Serializer.define<_$available_stock.AvailableStock, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'ticker': $value.ticker,
+      r'name': $value.name,
+      r'currentPrice': $value.currentPrice,
+    },
+    deserialize: ($serialized) {
+      return _$available_stock.AvailableStock(
+        ($serialized[r'ticker'] as String),
+        name: ($serialized[r'name'] as String),
+        currentPrice: ($serialized[r'currentPrice'] as num).toDouble(),
+      );
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<_$cash_balance.CashBalance, Map<String, Object?>>(
+    serialize: ($value) => {r'amount': $value.amount},
+    deserialize: ($serialized) {
+      return _$cash_balance.CashBalance(
+          ($serialized[r'amount'] as num).toDouble());
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<_$portfolio.Portfolio, Map<String, dynamic>>(
+    serialize: ($value) => $value.toJson(),
+    deserialize: ($serialized) {
+      return _$portfolio.Portfolio.fromJson($serialized);
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<_$stock.Stock, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'ticker': $value.ticker,
+      r'howManyShares': $value.howManyShares,
+      r'averagePrice': $value.averagePrice,
+    },
+    deserialize: ($serialized) {
+      return _$stock.Stock(
+        ($serialized[r'ticker'] as String),
+        howManyShares: ($serialized[r'howManyShares'] as num).toInt(),
+        averagePrice: ($serialized[r'averagePrice'] as num).toDouble(),
+      );
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<BadRequestException, Map<String, Object?>>(
+    serialize: ($value) => {r'message': $value.message},
+    deserialize: ($serialized) {
+      return BadRequestException(($serialized[r'message'] as String));
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<InternalServerException, Map<String, Object?>>(
+    serialize: ($value) => {r'message': $value.message},
+    deserialize: ($serialized) {
+      return InternalServerException(($serialized[r'message'] as String));
+    },
+  ));
+  Serializers.instance
+      .put(Serializer.define<SerializationException, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'message': $value.message,
+      r'offset': $value.offset,
+      r'source': $value.source,
+    },
+    deserialize: ($serialized) {
+      return SerializationException(($serialized[r'message'] as String));
+    },
+  ));
+  Serializers.instance.put(Serializer.define<
+      _$ilist.IList<_$available_stock.AvailableStock>, dynamic>(
+    serialize: ($value) => $value.toJson((value) => Serializers.instance
+        .serialize<_$available_stock.AvailableStock>(value)),
+    deserialize: ($serialized) {
+      return _$ilist.IList<_$available_stock.AvailableStock>.fromJson(
+        $serialized,
+        (value) => Serializers.instance
+            .deserialize<_$available_stock.AvailableStock>(value),
+      );
+    },
+  ));
 }
 
-final class PortfolioSerializer extends Serializer<Portfolio> {
-  const PortfolioSerializer();
-
-  @override
-  Portfolio deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, dynamic>?>(value);
-    return Portfolio(
-      stocks: ((serialized?[r'stocks'] as Iterable<Object?>?)
-              ?.map((el) => Serializers.instance.deserialize<Stock>(el))
-              .toList()) ??
-          null,
-      cashBalance: (Serializers.instance
-              .deserialize<CashBalance?>(serialized?[r'cashBalance'])) ??
-          CashBalance.ZERO,
-    );
-  }
-
-  @override
-  Map<String, dynamic> serialize(Portfolio value) => value.toJson();
-}
-
-final class AvailableStockSerializer extends Serializer<AvailableStock> {
-  const AvailableStockSerializer();
-
-  @override
-  AvailableStock deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return AvailableStock(
-      (serialized[r'ticker'] as String),
-      name: (serialized[r'name'] as String),
-      currentPrice: (serialized[r'currentPrice'] as num).toDouble(),
-    );
-  }
-
-  @override
-  Map<String, Object?> serialize(AvailableStock value) => {
-        r'ticker': value.ticker,
-        r'name': value.name,
-        r'currentPrice': value.currentPrice,
-      };
-}
-
-final class CashBalanceSerializer extends Serializer<CashBalance> {
-  const CashBalanceSerializer();
-
-  @override
-  CashBalance deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return CashBalance((serialized[r'amount'] as num).toDouble());
-  }
-
-  @override
-  Map<String, Object?> serialize(CashBalance value) =>
-      {r'amount': value.amount};
-}
-
-final class StockSerializer extends Serializer<Stock> {
-  const StockSerializer();
-
-  @override
-  Stock deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return Stock(
-      (serialized[r'ticker'] as String),
-      howManyShares: (serialized[r'howManyShares'] as num).toInt(),
-      averagePrice: (serialized[r'averagePrice'] as num).toDouble(),
-    );
-  }
-
-  @override
-  Map<String, Object?> serialize(Stock value) => {
-        r'ticker': value.ticker,
-        r'howManyShares': value.howManyShares,
-        r'averagePrice': value.averagePrice,
-      };
-}
-
-final class Record$z4p9fhSerializer extends Serializer<Record$z4p9fh> {
-  const Record$z4p9fhSerializer();
-
-  @override
-  Record$z4p9fh deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return (
-      cashBalance: Serializers.instance
-          .deserialize<CashBalance>(serialized[r'cashBalance']),
-      stock: Serializers.instance.deserialize<Stock>(serialized[r'stock'])
-    );
-  }
-
-  @override
-  Map<String, Object?> serialize(Record$z4p9fh value) => {
-        r'cashBalance':
-            Serializers.instance.serialize<CashBalance>(value.cashBalance),
-        r'stock': Serializers.instance.serialize<Stock>(value.stock),
-      };
-}
-
-final class IListAvailableStockSerializer
-    extends Serializer<IList<AvailableStock>> {
-  const IListAvailableStockSerializer();
-
-  @override
-  IList<AvailableStock> deserialize(Object? value) {
-    final serialized = assertWireType<dynamic>(value);
-    return IList<AvailableStock>.fromJson(
-      serialized,
-      (value) => Serializers.instance.deserialize<AvailableStock>(value),
-    );
-  }
-
-  @override
-  Object serialize(IList<AvailableStock> value) => value
-      .toJson((value) => Serializers.instance.serialize<AvailableStock>(value));
-}
-
-final class Record$ma0bzgSerializer extends Serializer<Record$ma0bzg> {
-  const Record$ma0bzgSerializer();
-
-  @override
-  Record$ma0bzg deserialize(Object? value) {
-    final serialized = assertWireType<Map<String, Object?>>(value);
-    return (
-      price: (serialized[r'price'] as num).toDouble(),
-      ticker: (serialized[r'ticker'] as String)
-    );
-  }
-
-  @override
-  Map<String, Object?> serialize(Record$ma0bzg value) => {
-        r'price': value.price,
-        r'ticker': value.ticker,
-      };
-}
-
-typedef Record$z4p9fh = ({CashBalance cashBalance, Stock stock});
 typedef Record$ma0bzg = ({double price, String ticker});
+typedef Record$z4p9fh = ({
+  _$cash_balance.CashBalance cashBalance,
+  _$stock.Stock stock
+});

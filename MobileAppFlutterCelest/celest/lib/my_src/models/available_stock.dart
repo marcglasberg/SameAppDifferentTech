@@ -1,5 +1,4 @@
 import 'package:celest_backend/my_src/models/stock.dart';
-import 'package:celest_backend/src/client/serializers.dart';
 import 'package:meta/meta.dart';
 
 import 'utils/json.dart';
@@ -33,9 +32,9 @@ class AvailableStock {
     );
   }
 
-  Json toJsonPersistor() => const AvailableStockSerializer().serialize(this);
+  Object? toJsonPersistor() => serialize<AvailableStock>(this);
 
-  factory AvailableStock.fromJsonPersistor(Object? value) => const AvailableStockSerializer().deserialize(value);
+  factory AvailableStock.fromJsonPersistor(Object? value) => deserialize<AvailableStock>(value);
 
   @override
   String toString() => '$ticker ($name)';

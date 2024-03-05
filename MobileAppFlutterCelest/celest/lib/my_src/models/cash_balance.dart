@@ -1,5 +1,5 @@
 import 'package:celest_backend/models.dart';
-import 'package:celest_backend/src/client/serializers.dart';
+import 'package:celest_backend/my_src/models/utils/json.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -30,10 +30,9 @@ class CashBalance {
   @override
   String toString() => 'US\$ ${amount.toStringAsFixed(2)}';
 
-  Map<String, dynamic> toJsonPersistor() => const CashBalanceSerializer().serialize(this);
+  Object? toJsonPersistor() => serialize<CashBalance>(this);
 
-  factory CashBalance.fromJsonPersistor(Map<String, dynamic> value) =>
-      const CashBalanceSerializer().deserialize(value);
+  factory CashBalance.fromJsonPersistor(Object? value) => deserialize<CashBalance>(value);
 
   @override
   bool operator ==(Object other) =>

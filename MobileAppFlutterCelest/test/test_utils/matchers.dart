@@ -42,7 +42,7 @@ class ThrowsWithMessage<T> extends Matcher {
     if (error is AssertionError) return (error.message == null) ? null : error.message.toString();
     if (error is AppError) return (error.message == null) ? null : error.message.toString();
     if (error is ValidateError) return error.msg;
-    if (error is NotYetImplementedError) return error.msg;
+    if (error is NotYetImplementedError) return error.msg.toString();
     if (error is UserException) return error.msg;
     if (error is InterruptControlFlowException) return "";
     return error.toString();
