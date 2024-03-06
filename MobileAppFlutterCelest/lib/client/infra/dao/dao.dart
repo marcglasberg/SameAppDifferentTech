@@ -26,6 +26,9 @@ abstract class Dao {
 
   Future<CashBalance> readCashBalance();
 
+  /// Read the portfolio: The stocks the user has, and the cash balance.
+  Future<Portfolio> readPortfolio();
+
   /// Buys the given [availableStock] and return the [Stock] bought.
   /// This may thrown the same [TranslatableUserException] thrown by [Portfolio].
   ///

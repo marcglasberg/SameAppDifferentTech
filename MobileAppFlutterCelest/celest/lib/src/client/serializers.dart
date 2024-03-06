@@ -1,8 +1,8 @@
 // ignore_for_file: type=lint, unused_local_variable, unnecessary_cast, unnecessary_import
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:async_redux_core/src/user_exception.dart' as _$user_exception;
 import 'package:celest/celest.dart';
-import 'package:celest_backend/exceptions.dart' as _$exceptions;
 import 'package:celest_backend/my_src/models/available_stock.dart'
     as _$available_stock;
 import 'package:celest_backend/my_src/models/cash_balance.dart'
@@ -45,25 +45,18 @@ void initSerializers() {
     },
   ));
   Serializers.instance.put(
-      Serializer.define<_$exceptions.CloudUserException, Map<String, Object?>>(
-    serialize: ($value) => {r'msg': $value.msg},
-    deserialize: ($serialized) {
-      return _$exceptions.CloudUserException(($serialized[r'msg'] as String));
+      Serializer.define<_$user_exception.UserException, Map<String, Object?>>(
+    serialize: ($value) => {
+      r'message': $value.message,
+      r'code': $value.code,
+      r'cause': $value.cause,
     },
-  ));
-  Serializers.instance.put(Serializer.define<
-      _$exceptions.NotYetImplementedError, Map<String, Object?>?>(
-    serialize: ($value) => {r'msg': $value.msg},
     deserialize: ($serialized) {
-      return _$exceptions.NotYetImplementedError(
-          ($serialized?[r'msg'] as String?));
-    },
-  ));
-  Serializers.instance
-      .put(Serializer.define<_$exceptions.ValidateError, Map<String, Object?>>(
-    serialize: ($value) => {r'msg': $value.msg},
-    deserialize: ($serialized) {
-      return _$exceptions.ValidateError(($serialized[r'msg'] as String));
+      return _$user_exception.UserException(
+        ($serialized[r'message'] as String?),
+        code: ($serialized[r'code'] as num?)?.toInt(),
+        cause: ($serialized[r'cause'] as String?),
+      );
     },
   ));
   Serializers.instance.put(

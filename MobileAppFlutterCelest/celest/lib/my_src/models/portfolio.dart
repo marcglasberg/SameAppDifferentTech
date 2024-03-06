@@ -1,3 +1,4 @@
+import 'package:async_redux_core/async_redux_core.dart';
 import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/buy_or_sell.dart';
@@ -93,7 +94,7 @@ class Portfolio {
   Stock getStock(String ticker) {
     final stock = getStockOrNull(ticker);
     if (stock == null) {
-      throw CloudUserException('Stock %s not found.'.i18n.fill([ticker]));
+      throw UserException('Stock %s not found.'.i18n.fill([ticker]));
     }
     return stock;
   }
@@ -120,7 +121,7 @@ class Portfolio {
   /// If the user does not have enough money, throws a [UserException].
   Portfolio buy(AvailableStock availableStock, {required int howMany}) {
     if (cashBalance.amount < availableStock.currentPrice * howMany) {
-      throw CloudUserException('Not enough money to buy stock'.i18n);
+      throw UserException('Not enough money to buy stock'.i18n);
     } else {
       final newCashBalance =
           CashBalance(cashBalance.amount - availableStock.currentPrice * howMany);
@@ -136,12 +137,12 @@ class Portfolio {
     final pos = _getStockPositionInList(availableStock);
 
     if (pos == -1) {
-      throw CloudUserException('Cannot sell stock you do not own'.i18n);
+      throw UserException('Cannot sell stock you do not own'.i18n);
     } else {
       final stock = stocks[pos];
 
       if (stock.howManyShares < howMany) {
-        throw CloudUserException(
+        throw UserException(
             'Cannot sell %d shares of stock you do not own'.i18n.fill([howMany]));
       } else {
         final newShares = stock.howManyShares - howMany;

@@ -53,6 +53,11 @@ abstract final class Functions {
     functionName: r'readCashBalance',
   );
 
+  static const portfolioReadPortfolio = CloudFunction(
+    api: r'portfolio',
+    functionName: r'readPortfolio',
+  );
+
   static const portfolioRemoveCashBalance = CloudFunction(
     api: r'portfolio',
     functionName: r'removeCashBalance',

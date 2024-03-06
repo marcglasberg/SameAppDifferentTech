@@ -1,4 +1,4 @@
-import 'package:celest_backend/exceptions.dart';
+import 'package:async_redux_core/async_redux_core.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
 
@@ -16,8 +16,10 @@ Future<CashBalance> removeCashBalance(double howMuch) async {
 
 Future<CashBalance> readCashBalance() async => db.portfolio.cashBalance;
 
+Future<Portfolio> readPortfolio() async => db.portfolio;
+
 /// Buys the given [availableStock] and return the [Stock] bought.
-/// This may thrown the same [CloudUserException] thrown by [Portfolio].
+/// This may thrown the same [UserException] thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> buyStock(
   AvailableStock availableStock, {
@@ -34,7 +36,7 @@ Future<({Stock stock, CashBalance cashBalance})> buyStock(
 /// Sells the given [availableStock] and return the [Stock] bought.
 /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
 ///
-/// This may thrown the same [CloudUserException] thrown by [Portfolio].
+/// This may thrown the same [UserException] thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> sellStock(
   AvailableStock availableStock, {

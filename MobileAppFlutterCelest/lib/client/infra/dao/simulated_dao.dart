@@ -36,6 +36,12 @@ class SimulatedDao extends RealDao {
   }
 
   @override
+  Future<Portfolio> readPortfolio() async {
+    await simulatesWaiting(250);
+    return super.readPortfolio();
+  }
+
+  @override
   Future<({Stock stock, CashBalance cashBalance})> buyStock(
     AvailableStock availableStock, {
     required int howMany,

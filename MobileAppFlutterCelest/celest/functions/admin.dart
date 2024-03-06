@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:celest_backend/exceptions.dart';
+import 'package:async_redux_core/async_redux_core.dart';
 import 'package:celest_backend/models.dart';
 
 import 'database.dart';
@@ -14,8 +14,9 @@ void _assertIsNotProduction() {
   //   throw Exception('This function should only be used in local and staging environments.');
 }
 
+// TODO: REMOVE
 Future<void> doSomething() async {
-  throw CloudUserException('Some text');
+  throw const UserException('Some text');
 }
 
 Future<void> setDatabase(Portfolio portfolio, Iterable<AvailableStock> availableStocks) async {

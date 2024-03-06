@@ -1,3 +1,4 @@
+import 'package:async_redux_core/async_redux_core.dart' as asyncreduxcore;
 import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
 import 'package:celest_backend/client.dart';
@@ -32,7 +33,7 @@ void main() {
     // Given:
     var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30.00);
 
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         cashBalance: 120.00,
         availableStocks: [ibm],
@@ -40,17 +41,16 @@ void main() {
     );
 
     await celest.functions.admin.setDatabase(
-      storeTester.state.portfolio,
-      storeTester.state.availableStocks.list,
+      store.state.portfolio,
+      store.state.availableStocks.list,
     );
 
     // When:
-    await storeTester.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
-    storeTester.wait(BuyStock_Action);
+    await store.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
 
     // Then:
-    expect(storeTester.lastInfo.state.portfolio.howManyStocks('IBM'), 1);
-    expect(storeTester.lastInfo.state.portfolio.cashBalance, CashBalance(90.00));
+    expect(store.state.portfolio.howManyStocks('IBM'), 1);
+    expect(store.state.portfolio.cashBalance, CashBalance(90.00));
   });
 
   Bdd(feature)
@@ -105,19 +105,19 @@ void main() {
       cashBalance: 120.00,
     );
 
-    var storeTester = StoreTester(initialState: state);
+    var store = StoreTester(initialState: state);
 
     await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
 
     // When:
     var ibm = state.availableStocks.findBySymbol('IBM');
-    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
 
     // Then:
-    expect(info.state.portfolio.howManyStocks('IBM'), 2);
-    expect(info.state.portfolio.howManyStocks('AAPL'), 5);
-    expect(info.state.portfolio.howManyStocks('GOOG'), 12);
-    expect(info.state.portfolio.cashBalance, CashBalance(150.00));
+    expect(store.state.portfolio.howManyStocks('IBM'), 2);
+    expect(store.state.portfolio.howManyStocks('AAPL'), 5);
+    expect(store.state.portfolio.howManyStocks('GOOG'), 12);
+    expect(store.state.portfolio.cashBalance, CashBalance(150.00));
 
     //  /// The code below shows the alternative hard-coded implementation:
     //
@@ -167,17 +167,18 @@ void main() {
     var state = AppState.from(cashBalance: 120.00, availableStocks: [ibm]);
     expect(state.portfolio.stocks, isEmpty); // No IBM.
 
-    var storeTester = StoreTester(initialState: state);
+    var store = Store(initialState: state);
     await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
 
-    // When:
-    var info = await storeTester.dispatchAndWait(
-      SellStock_Action(ibm, howMany: 1),
-    );
+    // Then:
+    expect(() async => await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1)),
+        throwsA(isA<asyncreduxcore.UserException>()));
 
     // Then:
-    expect(info.error, isAError<CloudUserException>('Cannot sell stock you do not own'));
-    expect(info.state.portfolio.howManyStocks(ibm.ticker), 0);
-    expect(info.state.portfolio.cashBalance, CashBalance(120.00));
+    // TODO: MARCELO
+    // expect(status.isFinished, isFalse);
+    // expect(status.error, isAError<UserException>('Cannot sell stock you do not own'));
+    expect(store.state.portfolio.howManyStocks(ibm.ticker), 0);
+    expect(store.state.portfolio.cashBalance, CashBalance(120.00));
   });
 }

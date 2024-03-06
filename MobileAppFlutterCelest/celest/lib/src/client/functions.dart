@@ -6,8 +6,8 @@ library; // ignore_for_file: no_leading_underscores_for_library_prefixes
 
 import 'dart:convert' as _$convert;
 
+import 'package:async_redux_core/src/user_exception.dart' as _$user_exception;
 import 'package:celest/celest.dart';
-import 'package:celest_backend/exceptions.dart' as _$exceptions;
 import 'package:celest_backend/my_src/models/available_stock.dart'
     as _$available_stock;
 import 'package:celest_backend/my_src/models/cash_balance.dart'
@@ -39,23 +39,9 @@ class CelestFunctionsAdmin {
     final $code = ($error['code'] as String);
     final $details = ($error['details'] as Map<String, Object?>?);
     switch ($code) {
-      case r'CloudUserException':
+      case r'UserException':
         throw Serializers.instance
-            .deserialize<_$exceptions.CloudUserException>($details);
-      case r'ValidateError':
-        throw Serializers.instance
-            .deserialize<_$exceptions.ValidateError>($details);
-      case r'NotYetImplementedError':
-        throw Serializers.instance
-            .deserialize<_$exceptions.NotYetImplementedError>($details);
-      case r'BadRequestException':
-        throw Serializers.instance.deserialize<BadRequestException>($details);
-      case r'InternalServerException':
-        throw Serializers.instance
-            .deserialize<InternalServerException>($details);
-      case r'SerializationException':
-        throw Serializers.instance
-            .deserialize<SerializationException>($details);
+            .deserialize<_$user_exception.UserException>($details);
       case _:
         switch ($statusCode) {
           case 400:
@@ -157,15 +143,9 @@ class CelestFunctionsPortfolio {
     final $code = ($error['code'] as String);
     final $details = ($error['details'] as Map<String, Object?>?);
     switch ($code) {
-      case r'CloudUserException':
+      case r'UserException':
         throw Serializers.instance
-            .deserialize<_$exceptions.CloudUserException>($details);
-      case r'ValidateError':
-        throw Serializers.instance
-            .deserialize<_$exceptions.ValidateError>($details);
-      case r'NotYetImplementedError':
-        throw Serializers.instance
-            .deserialize<_$exceptions.NotYetImplementedError>($details);
+            .deserialize<_$user_exception.UserException>($details);
       case r'BadRequestException':
         throw Serializers.instance.deserialize<BadRequestException>($details);
       case r'InternalServerException':
@@ -237,8 +217,25 @@ class CelestFunctionsPortfolio {
         .deserialize<_$cash_balance.CashBalance>($body['response']);
   }
 
+  Future<_$portfolio.Portfolio> readPortfolio() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/portfolio/read-portfolio'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
+    }
+    return Serializers.instance
+        .deserialize<_$portfolio.Portfolio>($body['response']);
+  }
+
   /// Buys the given [availableStock] and return the [Stock] bought.
-  /// This may thrown the same [CloudUserException] thrown by [Portfolio].
+  /// This may thrown the same [UserException] thrown by [Portfolio].
   ///
   Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
       buyStock(
@@ -272,7 +269,7 @@ class CelestFunctionsPortfolio {
   /// Sells the given [availableStock] and return the [Stock] bought.
   /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
   ///
-  /// This may thrown the same [CloudUserException] thrown by [Portfolio].
+  /// This may thrown the same [UserException] thrown by [Portfolio].
   ///
   Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
       sellStock(

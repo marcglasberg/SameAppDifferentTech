@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:async_redux/async_redux.dart';
+import 'package:async_redux_core/async_redux_core.dart' as asyncreduxcore;
+import 'package:async_redux/async_redux.dart' as asyncredux;
 import 'package:celest_backend/exceptions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
@@ -43,7 +44,8 @@ class ThrowsWithMessage<T> extends Matcher {
     if (error is AppError) return (error.message == null) ? null : error.message.toString();
     if (error is ValidateError) return error.msg;
     if (error is NotYetImplementedError) return error.msg.toString();
-    if (error is UserException) return error.msg;
+    if (error is asyncreduxcore.UserException) return error.message;
+    if (error is asyncredux.UserException) return error.msg;
     if (error is InterruptControlFlowException) return "";
     return error.toString();
   }
@@ -189,7 +191,7 @@ class _IsUserExceptionWithHardCause extends Matcher {
 
   @override
   bool matches(item, Map matchState) {
-    if (item is UserException) {
+    if (item is asyncredux.UserException) {
       final hardCause = item.hardCause();
       return _cause is Type ? hardCause.runtimeType == _cause : hardCause == _cause;
     } else

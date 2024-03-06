@@ -28,11 +28,16 @@ class RealDao extends Dao {
   Future<CashBalance> readCashBalance() => celest.functions.portfolio.readCashBalance();
 
   @override
-  Future<({Stock stock, CashBalance cashBalance})> buyStock(AvailableStock availableStock, {required int howMany}) =>
+  Future<Portfolio> readPortfolio() => celest.functions.portfolio.readPortfolio();
+
+  @override
+  Future<({Stock stock, CashBalance cashBalance})> buyStock(AvailableStock availableStock,
+          {required int howMany}) =>
       celest.functions.portfolio.buyStock(availableStock, howMany: howMany);
 
   @override
-  Future<({Stock stock, CashBalance cashBalance})> sellStock(AvailableStock availableStock, {required int howMany}) =>
+  Future<({Stock stock, CashBalance cashBalance})> sellStock(AvailableStock availableStock,
+          {required int howMany}) =>
       celest.functions.portfolio.sellStock(availableStock, howMany: howMany);
 
   @override

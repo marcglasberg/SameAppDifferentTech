@@ -1,12 +1,19 @@
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/client.dart';
 import 'package:celest_backend/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart';
 
 void main() {
+  setUp(() {
+    RunConfig.setTestInstance();
+    celest.init(environment: CelestEnvironment.local);
+  });
+
   final ibmAvb = AvailableStock('IBM', name: 'I. B. Machines', currentPrice: 150);
   final ibm_1Share = Stock('IBM', howManyShares: 1, averagePrice: 150);
   final ibm_2Shares = Stock('IBM', howManyShares: 2, averagePrice: 150);
@@ -63,18 +70,25 @@ void main() {
   test('Buying stock.', () async {
     //
     // Cash balance is 1000. There are no IBM stocks.
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         availableStocks: [ibmAvb],
         stocks: [],
         cashBalance: 1000,
       ),
     );
+
+    await celest.functions.admin.setDatabase(
+      store.state.portfolio,
+      store.state.availableStocks.list,
+    );
+
+    var storeTester = StoreTester.from(store);
     var vm = factory().fromStoreTester(storeTester)!;
     vm.onBuy(); // Buy 1 share of IBM stock.
 
     // Cash balance decreased by the price of 1 IBM stock. Portfolio now contains 1 IBM stock.
-    var info = await storeTester.wait(BuyStock_Action);
+    var info = await storeTester.waitUntil(BuyStock_Action);
     expect(info.state.portfolio.cashBalance.amount, 1000 - ibmAvb.currentPrice);
     expect(info.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
   });
@@ -83,25 +97,32 @@ void main() {
       'Buying stock without enough money. '
       'Note: In practice this error never happens, because the BUY button is disabled.', () async {
     // Set initial cash balance to 100, which is less than the price $150 of IBM stock.
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         availableStocks: [ibmAvb],
         stocks: [],
         cashBalance: 100,
       ),
     );
+
+    await celest.functions.admin.setDatabase(
+      store.state.portfolio,
+      store.state.availableStocks.list,
+    );
+
+    var storeTester = StoreTester.from(store);
     var vm = factory().fromStoreTester(storeTester)!;
     vm.onBuy(); // Try to buy 1 share of IBM stock.
 
     // Assert that we get an UserException.
-    var info = await storeTester.wait(BuyStock_Action);
+    var info = await storeTester.waitUntil(BuyStock_Action);
     expect(info.error, isA<UserException>());
   });
 
   test('Selling stock.', () async {
     //
     // 2 shares of IBM stock in the portfolio. CashBalance is 500
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         availableStocks: [ibmAvb],
         stocks: [ibm_2Shares],
@@ -109,12 +130,18 @@ void main() {
       ),
     );
 
+    await celest.functions.admin.setDatabase(
+      store.state.portfolio,
+      store.state.availableStocks.list,
+    );
+
     // VmFactory<AppState, T, Model>
+    var storeTester = StoreTester.from(store);
     var vm = factory().fromStoreTester(storeTester)!;
     vm.onSell(); // Sell 1 share of IBM stock.
 
     // Cash balance has increased by the price of 1 IBM stock.
-    var info = await storeTester.wait(SellStock_Action);
+    var info = await storeTester.waitUntil(SellStock_Action);
     expect(info.state.portfolio.cashBalance.amount, 500 + ibmAvb.currentPrice);
 
     // The portfolio now contains 1 IBM stock.
@@ -126,7 +153,7 @@ void main() {
       'Note: In practice this error never happens, because the SELL button is disabled.', () async {
     //
     // The portfolio does not contain IBM stock.
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         availableStocks: [ibmAvb],
         stocks: [],
@@ -135,11 +162,17 @@ void main() {
       ),
     );
 
+    await celest.functions.admin.setDatabase(
+      store.state.portfolio,
+      store.state.availableStocks.list,
+    );
+
+    var storeTester = StoreTester.from(store);
     var vm = factory().fromStoreTester(storeTester)!;
     vm.onSell(); // Try to sell 1 share of IBM stock.
 
     // Assert that we get an UserException.
-    var info = await storeTester.wait(SellStock_Action);
+    var info = await storeTester.waitUntil(SellStock_Action);
     expect(info.error, isA<UserException>());
   });
 }
