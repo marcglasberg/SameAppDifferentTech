@@ -14,8 +14,7 @@ class InitApp_Action extends AppAction {
     // so there is no risk of a race condition where the info from the disk arrives later than
     // the info from the cloud.
     var portfolio = await DAO.readPortfolio();
-    print('-----------------------');
-    print('portfolio = ${portfolio}');
+
     return state.copy(portfolio: portfolio);
   }
 }

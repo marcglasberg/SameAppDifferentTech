@@ -83,8 +83,8 @@ extension BuildContextExtension on BuildContext {
   FutureOr<ActionStatus> dispatch(ReduxAction<AppState> action, {bool notify = true}) =>
       StoreProvider.of<AppState>(this, null).dispatch(action, notify: notify);
 
-  Future<ActionStatus> dispatchAsync(ReduxAction<AppState> action, {bool notify = true}) =>
-      StoreProvider.of<AppState>(this, null).dispatchAsync(action, notify: notify);
+  Future<ActionStatus> dispatchAndWait(ReduxAction<AppState> action, {bool notify = true}) =>
+      StoreProvider.of<AppState>(this, null).dispatchAndWait(action, notify: notify);
 
   ActionStatus dispatchSync(ReduxAction<AppState> action, {bool notify = true}) =>
       StoreProvider.of<AppState>(this, null).dispatchSync(action, notify: notify);

@@ -21,6 +21,11 @@ class RunConfig {
   /// Note: You can also disable this check by doing [disablePlatformChannels] true.
   final bool ifChecksInternetConnection;
 
+  /// 1) Null: The default. Does not simulate. Get the real connection status from the plugin.
+  /// 2) True: Simulates the connection status, stating that there is a connection.
+  /// 3) False: Simulates the connection status, stating that there is NO connection.
+  final bool? internetOnOffSimulation;
+
   final bool ifShowRunConfigInTheConfigScreen;
 
   final AbTesting abTesting;
@@ -28,11 +33,6 @@ class RunConfig {
   /// If true, the missing translations will be logged to the console. Default is false.
   /// Note: This is specific to the `i18n_extension` package we use for translations.
   final bool ifLogsMissingTranslations;
-
-  /// 1) Null: The default. Does not simulate. Get the real connection status from the plugin.
-  /// 2) True: Simulates the connection status, stating that there is a connection.
-  /// 3) False: Simulates the connection status, stating that there is NO connection.
-  final bool? internetOnOffSimulation;
 
   RunConfig({
     required this.dao,

@@ -1,8 +1,4 @@
-import "dart:io";
-
 import "package:async_redux/async_redux.dart";
-
-import "connectivity.dart";
 
 /// Used for Bugs.
 class AppError extends AssertionError {
@@ -66,67 +62,53 @@ class InterruptControlFlowException {
   int get hashCode => 0;
 }
 
-/// UserException that shows in the console.
-/// Used for debugging reasons only, for short periods of time.
-/// It is marked as [deprecated] so that you don't forget to remove it.
-/// Note: To remove it, just remove the "_ShowInConsole" part.
-@deprecated
-class UserException_ShowInConsole extends UserException {
+/// The [ConnectionException] is a type of [UserException] that warns the user when the connection
+/// is not working. Use [ConnectionException.noConnectivity] for a simple version that warns the
+/// users they should check the connection. Use factory [create] to give more complete messages,
+/// indicating the host that is having problems.
+///
+class ConnectionException extends AdvancedUserException {
   //
-  UserException_ShowInConsole(
-    String msg, {
-    Object? cause,
-    ExceptionCode? code,
-  }) : super(msg, cause: cause, code: code) {
-    stderr.writeln(
-      '\nMsg = $msg, '
-      '================================================================'
-      '\nCause = $cause,'
-      '================================================================'
-      '\nCode = $code',
-    );
-  }
-}
+  // Usage: `throw ConnectionException.noConnectivity`;
+  static const noConnectivity = ConnectionException();
 
-/// An [InternetException] is a type of [UserException] that alerts the user when the connection is
-/// having issues. Use [InternetException.noInternet] for a simple version that advises the
-/// user to check their connection. Use the factory [newInstance] to give more complete messages,
-/// indicating which host (Google, Apple etc) is having problems.
-class InternetException extends UserException {
-  //
-  static const noInternet = InternetException._noInternet();
+  /// Usage: `throw ConnectionException.noConnectivityWithRetry(() {...})`;
+  ///
+  /// A dialog will open. When the user presses OK or dismisses the dialog in any way,
+  /// the [onRetry] callback will be called.
+  ///
+  static ConnectionException noConnectivityWithRetry(void Function()? onRetry) =>
+      ConnectionException(onRetry: onRetry);
 
-  final bool ifDeviceHasInternet;
-
-  InternetException({
-    required this.ifDeviceHasInternet,
-    Object? cause,
+  /// Creates a [ConnectionException].
+  ///
+  /// If you pass it an [onRetry] callback, it will call it when the user presses
+  /// the "Ok" button in the dialog. Otherwise, it will just close the dialog.
+  ///
+  /// If you pass it a [host], it will say "It was not possible to connect to $host".
+  /// Otherwise, it will simply say "There is no Internet connection".
+  ///
+  const ConnectionException({
+    void Function()? onRetry,
+    String? host,
   }) : super(
-            ifDeviceHasInternet ? "There is no Internet" : "We couldn't connect to the our server.",
-            cause: const UserException('Please, check your Internet connection.')) {
-    if (ifDeviceHasInternet)
-      print(
-        "\nMsg = $msg, "
-        "================================================================"
-        "\nCause = $cause,"
-        "================================================================"
-        "\nCode = $code",
-      );
+          (host != null)
+              ? "There is no Internet connection"
+              : "It was not possible to connect to $host.",
+          reason: 'Please, verify your connection.',
+          code: null,
+          onOk: onRetry,
+          onCancel: null,
+          hardCause: null,
+        );
+
+  @override
+  UserException addReason(String? reason) {
+    throw UnsupportedError('You cannot use this.');
   }
 
-  const InternetException._noInternet()
-      : ifDeviceHasInternet = false,
-        super("There is no Internet",
-            cause: const UserException('Please, check your Internet connection.'));
-
-  /// Async Factory that verifies if the device has Internet.
-  static Future<InternetException> newInstance({
-    Object? cause,
-    StackTrace? stackTrace,
-  }) async {
-    // TODO: Add logger here.
-    // if (cause != null) await log(cause, stackTrace);
-
-    return InternetException(ifDeviceHasInternet: await ifThereIsInternet(), cause: cause);
+  @override
+  UserException mergedWith(UserException? userException) {
+    throw UnsupportedError('You cannot use this.');
   }
 }

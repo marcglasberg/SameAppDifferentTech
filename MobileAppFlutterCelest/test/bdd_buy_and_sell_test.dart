@@ -1,8 +1,6 @@
-import 'package:async_redux_core/async_redux_core.dart' as asyncreduxcore;
 import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
 import 'package:celest_backend/client.dart';
-import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -170,14 +168,14 @@ void main() {
     var store = Store(initialState: state);
     await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
 
-    // Then:
-    expect(() async => await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1)),
-        throwsA(isA<asyncreduxcore.UserException>()));
+    // When:
+    var status = await store.dispatchAndWait(
+      SellStock_Action(ibm, howMany: 1),
+    );
 
     // Then:
-    // TODO: MARCELO
-    // expect(status.isFinished, isFalse);
-    // expect(status.error, isAError<UserException>('Cannot sell stock you do not own'));
+    expect(status.isCompletedFailed, isTrue);
+    expect(status.originalError, isAError<UserException>('Cannot sell stock you do not own'));
     expect(store.state.portfolio.howManyStocks(ibm.ticker), 0);
     expect(store.state.portfolio.cashBalance, CashBalance(120.00));
   });

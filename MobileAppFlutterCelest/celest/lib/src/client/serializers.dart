@@ -49,13 +49,13 @@ void initSerializers() {
     serialize: ($value) => {
       r'message': $value.message,
       r'code': $value.code,
-      r'cause': $value.cause,
+      r'reason': $value.reason,
     },
     deserialize: ($serialized) {
       return _$user_exception.UserException(
         ($serialized[r'message'] as String?),
         code: ($serialized[r'code'] as num?)?.toInt(),
-        cause: ($serialized[r'cause'] as String?),
+        reason: ($serialized[r'reason'] as String?),
       );
     },
   ));

@@ -4,9 +4,11 @@ import "package:connectivity_plus/connectivity_plus.dart";
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
 
-/// Throws [InternetException.noInternet] if there is no internet.
-Future<void> checkInternet() async {
-  if (await ifNoInternet()) throw InternetException.noInternet;
+/// Throws a [ConnectionException] if there is no internet.
+Future<void> checkInternet({
+  void Function()? onRetry,
+}) async {
+  if (await ifNoInternet()) throw ConnectionException.noConnectivityWithRetry(onRetry);
 }
 
 /// Returns true if there is internet.
@@ -17,6 +19,10 @@ Future<void> checkInternet() async {
 Future<bool> ifThereIsInternet() async {
   if (RunConfig.instance.internetOnOffSimulation != null)
     return RunConfig.instance.internetOnOffSimulation!;
+  else if (RunConfig.instance.disablePlatformChannels)
+    return true;
+  else if (!RunConfig.instance.ifChecksInternetConnection)
+    return true;
   else {
     ConnectivityResult result = await Connectivity().checkConnectivity();
     return (result != ConnectivityResult.none);

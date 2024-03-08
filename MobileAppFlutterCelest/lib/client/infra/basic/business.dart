@@ -38,7 +38,7 @@ class Business {
     store = Store<AppState>(
       initialState: initialState,
       persistor: persistor,
-      wrapError: AppWrapError(),
+      globalWrapError: AppWrapError(),
       wrapReduce: AppWrapReduce(),
       actionObservers: kReleaseMode ? null : [AppObserver()],
     );
@@ -51,8 +51,8 @@ class Business {
   }
 }
 
-/// This will be useful soon to unwrap errors thrown by the backend.
-class AppWrapError<St> extends WrapError<St> {
+// TODO: MARCELO: This will be useful soon to unwrap errors thrown by the backend.
+class AppWrapError<St> extends GlobalWrapError<St> {
   //
   @override
   Object? wrap(Object error, [StackTrace? stackTrace, ReduxAction<St>? action]) {

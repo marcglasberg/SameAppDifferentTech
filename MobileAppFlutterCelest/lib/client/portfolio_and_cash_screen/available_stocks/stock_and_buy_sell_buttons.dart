@@ -1,6 +1,5 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
-import 'package:celest_backend/exceptions.dart';
 import 'package:celest_backend/models.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
