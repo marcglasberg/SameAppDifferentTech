@@ -103,7 +103,7 @@ void main() {
       cashBalance: 120.00,
     );
 
-    var store = StoreTester(initialState: state);
+    var store = Store(initialState: state);
 
     await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
 
@@ -136,12 +136,10 @@ void main() {
     //    stocks: stocks,
     //    cashBalance: 120.00);
     //
-    //  var storeTester = StoreTester(initialState: state);
-    //
     //  await celest.functions.admin.setDatabase(state.portfolio, state.availableStocks.list);
     //
     //  // When:
-    //  var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    //  var info = await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
     //
     //  // Then:
     //  expect(info.state.portfolio.howManyStocks('IBM'), 2);
