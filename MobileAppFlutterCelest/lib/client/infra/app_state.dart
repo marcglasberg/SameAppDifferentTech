@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/client.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,14 @@ class AppState {
   final Wait wait;
   final Portfolio portfolio;
   final AvailableStocks availableStocks;
+  final CelestEnvironment celestEnv;
   final Ui ui;
 
   static AppState initialState() => AppState(
         wait: Wait(),
         portfolio: Portfolio.EMPTY,
         availableStocks: AvailableStocks.EMPTY,
+        celestEnv: celest.currentEnvironment,
         ui: Ui.DEFAULT,
       );
 
@@ -24,8 +27,9 @@ class AppState {
     required this.wait,
     required this.portfolio,
     required this.availableStocks,
+    CelestEnvironment? celestEnv,
     this.ui = Ui.DEFAULT,
-  });
+  }) : celestEnv = celestEnv ?? celest.currentEnvironment;
 
   AppState.from({
     double cashBalance = 0.0,
@@ -44,12 +48,14 @@ class AppState {
     Wait? wait,
     Portfolio? portfolio,
     AvailableStocks? availableStocks,
+    CelestEnvironment? celestEnv,
     Ui? ui,
   }) {
     return AppState(
       wait: wait ?? this.wait,
       portfolio: portfolio ?? this.portfolio,
       availableStocks: availableStocks ?? this.availableStocks,
+      celestEnv: celestEnv ?? this.celestEnv,
       ui: ui ?? this.ui,
     );
   }
@@ -71,7 +77,8 @@ class AppState {
           wait == other.wait &&
           portfolio == other.portfolio &&
           availableStocks == other.availableStocks &&
-          ui == other.ui;
+          ui == other.ui &&
+          celestEnv == other.celestEnv;
 
   @override
   int get hashCode => wait.hashCode ^ portfolio.hashCode ^ availableStocks.hashCode ^ ui.hashCode;

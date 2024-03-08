@@ -41,10 +41,10 @@ class AppHomePage extends StatelessWidget {
 
     return Themed(
       currentTheme: Business.store.state.ui.isDarkMode ? darkTheme : null,
-      child: CelestLocalBanner(
-        child: StoreProvider<AppState>(
-          store: Business.store,
-          child: AppLifecycleManager(
+      child: StoreProvider<AppState>(
+        store: Business.store,
+        child: AppLifecycleManager(
+          child: CelestLocalBanner(
             child: MaterialApp(
               theme: ThemeData(
                 primaryColor: Colors.green.shade800,
@@ -128,18 +128,59 @@ class AppLocalizations {
 class CelestLocalBanner extends StatelessWidget {
   final Widget child;
 
-  const CelestLocalBanner({super.key, required this.child});
+  const CelestLocalBanner({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return (celest.currentEnvironment != CelestEnvironment.local)
-        ? child
-        : Banner(
-            message: 'Celest local',
-            location: BannerLocation.topEnd,
-            layoutDirection: TextDirection.ltr,
-            textDirection: TextDirection.ltr,
-            child: child,
-          );
+    return StoreConnector<AppState, _Vm>(
+      vm: () => _VmFactory(this),
+      builder: (context, vm) {
+        return (vm.celestEnv != CelestEnvironment.local)
+            ? child
+            : Banner(
+                message: 'Celest local',
+                location: BannerLocation.topEnd,
+                layoutDirection: TextDirection.ltr,
+                textDirection: TextDirection.ltr,
+                child: child,
+              );
+      },
+    );
   }
 }
+
+class _VmFactory extends VmFactory<AppState, CelestLocalBanner, _Vm> {
+  _VmFactory(widget) : super(widget);
+
+  @override
+  _Vm fromStore() => _Vm(celestEnv: state.celestEnv);
+}
+
+class _Vm extends Vm {
+  final CelestEnvironment celestEnv;
+
+  _Vm({
+    required this.celestEnv,
+  }) : super(equals: [celestEnv]);
+}
+
+// class CelestLocalBanner extends StatelessWidget {
+//   final Widget child;
+//
+//   const CelestLocalBanner({super.key, required this.child});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     print(' ==== state.celestEnv = ${StoreProvider.of<AppState>(context, null).state.celestEnv}');
+//
+//     return (context.state.celestEnv != CelestEnvironment.local)
+//         ? child
+//         : Banner(
+//       message: 'Celest local',
+//       location: BannerLocation.topEnd,
+//       layoutDirection: TextDirection.ltr,
+//       textDirection: TextDirection.ltr,
+//       child: child,
+//     );
+//   }
+// }

@@ -1,14 +1,18 @@
 import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
+import 'package:celest_backend/client.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_celest.dart';
+import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_init_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/real_dao.dart';
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_celest/client/infra/theme/app_themes.dart';
+import 'package:mobile_app_flutter_celest/client/utils/utils.dart';
 import 'package:themed/themed.dart';
 
 import '../utils/divider.dart';
@@ -27,6 +31,8 @@ class ConfigurationScreen_Connector extends StatelessWidget {
             toggleLightAndDarkMode: vm.toggleLightAndDarkMode,
             toggleShowRunConfigInTheConfigScreen: vm.toggleShowRunConfigInTheConfigScreen,
             toggleAbTesting: vm.toggleAbTesting,
+            toggleCelest: vm.toggleCelest,
+            isTogglingCelest: vm.isTogglingCelest,
             onDone: vm.onDone,
           );
         },
@@ -40,6 +46,8 @@ class _Factory extends AppVmFactory<_Vm, ConfigurationScreen_Connector> {
         toggleLightAndDarkMode: _toggleLightAndDarkMode,
         toggleShowRunConfigInTheConfigScreen: _toggleShowRunConfigInTheConfigScreen,
         toggleAbTesting: _toggleAbTesting,
+        toggleCelest: _toggleCelest,
+        isTogglingCelest: state.wait.isWaitingForType<InitApp_Action>(),
         onDone: _onDone,
       );
 
@@ -56,15 +64,22 @@ class _Factory extends AppVmFactory<_Vm, ConfigurationScreen_Connector> {
     RunConfig.setInstance(newRunConfig);
   }
 
+  /// Calls `celest.init()` and then reloads all the app state.
+  void _toggleCelest() {
+    dispatch(Celest_Action.toggle());
+    dispatch(InitApp_Action());
+  }
+
   void _onDone() => dispatch(NavigateToPortfolioAndCashBalanceScreen_Action());
 }
 
 class _Vm extends Vm {
   //
-  final bool isDarkMode;
+  final bool isDarkMode, isTogglingCelest;
   final VoidCallback toggleLightAndDarkMode,
       toggleShowRunConfigInTheConfigScreen,
       toggleAbTesting,
+      toggleCelest,
       onDone;
 
   _Vm({
@@ -72,16 +87,22 @@ class _Vm extends Vm {
     required this.toggleLightAndDarkMode,
     required this.toggleShowRunConfigInTheConfigScreen,
     required this.toggleAbTesting,
+    required this.toggleCelest,
+    required this.isTogglingCelest,
     required this.onDone,
-  }) : super(equals: [isDarkMode]);
+  }) : super(equals: [
+          isDarkMode,
+          isTogglingCelest,
+        ]);
 }
 
 class ConfigurationScreen extends StatefulWidget {
   //
-  final bool isDarkMode;
+  final bool isDarkMode, isTogglingCelest;
   final VoidCallback toggleLightAndDarkMode,
       toggleShowRunConfigInTheConfigScreen,
       toggleAbTesting,
+      toggleCelest,
       onDone;
 
   ConfigurationScreen({
@@ -90,6 +111,8 @@ class ConfigurationScreen extends StatefulWidget {
     required this.toggleLightAndDarkMode,
     required this.toggleShowRunConfigInTheConfigScreen,
     required this.toggleAbTesting,
+    required this.toggleCelest,
+    required this.isTogglingCelest,
     required this.onDone,
   });
 
@@ -226,6 +249,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         _runConfigOption1(),
         _runConfigOption3(),
         _runConfigOption4(),
+        _runConfigOption5(),
       ],
     );
   }
@@ -279,6 +303,40 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   }
 
   Widget _runConfigOption4() {
+    return Item(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text('Celest'.i18n, style: Font.medium),
+          ),
+          MaterialButton(
+            color: AppColor.blue,
+            minWidth: 130,
+            child: widget.isTogglingCelest
+                ? const Box(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator.adaptive(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                  )
+                : Text(
+                    celest.currentEnvironment.name.capitalize(Capitalize.firstLetter),
+                    style: Font.medium + AppColor.white,
+                  ),
+            onPressed: () {
+              if (!widget.isTogglingCelest)
+                setState(() {
+                  widget.toggleCelest();
+                });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _runConfigOption5() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
