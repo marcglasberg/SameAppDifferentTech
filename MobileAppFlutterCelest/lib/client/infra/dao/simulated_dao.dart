@@ -13,7 +13,7 @@ class SimulatedDao extends RealDao {
   //
   @override
   Future<void> init() async {
-    await simulatesWaiting(15);
+    await simulatesWaiting(50);
     return super.init();
   }
 

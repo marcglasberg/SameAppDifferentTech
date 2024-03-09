@@ -12,7 +12,7 @@ dependencies:
   celest_core: ^0.2.1
   celest_backend:
     path: celest/
-  async_redux: ^22.0.0-dev.6
+  async_redux: ^22.0.0-dev.11
   align_positioned: ^4.0.0
   animated_size_and_fade: ^4.0.0
   animations: ^2.0.11

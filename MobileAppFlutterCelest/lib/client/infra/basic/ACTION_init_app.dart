@@ -8,6 +8,10 @@ class InitApp_Action extends AppAction {
   //
   @override
   Future<AppState?> reduce() async {
+
+    // Initializes the DAO, if necessary, fetching data from the backend.
+    await DAO.init();
+
     // The portfolio will be loaded from the local device disk, using the persistor. However, we
     // still need to read it from the cloud, in case it was updated from another device. When this
     // action is called, the persistor already loaded the portfolio from the local device disk,

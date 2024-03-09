@@ -115,6 +115,7 @@ class CelestFunctionsDatabase {
     }
   }
 
+  /// This cloud function can be accessed with `celest.functions.database.init();`
   /// I'm using the init function to simulate the database initialization.
   /// In reality this would be an admin service that connects to a third-party stock price provider.
   Future<void> init() async {
@@ -164,6 +165,43 @@ class CelestFunctionsPortfolio {
     }
   }
 
+  /// Reads the portfolio from the database. This includes the cash balance and the stocks.
+  Future<_$portfolio.Portfolio> readPortfolio() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/portfolio/read-portfolio'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
+    }
+    return Serializers.instance
+        .deserialize<_$portfolio.Portfolio>($body['response']);
+  }
+
+  /// Reads the cash balance from the database.
+  Future<_$cash_balance.CashBalance> readCashBalance() async {
+    final $response = await celest.httpClient.post(
+      celest.baseUri.resolve('/portfolio/read-cash-balance'),
+      headers: const {'Content-Type': 'application/json; charset=utf-8'},
+    );
+    final $body =
+        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
+    if ($response.statusCode != 200) {
+      _throwError(
+        $statusCode: $response.statusCode,
+        $body: $body,
+      );
+    }
+    return Serializers.instance
+        .deserialize<_$cash_balance.CashBalance>($body['response']);
+  }
+
+  /// When the user presses the "+" button to add cash, this function is called.
   Future<_$cash_balance.CashBalance> addCashBalance(double howMuch) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/add-cash-balance'),
@@ -182,6 +220,7 @@ class CelestFunctionsPortfolio {
         .deserialize<_$cash_balance.CashBalance>($body['response']);
   }
 
+  /// When the user presses the "-" button to remove cash, this function is called.
   Future<_$cash_balance.CashBalance> removeCashBalance(double howMuch) async {
     final $response = await celest.httpClient.post(
       celest.baseUri.resolve('/portfolio/remove-cash-balance'),
@@ -198,40 +237,6 @@ class CelestFunctionsPortfolio {
     }
     return Serializers.instance
         .deserialize<_$cash_balance.CashBalance>($body['response']);
-  }
-
-  Future<_$cash_balance.CashBalance> readCashBalance() async {
-    final $response = await celest.httpClient.post(
-      celest.baseUri.resolve('/portfolio/read-cash-balance'),
-      headers: const {'Content-Type': 'application/json; charset=utf-8'},
-    );
-    final $body =
-        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode != 200) {
-      _throwError(
-        $statusCode: $response.statusCode,
-        $body: $body,
-      );
-    }
-    return Serializers.instance
-        .deserialize<_$cash_balance.CashBalance>($body['response']);
-  }
-
-  Future<_$portfolio.Portfolio> readPortfolio() async {
-    final $response = await celest.httpClient.post(
-      celest.baseUri.resolve('/portfolio/read-portfolio'),
-      headers: const {'Content-Type': 'application/json; charset=utf-8'},
-    );
-    final $body =
-        (_$convert.jsonDecode($response.body) as Map<String, Object?>);
-    if ($response.statusCode != 200) {
-      _throwError(
-        $statusCode: $response.statusCode,
-        $body: $body,
-      );
-    }
-    return Serializers.instance
-        .deserialize<_$portfolio.Portfolio>($body['response']);
   }
 
   /// Buys the given [availableStock] and return the [Stock] bought.

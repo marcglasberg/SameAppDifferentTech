@@ -49,11 +49,14 @@ class _Database {
     _portfolio = _portfolio.sell(availableStock, howMany: howMany);
   }
 
+  /// Adds the stock to the available stocks list, but only if it's not already there.
   void addAvailableStock({required String ticker, required String name, required double price}) {
+    if (_availableStocks.any((s) => s.ticker == ticker)) return;
     _availableStocks.add((ticker: ticker, name: name, price: price));
   }
 }
 
+/// This cloud function can be accessed with `celest.functions.database.init();`
 /// I'm using the init function to simulate the database initialization.
 /// In reality this would be an admin service that connects to a third-party stock price provider.
 Future<void> init() async {

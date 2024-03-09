@@ -4,7 +4,7 @@ import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 
-class SellStock_Action extends AppAction with WithWaitState {
+class SellStock_Action extends AppAction with CheckInternet {
   //
   final AvailableStock availableStock;
   final int howMany;

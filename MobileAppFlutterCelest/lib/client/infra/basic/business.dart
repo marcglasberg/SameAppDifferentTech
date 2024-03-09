@@ -16,8 +16,7 @@ class Business {
   ///     and saves the state whenever the state changes, later on.
   /// 3. If no state is found in the local device disk, it creates a new state and then saves it.
   /// 4. Creates the Redux "store" which holds the app state in memory.
-  /// 5. Initializes the DAO (Data Access Object) which fetches data from the backend.
-  /// 6. Runs a Redux action called `InitApp_Action` with stuff the Store needs to do as soon as the
+  /// 5. Runs a Redux action called `InitApp_Action` with stuff the Store needs to do as soon as the
   /// app opens.
   static Future<void> init(RunConfig runConfig) async {
     //
@@ -43,10 +42,7 @@ class Business {
       actionObservers: kReleaseMode ? null : [AppObserver()],
     );
 
-    // 5. Initialize the DAO, if necessary.
-    await DAO.init();
-
-    // 6. Do stuff that needs to be done as soon as the app opens.
+    // 5. Do stuff that needs to be done as soon as the app opens.
     store.dispatch(InitApp_Action());
   }
 }

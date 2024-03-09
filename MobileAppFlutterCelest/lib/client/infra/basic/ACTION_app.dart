@@ -7,20 +7,11 @@ abstract class AppAction extends ReduxAction<AppState> {
   String toString() => runtimeType.toString();
 }
 
-/// Mixin that alters an Action in the following way:
-/// Adds a wait-state, as soon as the action starts.
-/// Removes the wait-state after the action is done.
-///
-/// It also checks for internet connection before the action.
-///
-/// You can check if the action is waiting by doing: `wait.isWaiting`
-mixin WithWaitState implements AppAction {
+/// Mixin that checks for internet connection before the action.
+/// If there's no internet, it shows a message and doesn't execute the action.
+mixin CheckInternet implements AppAction {
   @override
   Future<void> before() async {
     await checkInternet();
-    dispatch(WaitAction.add(this));
   }
-
-  @override
-  void after() => dispatch(WaitAction.remove(this));
 }

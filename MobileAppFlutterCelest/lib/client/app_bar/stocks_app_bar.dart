@@ -1,4 +1,3 @@
-import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_celest/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_celest/client/infra/theme/app_themes.dart';
@@ -49,9 +48,6 @@ class StocksAppBar extends SimpleAppBar {
       icon: const Icon(Icons.settings, color: AppColor.white),
       tooltip: 'Open configuration screen',
       onPressed: () {
-        // Same as:
-        StoreProvider.of<AppState>(context, this).dispatch(NavigateToConfigScreen_Action());
-        print(context.state.availableStocks);
         context.dispatch(NavigateToConfigScreen_Action());
       },
     );

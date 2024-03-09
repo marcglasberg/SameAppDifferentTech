@@ -47,7 +47,7 @@ class _Factory extends AppVmFactory<_Vm, ConfigurationScreen_Connector> {
         toggleShowRunConfigInTheConfigScreen: _toggleShowRunConfigInTheConfigScreen,
         toggleAbTesting: _toggleAbTesting,
         toggleCelest: _toggleCelest,
-        isTogglingCelest: state.wait.isWaitingForType<InitApp_Action>(),
+        isTogglingCelest: isWaitingFor(InitApp_Action),
         onDone: _onDone,
       );
 

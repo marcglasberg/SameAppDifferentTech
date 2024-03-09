@@ -4,19 +4,23 @@ import 'package:celest_backend/my_src/models/cash_balance.dart';
 
 import 'database.dart';
 
+/// Reads the portfolio from the database. This includes the cash balance and the stocks.
+Future<Portfolio> readPortfolio() async => db.portfolio;
+
+/// Reads the cash balance from the database.
+Future<CashBalance> readCashBalance() async => db.portfolio.cashBalance;
+
+/// When the user presses the "+" button to add cash, this function is called.
 Future<CashBalance> addCashBalance(double howMuch) async {
   db.addCashBalance(howMuch);
   return db.portfolio.cashBalance;
 }
 
+/// When the user presses the "-" button to remove cash, this function is called.
 Future<CashBalance> removeCashBalance(double howMuch) async {
   db.removeCashBalance(howMuch);
   return db.portfolio.cashBalance;
 }
-
-Future<CashBalance> readCashBalance() async => db.portfolio.cashBalance;
-
-Future<Portfolio> readPortfolio() async => db.portfolio;
 
 /// Buys the given [availableStock] and return the [Stock] bought.
 /// This may thrown the same [UserException] thrown by [Portfolio].

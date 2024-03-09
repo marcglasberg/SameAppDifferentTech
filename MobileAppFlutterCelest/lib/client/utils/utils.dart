@@ -25,32 +25,32 @@ import 'package:flutter/services.dart';
 //         titulo: "Não foi possível abrir seu leitor de email",
 //         texto: "Por favor, faça isso manualmente.");
 // }
-
-Uri _emailUri(String enderecoDeEmail, {String? assunto}) => Uri(
-      scheme: 'mailto',
-      path: enderecoDeEmail,
-      query:
-          (assunto == null) ? null : _encodeQueryParameters(<String, String>{'subject': assunto}),
-    );
-
-/// Used with [launchUrl]. Exemple:
-///
-/// ```
-/// final Uri emailLaunchUri = Uri(
-///     scheme: 'mailto',
-///     path: 'smith@example.com',
-///     query: encodeQueryParameters(<String, String>{
-///       'subject': 'Example Subject & Symbols are allowed!',
-///     }));
-/// launchUrl(emailLaunchUri);
-/// ```
-///
-String? _encodeQueryParameters(Map<String, String> params) {
-  return params.entries
-      .map((MapEntry<String, String> e) =>
-          '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-      .join('&');
-}
+//
+// Uri _emailUri(String emailAddress, {String? subject}) => Uri(
+//       scheme: 'mailto',
+//       path: emailAddress,
+//       query:
+//           (subject == null) ? null : _encodeQueryParameters(<String, String>{'subject': subject}),
+//     );
+//
+// /// Used with [launchUrl]. Exemple:
+// ///
+// /// ```
+// /// final Uri emailLaunchUri = Uri(
+// ///     scheme: 'mailto',
+// ///     path: 'smith@example.com',
+// ///     query: encodeQueryParameters(<String, String>{
+// ///       'subject': 'Example Subject & Symbols are allowed!',
+// ///     }));
+// /// launchUrl(emailLaunchUri);
+// /// ```
+// ///
+// String? _encodeQueryParameters(Map<String, String> params) {
+//   return params.entries
+//       .map((MapEntry<String, String> e) =>
+//           '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+//       .join('&');
+// }
 
 extension IterableUtilExtension<T> on Iterable<T> {
   //

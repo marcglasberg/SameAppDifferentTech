@@ -2,7 +2,7 @@ import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 
-class AddCash_Action extends AppAction with WithWaitState {
+class AddCash_Action extends AppAction with CheckInternet {
   //
   final double howMuch;
 

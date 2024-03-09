@@ -20,8 +20,8 @@ enum CelestEnvironment {
 
   Uri get baseUri => switch (this) {
         local => kIsWeb || !_$io.Platform.isAndroid
-            ? Uri.parse('http://localhost:7778')
-            : Uri.parse('http://10.0.2.2:7778'),
+            ? Uri.parse('http://localhost:7779')
+            : Uri.parse('http://10.0.2.2:7779'),
         production => Uri.parse(
             'https://mobile-app-flutter-celest-jhmx-v76lntiq7q-rj.a.run.app'),
       };
