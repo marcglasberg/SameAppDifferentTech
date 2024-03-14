@@ -1,7 +1,6 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
-import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
 import 'package:mobile_app_flutter_celest/client/infra/persistor/app_persistor.dart';
 import 'package:mobile_app_flutter_celest/client/portfolio_and_cash_screen/available_stocks/ACTION_fluctuate_stock_price.dart';
 

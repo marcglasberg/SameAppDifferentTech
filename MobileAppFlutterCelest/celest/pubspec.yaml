@@ -6,8 +6,8 @@ environment:
   sdk: ^3.3.0
 
 dependencies:
-  celest: ^0.2.0
-  celest_core: ^0.2.0
+  celest: ^0.3.0
+  celest_core: ^0.3.0
   http: ">=0.13.0 <2.0.0"
   async_redux_core: ^1.0.4
   fast_immutable_collections: ^10.1.0
@@ -21,4 +21,4 @@ dev_dependencies:
   test: ^1.24.0
 celest:
   project:
-    id: 018d8ffe-108e-73d6-a735-f6d9f30fc0b2
+    id: 018e29a8-f0d3-78ba-8ea3-11140ed9266c

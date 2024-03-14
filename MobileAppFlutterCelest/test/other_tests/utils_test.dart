@@ -5,11 +5,14 @@ import '../test_utils/matchers.dart';
 
 void main() {
   test(
-    'listar()',
+    'listIt()',
     () {
-      expect(["abc", "xyz", "123"].listIt(), "Hello");
+      expect(
+          ["abc", "xyz", "123"].listIt(),
+          '   abc\n'
+          '   xyz\n'
+          '   123');
     },
-    skip: "Marcelo",
   );
 
   test('String.lastChars()', () {

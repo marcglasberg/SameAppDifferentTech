@@ -1,5 +1,7 @@
+@public
 import 'dart:math';
 
+import 'package:celest/celest.dart';
 import 'package:celest_backend/models.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 

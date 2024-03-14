@@ -100,6 +100,8 @@ class ConnectionException extends AdvancedUserException {
           onOk: onRetry,
           onCancel: null,
           hardCause: null,
+          errorText: null,
+          ifOpenDialog: true,
         );
 
   @override
@@ -108,7 +110,15 @@ class ConnectionException extends AdvancedUserException {
   }
 
   @override
-  UserException mergedWith(UserException? userException) {
+  UserException mergedWith(UserException? anotherUserException) {
     throw UnsupportedError('You cannot use this.');
   }
+
+  @override
+  UserException withErrorText(String? newErrorText) {
+    throw UnsupportedError('You cannot use this.');
+  }
+
+  @override
+  UserException get noDialog => throw UnsupportedError('You cannot use this.');
 }

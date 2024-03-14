@@ -1,7 +1,8 @@
+@public
 import 'package:async_redux_core/async_redux_core.dart';
+import 'package:celest/celest.dart';
 import 'package:celest_backend/models.dart';
 import 'package:celest_backend/my_src/models/cash_balance.dart';
-
 import 'database.dart';
 
 /// Reads the portfolio from the database. This includes the cash balance and the stocks.

@@ -43,7 +43,13 @@ class Portfolio {
 
   Portfolio addCashBalance(double howMuch) => copyWith(cashBalance: cashBalance.add(howMuch));
 
-  Portfolio removeCashBalance(double howMuch) => copyWith(cashBalance: cashBalance.remove(howMuch));
+  Portfolio removeCashBalance(double howMuch) {
+    if (cashBalance.amount < howMuch) {
+      throw UserException('Not enough money to remove.'.i18n);
+    }
+
+    return copyWith(cashBalance: cashBalance.remove(howMuch));
+  }
 
   Portfolio withoutStock(String ticker) => withStock(ticker, 0, 0.0);
 
@@ -142,8 +148,7 @@ class Portfolio {
       final stock = stocks[pos];
 
       if (stock.howManyShares < howMany) {
-        throw UserException(
-            'Cannot sell %d shares of stock you do not own'.i18n.fill([howMany]));
+        throw UserException('Cannot sell %d shares of stock you do not own'.i18n.fill([howMany]));
       } else {
         final newShares = stock.howManyShares - howMany;
         final newAveragePrice = round(

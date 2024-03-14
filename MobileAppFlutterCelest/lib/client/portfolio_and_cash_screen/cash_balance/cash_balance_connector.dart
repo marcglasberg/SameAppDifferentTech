@@ -42,7 +42,7 @@ class _Factory extends AppVmFactory {
 
   void _onRemoveCash() => dispatch(RemoveCash_Action(100));
 
-  bool _isWaiting() => isWaitingFor([AddCash_Action, RemoveCash_Action]);
+  bool _isWaiting() => isWaiting([AddCash_Action, RemoveCash_Action]);
 }
 
 class _Vm extends Vm {

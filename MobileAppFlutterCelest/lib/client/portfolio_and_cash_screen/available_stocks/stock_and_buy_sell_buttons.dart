@@ -47,7 +47,7 @@ class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
         onSell: _onSell,
         ifBuyDisabled: !state.portfolio.hasMoneyToBuyStock(widget.availableStock),
         ifSellDisabled: !state.portfolio.hasStock(widget.availableStock),
-        isWaiting: isWaitingFor([BuyStock_Action, SellStock_Action]),
+        isWaiting: isWaiting([BuyStock_Action, SellStock_Action]),
       );
 
   void _onBuy() => dispatch(
