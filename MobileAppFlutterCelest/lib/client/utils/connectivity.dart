@@ -1,37 +1,33 @@
-import 'dart:async';
-
-import "package:connectivity_plus/connectivity_plus.dart";
+import 'package:async_redux/async_redux.dart';
+import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/run_config/run_config.dart';
-import 'package:mobile_app_flutter_celest/client/utils/errors_and_exceptions.dart';
 
-/// Throws a [ConnectionException] if there is no internet.
-Future<void> checkInternet({
-  void Function()? onRetry,
-}) async {
-  if (await ifNoInternet()) throw ConnectionException.noConnectivityWithRetry(onRetry);
-}
+/// This changes the behavior of the [CheckInternet] mixin,
+/// so that it uses the [RunConfig]. Use it like this:
+///
+/// ```dart
+/// class BuyStock_Action extends AppAction with CheckInternet, RespectRunConfig {
+/// ```
+/// Note: Once an action with `RespectRunConfig` is used the first time, it will change the
+/// behavior of the `CheckInternet` mixin for all other actions that use it.
+/// Instead of using this mixin, this code could also be put into the app initialization code,
+/// and in the tests initialization code. But this mixin is more convenient.
+///
+mixin RespectRunConfig on CheckInternet<AppState> {
+  @override
+  bool? get internetOnOffSimulation {
+    CheckInternet.forceInternetOnOffSimulation = _internetOnOffSimulation;
+    return _internetOnOffSimulation();
+  }
 
-/// Returns true if there is internet.
-/// Note: This can be used to check if there is internet before making a request to the server.
-/// However, it only checks if the internet is on or off on the device, not if the internet
-/// provider is really providing the service or if the server is available. So, it is possible that
-/// this function returns true and the request still fails.
-Future<bool> ifThereIsInternet() async {
-  if (RunConfig.instance.internetOnOffSimulation != null)
-    return RunConfig.instance.internetOnOffSimulation!;
-  else if (RunConfig.instance.disablePlatformChannels)
-    return true;
-  else if (!RunConfig.instance.ifChecksInternetConnection)
-    return true;
-  else {
-    ConnectivityResult result = await Connectivity().checkConnectivity();
-    return (result != ConnectivityResult.none);
+  bool? _internetOnOffSimulation() {
+    if (RunConfig.instance.internetOnOffSimulation != null)
+      return RunConfig.instance.internetOnOffSimulation!;
+    else if (RunConfig.instance.disablePlatformChannels)
+      return true;
+    else if (!RunConfig.instance.ifChecksInternetConnection)
+      return true;
+    else
+      return null;
   }
 }
-
-/// Returns true if there is no internet.
-/// Note: This can be used to check if there is internet before making a request to the server.
-/// However, it only checks if the internet is on or off on the device, not if the internet
-/// provider is really providing the service or if the server is available. So, it is possible that
-/// this function returns true and the request still fails.
-Future<bool> ifNoInternet() async => !await ifThereIsInternet();

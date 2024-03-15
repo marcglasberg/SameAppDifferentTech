@@ -67,7 +67,7 @@ class _Factory extends AppVmFactory<_Vm, ConfigurationScreen_Connector> {
   /// Calls `celest.init()` and then reloads all the app state.
   void _toggleCelest() {
     dispatch(Celest_Action.toggle());
-    dispatch(InitApp_Action());
+    dispatch(InitApp_Action(ifClearPortfolio: true));
   }
 
   void _onDone() => dispatch(NavigateToPortfolioAndCashBalanceScreen_Action());

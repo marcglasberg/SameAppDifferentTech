@@ -1,10 +1,11 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:celest_backend/models.dart';
-import 'package:celest_backend/my_src/models/cash_balance.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
+import 'package:mobile_app_flutter_celest/client/utils/connectivity.dart';
 
-class SellStock_Action extends AppAction with CheckInternet {
+class SellStock_Action extends AppAction with CheckInternet, RespectRunConfig {
   //
   final AvailableStock availableStock;
   final int howMany;
@@ -17,22 +18,12 @@ class SellStock_Action extends AppAction with CheckInternet {
   @override
   Future<AppState?> reduce() async {
     //
-    Stock stockX;
-    CashBalance cashBalanceX;
-
-    try {
-      var (stock: stock, cashBalance: cashBalance) =
-          await DAO.sellStock(availableStock, howMany: howMany);
-
-      cashBalanceX = cashBalance;
-      stockX = stock;
-    } catch (error) {
-      rethrow;
-    }
+    var (stock: stock, cashBalance: cashBalance) =
+        await DAO.sellStock(availableStock, howMany: howMany);
 
     var updatedPortfolio = state.portfolio
-        .withStock(stockX.ticker, stockX.howManyShares, stockX.averagePrice)
-        .withCashBalance(cashBalanceX);
+        .withStock(stock.ticker, stock.howManyShares, stock.averagePrice)
+        .withCashBalance(cashBalance);
 
     return state.copy(portfolio: updatedPortfolio);
   }

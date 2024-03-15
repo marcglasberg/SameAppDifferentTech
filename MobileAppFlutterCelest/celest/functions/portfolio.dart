@@ -24,7 +24,7 @@ Future<CashBalance> removeCashBalance(double howMuch) async {
 }
 
 /// Buys the given [availableStock] and return the [Stock] bought.
-/// This may thrown the same [UserException] thrown by [Portfolio].
+/// This may thrown the same [UserException]s thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> buyStock(
   AvailableStock availableStock, {
@@ -39,9 +39,8 @@ Future<({Stock stock, CashBalance cashBalance})> buyStock(
 }
 
 /// Sells the given [availableStock] and return the [Stock] bought.
-/// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
-///
-/// This may thrown the same [UserException] thrown by [Portfolio].
+/// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
+/// This may thrown the same [UserException]s thrown by [Portfolio].
 ///
 Future<({Stock stock, CashBalance cashBalance})> sellStock(
   AvailableStock availableStock, {

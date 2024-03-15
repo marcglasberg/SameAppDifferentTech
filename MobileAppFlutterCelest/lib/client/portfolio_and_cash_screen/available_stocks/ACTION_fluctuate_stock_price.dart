@@ -1,8 +1,10 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:mobile_app_flutter_celest/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_celest/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_celest/client/infra/dao/dao.dart';
+import 'package:mobile_app_flutter_celest/client/utils/connectivity.dart';
 
-class FluctuateStockPrice_Action extends AppAction {
+class FluctuateStockPrice_Action extends AppAction with CheckInternet, RespectRunConfig {
   //
   // Pass true to start the timer, false to stop it.
   final bool start;

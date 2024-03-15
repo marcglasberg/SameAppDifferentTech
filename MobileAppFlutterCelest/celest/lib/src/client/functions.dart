@@ -262,7 +262,7 @@ class CelestFunctionsPortfolio {
   }
 
   /// Buys the given [availableStock] and return the [Stock] bought.
-  /// This may thrown the same [UserException] thrown by [Portfolio].
+  /// This may thrown the same [UserException]s thrown by [Portfolio].
   ///
   Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
       buyStock(
@@ -294,9 +294,8 @@ class CelestFunctionsPortfolio {
   }
 
   /// Sells the given [availableStock] and return the [Stock] bought.
-  /// /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
-  ///
-  /// This may thrown the same [UserException] thrown by [Portfolio].
+  /// Returns a Stock with `howManyShares` zero and `averagePrice` zero if all the stock was sold.
+  /// This may thrown the same [UserException]s thrown by [Portfolio].
   ///
   Future<({_$cash_balance.CashBalance cashBalance, _$stock.Stock stock})>
       sellStock(

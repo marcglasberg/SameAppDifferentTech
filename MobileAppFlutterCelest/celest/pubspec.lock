@@ -37,10 +37,10 @@ packages:
     dependency: "direct main"
     description:
       name: async_redux_core
-      sha256: b105fae481e14645d042bdce2ddb0f225e2bb77eedf38f64255ef9cdfc649c0d
+      sha256: c515e546ac7ccc461bce8bfb9204867d5b9ea4a15c91ae99a8be04e09d7265ed
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.2.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -69,10 +69,10 @@ packages:
     dependency: transitive
     description:
       name: cedar
-      sha256: "08694362fce1f942d0f868ff8460931e2d32d9e568a1672ca98aa387cab248aa"
+      sha256: b36171d98f7e19f3277493f4ebc83c62c365f80aacbffc665f069ab708549240
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.1.1"
   celest:
     dependency: "direct main"
     description:
@@ -133,10 +133,10 @@ packages:
     dependency: transitive
     description:
       name: corks_cedar
-      sha256: "85296f9500ff5cf8ec135520fc28caaf2858af8a6da129d7caedaed869cb8a44"
+      sha256: ec403b1fcc1fb16cad1f3c1bca9d71d42c59fb0ca952bc1f5c50f0f934c2fc74
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.1.1"
   coverage:
     dependency: transitive
     description:
