@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_redux/client/infra/dao/dao.dart';
+import 'package:mobile_app_flutter_redux/client/infra/dao/simulated_dao/simulated_dao.dart';
 
 import 'ab_testing.dart';
 
@@ -64,6 +65,18 @@ class RunConfig {
       Translations.missingTranslationCallback = (_, __) {};
     }
   }
+
+  @visibleForTesting
+  static void setTestInstance() => RunConfig.setInstance(
+        RunConfig(
+          dao: SimulatedDao(),
+          ifShowRunConfigInTheConfigScreen: true,
+          abTesting: AbTesting.A,
+          disablePlatformChannels: true,
+          ifChecksInternetConnection: false,
+          ifLogsMissingTranslations: false,
+        ),
+      );
 
   /// Returns the current RunConfig instance.
   /// Throws if that instance is not yet defined.

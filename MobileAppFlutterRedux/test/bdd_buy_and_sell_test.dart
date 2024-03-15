@@ -2,6 +2,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
@@ -12,6 +13,10 @@ import 'test_utils/matchers.dart';
 
 void main() {
   var feature = BddFeature('Buying and Selling Stocks');
+
+  setUp(() {
+    RunConfig.setTestInstance();
+  });
 
   Bdd(feature)
       .scenario('Buying stocks.')

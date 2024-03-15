@@ -2,6 +2,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:bdd_framework/bdd_framework.dart';
 import "package:flutter_test/flutter_test.dart";
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
@@ -12,6 +13,10 @@ import 'test_utils/store_tester_matchers.dart';
 
 void main() {
   var feature = BddFeature('Average Price');
+
+  setUp(() {
+    RunConfig.setTestInstance();
+  });
 
   Bdd(feature)
       .scenario('Buying and Selling stocks changes the average price.')
@@ -53,7 +58,7 @@ void main() {
 
     var avbStock = AvailableStock(ticker, name: '$ticker corp', currentPrice: price);
 
-    var stock = Stock( ticker, howManyShares: quantity, averagePrice: at);
+    var stock = Stock(ticker, howManyShares: quantity, averagePrice: at);
 
     var store = Store(
       initialState: AppState.from(

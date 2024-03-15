@@ -1,6 +1,7 @@
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
+import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_sell_stock.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart';
@@ -8,6 +9,10 @@ import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 import 'package:mobile_app_flutter_redux/models/stock.dart';
 
 void main() {
+  setUp(() {
+    RunConfig.setTestInstance();
+  });
+
   final ibmAvb = AvailableStock('IBM', name: 'I. B. Machines', currentPrice: 150);
   final ibm_1Share = Stock('IBM', howManyShares: 1, averagePrice: 150);
   final ibm_2Shares = Stock('IBM', howManyShares: 2, averagePrice: 150);
@@ -28,8 +33,7 @@ void main() {
     expect(vm.ifBuyDisabled, true);
 
     // The BUY button is enabled, as we can buy stock that costs 150 when there is exactly 150.
-    store =
-        Store(initialState: AppState.from(cashBalance: 150, availableStocks: [ibmAvb]));
+    store = Store(initialState: AppState.from(cashBalance: 150, availableStocks: [ibmAvb]));
     vm = Vm.createFrom(store, factory());
     expect(vm.ifBuyDisabled, false);
 
@@ -46,8 +50,7 @@ void main() {
     expect(vm.ifSellDisabled, true);
 
     // Cannot sell IBM, when there are only AAPL stocks.
-    store =
-        Store(initialState: AppState.from(availableStocks: [ibmAvb], stocks: [aapl_1Share]));
+    store = Store(initialState: AppState.from(availableStocks: [ibmAvb], stocks: [aapl_1Share]));
     vm = Vm.createFrom(store, factory());
     expect(vm.ifSellDisabled, true);
 
