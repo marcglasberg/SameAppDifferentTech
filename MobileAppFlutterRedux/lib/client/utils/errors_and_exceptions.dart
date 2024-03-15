@@ -1,7 +1,3 @@
-import "dart:io";
-
-import "package:async_redux/async_redux.dart";
-
 /// Used for Bugs.
 class AppError extends AssertionError {
   //
@@ -100,26 +96,4 @@ class ValidateError extends TypeError {
 
   @override
   int get hashCode => msg.hashCode;
-}
-
-/// UserException that shows in the console.
-/// Used for debugging reasons only, for short periods of time.
-/// It is marked as [deprecated] so that you don't forget to remove it.
-/// Note: To remove it, just remove the "_ShowInConsole" part.
-@deprecated
-class UserException_ShowInConsole extends UserException {
-  //
-  UserException_ShowInConsole(
-    String msg, {
-    Object? cause,
-    ExceptionCode? code,
-  }) : super(msg, cause: cause, code: code) {
-    stderr.writeln(
-      '\nMsg = $msg, '
-      '================================================================'
-      '\nCause = $cause,'
-      '================================================================'
-      '\nCode = $code',
-    );
-  }
 }

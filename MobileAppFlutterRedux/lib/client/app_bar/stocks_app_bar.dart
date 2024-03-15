@@ -49,8 +49,6 @@ class StocksAppBar extends SimpleAppBar {
       icon: const Icon(Icons.settings, color: AppColor.white),
       tooltip: 'Open configuration screen',
       onPressed: () {
-        // Same as:
-        StoreProvider.of<AppState>(context, this).dispatch(NavigateToConfigScreen_Action());
         print(context.state.availableStocks);
         context.dispatch(NavigateToConfigScreen_Action());
       },

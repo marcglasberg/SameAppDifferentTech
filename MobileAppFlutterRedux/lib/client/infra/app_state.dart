@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
@@ -73,14 +71,5 @@ class AppState {
 }
 
 extension BuildContextExtension on BuildContext {
-  AppState get state => StoreProvider.of<AppState>(this, null).state;
-
-  FutureOr<ActionStatus> dispatch(ReduxAction<AppState> action, {bool notify = true}) =>
-      StoreProvider.of<AppState>(this, null).dispatch(action, notify: notify);
-
-  Future<ActionStatus> dispatchAsync(ReduxAction<AppState> action, {bool notify = true}) =>
-      StoreProvider.of<AppState>(this, null).dispatchAsync(action, notify: notify);
-
-  ActionStatus dispatchSync(ReduxAction<AppState> action, {bool notify = true}) =>
-      StoreProvider.of<AppState>(this, null).dispatchSync(action, notify: notify);
+  AppState get state => getState<AppState>();
 }

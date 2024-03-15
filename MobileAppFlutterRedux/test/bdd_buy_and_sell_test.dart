@@ -30,15 +30,14 @@ void main() {
       availableStocks: [ibm],
     );
 
-    var storeTester = StoreTester(initialState: state);
+    var store = Store(initialState: state);
 
     // When:
-    await storeTester.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
-    storeTester.wait(BuyStock_Action);
+    await store.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
 
     // Then:
-    expect(storeTester.lastInfo.state.portfolio.howManyStocks('IBM'), 1);
-    expect(storeTester.lastInfo.state.portfolio.cashBalance, CashBalance(90.00));
+    expect(store.state.portfolio.howManyStocks('IBM'), 1);
+    expect(store.state.portfolio.cashBalance, CashBalance(90.00));
   });
 
   Bdd(feature)
@@ -93,17 +92,17 @@ void main() {
       cashBalance: 120.00,
     );
 
-    var storeTester = StoreTester(initialState: state);
+    var store = Store(initialState: state);
 
     // When:
     var ibm = state.availableStocks.findBySymbol('IBM');
-    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
 
     // Then:
-    expect(info.state.portfolio.howManyStocks('IBM'), 2);
-    expect(info.state.portfolio.howManyStocks('AAPL'), 5);
-    expect(info.state.portfolio.howManyStocks('GOOG'), 12);
-    expect(info.state.portfolio.cashBalance, CashBalance(150.00));
+    expect(store.state.portfolio.howManyStocks('IBM'), 2);
+    expect(store.state.portfolio.howManyStocks('AAPL'), 5);
+    expect(store.state.portfolio.howManyStocks('GOOG'), 12);
+    expect(store.state.portfolio.cashBalance, CashBalance(150.00));
 
     //  /// The code below shows the alternative hard-coded implementation:
     //
@@ -124,16 +123,16 @@ void main() {
     //    stocks: stocks,
     //    cashBalance: 120.00);
     //
-    //  var storeTester = StoreTester(initialState: state);
+    //  var store = Store(initialState: state);
     //
     //  // When:
-    //  var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    //  await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
     //
     //  // Then:
-    //  expect(info.state.portfolio.howManyStocks('IBM'), 2);
-    //  expect(info.state.portfolio.howManyStocks('AAPL'), 5);
-    //  expect(info.state.portfolio.howManyStocks('GOOG'), 12);
-    //  expect(info.state.portfolio.cashBalance, CashBalance(150.00));
+    //  expect(store.state.portfolio.howManyStocks('IBM'), 2);
+    //  expect(store.state.portfolio.howManyStocks('AAPL'), 5);
+    //  expect(store.state.portfolio.howManyStocks('GOOG'), 12);
+    //  expect(store.state.portfolio.cashBalance, CashBalance(150.00));
   });
 
   Bdd(feature)
@@ -156,14 +155,14 @@ void main() {
 
     expect(state.portfolio.stocks, isEmpty); // No IBM.
 
-    var storeTester = StoreTester(initialState: state);
+    var store = Store(initialState: state);
 
     // When:
-    var info = await storeTester.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    var status = await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
 
     // Then:
-    expect(info.error, isAError('Cannot sell stock you do not own'));
-    expect(info.state.portfolio.howManyStocks(ibm.ticker), 0);
-    expect(info.state.portfolio.cashBalance, CashBalance(120.00));
+    expect(status.originalError, isAError('Cannot sell stock you do not own'));
+    expect(store.state.portfolio.howManyStocks(ibm.ticker), 0);
+    expect(store.state.portfolio.cashBalance, CashBalance(120.00));
   });
 }

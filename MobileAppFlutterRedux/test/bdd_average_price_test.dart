@@ -55,7 +55,7 @@ void main() {
 
     var stock = Stock( ticker, howManyShares: quantity, averagePrice: at);
 
-    var storeTester = StoreTester(
+    var store = Store(
       initialState: AppState.from(
         cashBalance: 100000.00, // Enough money to buy whatever we want.
         availableStocks: [avbStock],
@@ -64,14 +64,14 @@ void main() {
     );
 
     // When:
-    await storeTester.dispatchAndWait(
+    await store.dispatchAndWait(
       buyOrSell.isBuy
           ? BuyStock_Action(avbStock, howMany: how)
           : SellStock_Action(avbStock, howMany: how),
     );
 
     // Then:
-    var portfolio = storeTester.lastInfo.state.portfolio;
+    var portfolio = store.state.portfolio;
 
     // Tip: Here I'm using a custom matcher: `isPortfolioWithStock`.
     // Check its documentation in file `test/utils/store_tester_matchers.dart`.

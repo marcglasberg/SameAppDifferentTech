@@ -41,8 +41,8 @@ class ThrowsWithMessage<T> extends Matcher {
     if (error is AssertionError) return (error.message == null) ? null : error.message.toString();
     if (error is AppError) return (error.message == null) ? null : error.message.toString();
     if (error is ValidateError) return error.msg;
-    if (error is NotYetImplementedError) return error.msg;
-    if (error is UserException) return error.msg;
+    if (error is NotYetImplementedError) return error.msg.toString();
+    if (error is UserException) return error.message;
     if (error is InterruptControlFlowException) return "";
     return error.toString();
   }
@@ -189,8 +189,8 @@ class _IsUserExceptionWithHardCause extends Matcher {
   @override
   bool matches(item, Map matchState) {
     if (item is UserException) {
-      final hardCause = item.hardCause();
-      return _cause is Type ? hardCause.runtimeType == _cause : hardCause == _cause;
+      final hardCause = item.hardCause;
+      return _cause is Type ? (hardCause.runtimeType == _cause) : (hardCause == _cause);
     } else
       return false;
   }
