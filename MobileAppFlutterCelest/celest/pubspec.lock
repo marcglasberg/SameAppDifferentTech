@@ -69,10 +69,10 @@ packages:
     dependency: transitive
     description:
       name: cedar
-      sha256: b36171d98f7e19f3277493f4ebc83c62c365f80aacbffc665f069ab708549240
+      sha256: d06b76ad60e5bd460d471a2b3f930bd0082f0367585dfbbb66750094ebce09ed
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   celest:
     dependency: "direct main"
     description:
@@ -261,10 +261,10 @@ packages:
     dependency: transitive
     description:
       name: jni
-      sha256: "0d88790bdf7e298aa65a9094c62b58ea231169a2deb84f23defc7d7955885b43"
+      sha256: "499558e919997adfc45809a66caf0b95b91393e23289dd2826b152f8f04e6611"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.7.3"
   js:
     dependency: transitive
     description:

@@ -13,7 +13,7 @@ void main() {
 
   setUp(() {
     RunConfig.setTestInstance();
-    celest.init(environment: CelestEnvironment.production);
+    celest.init(environment: CelestEnvironment.local);
   });
 
   Bdd(feature)
@@ -65,7 +65,7 @@ void main() {
   });
 
   Bdd(feature)
-      .scenario('Remove cash you don not have.')
+      .scenario('Remove cash you do not have.')
       .given('The user has 30 dollars in cash-balance.')
       .when('The user removes 100 dollars.')
       .then('The user now has 0 dollars.')
@@ -85,9 +85,7 @@ void main() {
     var status = await store.dispatchAndWait(RemoveCash_Action(100));
 
     // Then:
-    // expect(store.state.portfolio.cashBalance, CashBalance(0.00));
-
-    expect(status.originalError, isA<UserException>());
     expect(store.state.portfolio.cashBalance, CashBalance(30.00));
+    expect(status.originalError, isA<UserException>());
   });
 }
