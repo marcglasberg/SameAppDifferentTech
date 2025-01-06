@@ -50,12 +50,16 @@ void initSerializers() {
       r'message': $value.message,
       r'code': $value.code,
       r'reason': $value.reason,
+      r'ifOpenDialog': $value.ifOpenDialog,
+      r'errorText': $value.errorText,
     },
     deserialize: ($serialized) {
       return _$user_exception.UserException(
         ($serialized[r'message'] as String?),
         code: ($serialized[r'code'] as num?)?.toInt(),
         reason: ($serialized[r'reason'] as String?),
+        ifOpenDialog: (($serialized[r'ifOpenDialog'] as bool?)) ?? true,
+        errorText: ($serialized[r'errorText'] as String?),
       );
     },
   ));

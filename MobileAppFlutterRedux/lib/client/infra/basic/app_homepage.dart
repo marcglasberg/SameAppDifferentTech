@@ -3,7 +3,7 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:i18n_extension/i18n_widget.dart';
+import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/ACTION_process_lifecycle_change.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/client.dart';

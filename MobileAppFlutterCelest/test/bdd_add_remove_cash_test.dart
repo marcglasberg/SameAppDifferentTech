@@ -13,7 +13,7 @@ void main() {
 
   setUp(() {
     RunConfig.setTestInstance();
-    celest.init(environment: CelestEnvironment.local);
+    celest.init(environment: CelestEnvironment.production);
   });
 
   Bdd(feature)

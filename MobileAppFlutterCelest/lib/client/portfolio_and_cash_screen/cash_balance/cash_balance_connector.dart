@@ -100,6 +100,7 @@ class CashBalanceWidget extends StatelessWidget {
       tapColor: isWaiting ? AppColor.disabledGray : AppColor.buttonGreen.lighter(0.2),
       icon: const Icon(Icons.add, color: AppColor.white),
       onTap: isWaiting ? null : onAddCash,
+      debugShowClickableArea: false,
     );
   }
 
@@ -110,6 +111,7 @@ class CashBalanceWidget extends StatelessWidget {
       tapColor: isWaiting ? AppColor.disabledGray : AppColor.buttonRed.lighter(0.2),
       icon: const Icon(Icons.remove, color: AppColor.white),
       onTap: isWaiting ? null : onRemoveCash,
+      debugShowClickableArea: false,
     );
   }
 }

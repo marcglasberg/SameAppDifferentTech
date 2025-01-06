@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  async_redux: ^22.1.0
+  async_redux: ^23.0.0
   align_positioned: ^4.0.0
   animated_size_and_fade: ^4.0.0
   animations: ^2.0.11
@@ -22,11 +22,11 @@ dependencies:
   fast_immutable_collections: ^10.1.0
   flutter_svg: ^2.0.9
   http: ^1.1.2
-  i18n_extension: ^10.0.1
+  i18n_extension: ^11.0.12
   intl: 0.18.1
   matrix4_transform: ^3.0.0
-  themed: ^5.0.0
-  timezone: ^0.9.2
+  themed: ^5.0.3
+  timezone: ^0.9.3
   weak_map: ^3.0.0
 
 dev_dependencies:
