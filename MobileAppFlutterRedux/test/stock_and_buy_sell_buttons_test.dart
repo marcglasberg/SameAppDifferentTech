@@ -180,7 +180,6 @@ void main() {
       ' * Sell button enabled, '
       ' * Callback `onBuy` fails with `UserException`'
       ' * Callback `onSell` works.', () async {
-        
     // Initial state: 2 shares of IBM stock in portfolio, $100 cash balance.
     // IBM available stock costs $150 per share.
     var store = Store(
@@ -206,13 +205,12 @@ void main() {
 
     // Try to sell, should work.
     widget.onSell();
-    var sellAction = await store.waitActionType(SellStock);
+    await store.waitActionType(SellStock);
 
     // Verify sell succeeded: cash balance increased by stock price.
-    expect(sellAction!.state.portfolio.cashBalance.amount,
-        100 + ibmAvb.currentPrice);
+    expect(store.state.portfolio.cashBalance.amount, 100 + ibmAvb.currentPrice);
 
     // Verify sell succeeded: portfolio now has 1 share instead of 2.
-    expect(sellAction.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
+    expect(store.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
   });
 }

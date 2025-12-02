@@ -3,12 +3,12 @@
 > This is part of
 > the **<a href="https://github.com/marcglasberg/SameAppDifferentTech">Same App,
 Different Tech</a>**
-> project.
+> repository.
 >
 > It contains the same simple but non-trivial **mobile app** implemented using a
 > variety of *different tech stacks*.
 
-### Why is this repository useful?
+### Why is this useful?
 
 * It helps you learn **Async Redux state management for Flutter**.
 
@@ -19,16 +19,15 @@ Different Tech</a>**
   by comparing them through applications that are functionally identical.
 
 
-* Feel free to clone this repository as a foundation for your own Flutter Redux
-  applications. It's a starting point for clean, well organized, well documented
-  code, which is easy to understand, develop, refactor, change, maintain and
-  test.
+* You may clone this as a foundation for your own Flutter Redux applications.
+  It's a starting point for clean, well organized, well documented code, which
+  is easy to understand, develop, refactor, change, maintain and test.
 
-## This app demonstrates the following:
+## This app demonstrates the following
 
-* Flutter app.
+* A Flutter app.
 
-* Using Async Redux ([website](https://asyncredux.com)
+* Using Async Redux (see [website](https://asyncredux.com)
   and [package](https://pub.dev/packages/async_redux))
   for state management.
 
@@ -53,8 +52,8 @@ Different Tech</a>**
 
 * Organizing the app directories.
 
-* Note: This example app does not cover Navigation (even though Async Redux does
-  contain navigation features) nor Authentication.
+* Note: This example app does not cover Authentication or Navigation (even
+  though Async Redux does contain navigation features).
 
 This is the app:
 
@@ -62,7 +61,7 @@ This is the app:
 
 # The State
 
-Class `AppState` is the app state, composed of 3 "sub-states":
+Class `AppState` is the app state, composed of 3 substates:
 
 * `Portfolio` contains the cash balance and the list of stocks owned by the
   user.
