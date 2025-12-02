@@ -782,8 +782,8 @@ to read information from the state, and then returns an instance of the
 
    File [stock_and_buy_sell_buttons.dart](lib/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart)
    also contains `StockAndBuySellButtons`, which is the "view" (also called the
-   "dumb widget"). It does not access the
-   store directly. Instead, it gets all information from its constructor.
+   "dumb widget"). It does not access the store directly.
+   Instead, it gets all information from its constructor.
 
    ```
    const StockAndBuySellButtons({
@@ -795,9 +795,9 @@ to read information from the state, and then returns an instance of the
    });
    ```
 
-   The only way to test this widget is through "widget tests" (`testWidgets`).
-   However, the ability to configure it through its constructor simplifies the
-   testing process.
+   The only way to test this widget is through "widget tests" (`testWidgets`),
+   but being able to pass all parameters through its constructor makes the
+   testing process simpler.
 
    For example, we don't need to test that the BUY button is disabled when there
    is no money to buy stock. We just need to test that
@@ -807,6 +807,9 @@ to read information from the state, and then returns an instance of the
    Likewise, we don't need to test that pressing the BUY button will call the
    correct store function. We just need to test that it actually calls
    the `onBuy()` callback.
+
+   See
+   file [stock_and_buy_sell_buttons_presentation_test.dart](test/stock_and_buy_sell_buttons_presentation_test.dart)
 
 ## BDD tests
 
@@ -1108,6 +1111,73 @@ src/
 │   │   └── portfolio.dart 
 ```
 
+---
+
+# Using AI
+
+This is the recommended way to use AI tools like ChatGPT, Claude Code, Gemini,
+Cursor, and others, to help you develop your app:
+
+1. First, when you create your widgets, access the state directly using
+   `context.state` and `context.dispatch()`. For example:
+
+   ```dart              
+   class UserNameButton extends StatelessWidget {
+   
+     Widget build(BuildContext context) {       
+       return ElevatedButton(        
+         onPressed: () => context.dispatch(UpdateName('New Name')),
+         child: Text('Name: ${context.state.user.name}'),
+       );           
+     }
+   }
+   ```   
+
+2. Ask the AI to separate the widget into a "connector" widget and a "view"
+   widget, by implementing the "smart/dumb widget pattern".
+   Also, ask it to translate all `context.state` usages into `context.select()`
+   calls. For example:
+
+   ```dart
+   class UserNameButtonConnector extends StatelessWidget {
+     const UserNameButtonConnector({Key? key}) : super(key: key);   
+    
+     Widget build(BuildContext context) {       
+       return UserNameButton(
+         name: context.select((st) => st.user.name),
+         onChangeName: () => context.dispatch(UpdateName('New Name')),
+       );
+     }
+   }
+   
+   class UserNameButton extends StatelessWidget {
+     const UserNameButton({
+       required this.name,
+       required this.onChangeName,
+     });
+   
+     final String name;
+     final VoidCallback onChangeName;
+   
+     Widget build(BuildContext context) {
+       return ElevatedButton(        
+         onPressed: onChangeName,
+         child: Text('Name: $name'),
+       );           
+     }
+   }
+   ```   
+
+3. Ask the AI to create widget tests for the "connector" (smart) widget
+   using `test()` calls and the `MockBuildContext` class.
+
+
+4. Finally, ask the AI to create widget tests for the "view" (dumb) widget
+   using `testWidget()` calls.
+
+The separation into connector and view widgets makes it much easier for the AI
+to create the tests, as it doesn't need to deal with the store access inside
+the view widget.
      
 ---
 
