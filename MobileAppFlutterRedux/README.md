@@ -1,8 +1,8 @@
 # Flutter with Async Redux
 
 > This is part of
->
-the [Same App, Different Tech](https://github.com/marcglasberg/SameAppDifferentTech)
+> the **<a href="https://github.com/marcglasberg/SameAppDifferentTech">Same App,
+Different Tech</a>**
 > project.
 >
 > It contains the same simple but non-trivial **mobile app** implemented using a
