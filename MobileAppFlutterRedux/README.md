@@ -768,13 +768,13 @@ to read information from the state, and then returns an instance of the
 
     // Try to sell, should work.
     widget.onSell();
-    var sellAction = await store.waitActionType(SellStock);
+    await store.waitActionType(SellStock);
 
     // Verify sell succeeded: cash balance increased by stock price.
-    expect(sellAction!.state.portfolio.cashBalance.amount, 100 + ibmAvb.currentPrice);
+    expect(store.state.portfolio.cashBalance.amount, 100 + ibmAvb.currentPrice);
 
     // Verify sell succeeded: portfolio now has 1 share instead of 2.
-    expect(sellAction.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
+    expect(store.state.portfolio.howManyStocks(ibmAvb.ticker), 1);
    });
    ```
 
