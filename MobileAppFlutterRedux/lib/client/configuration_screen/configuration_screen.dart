@@ -5,7 +5,6 @@ import 'package:i18n_extension/i18n_extension.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/ACTION_navigate_to_screen.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
-import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/infra/dao/real_dao/real_dao.dart';
 import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
@@ -15,93 +14,20 @@ import '../utils/divider.dart';
 import 'ACTION_toggle_light_and_dark_mode.dart';
 import 'configuration_screen.i18n.dart';
 
-class ConfigurationScreen_Connector extends StatelessWidget {
-  const ConfigurationScreen_Connector({super.key});
+class ConfigurationScreen_Connector extends StatefulWidget {
+  const ConfigurationScreen_Connector();
 
   @override
-  Widget build(BuildContext context) => StoreConnector<AppState, _Vm>(
-        vm: () => _Factory(),
-        builder: (context, vm) {
-          return ConfigurationScreen(
-            isDarkMode: vm.isDarkMode,
-            toggleLightAndDarkMode: vm.toggleLightAndDarkMode,
-            toggleShowRunConfigInTheConfigScreen: vm.toggleShowRunConfigInTheConfigScreen,
-            toggleAbTesting: vm.toggleAbTesting,
-            onDone: vm.onDone,
-          );
-        },
-      );
+  State<ConfigurationScreen_Connector> createState() =>
+      _ConfigurationScreen_ConnectorState();
 }
 
-class _Factory extends AppVmFactory<_Vm, ConfigurationScreen_Connector> {
-  @override
-  _Vm fromStore() => _Vm(
-        isDarkMode: state.ui.isDarkMode,
-        toggleLightAndDarkMode: _toggleLightAndDarkMode,
-        toggleShowRunConfigInTheConfigScreen: _toggleShowRunConfigInTheConfigScreen,
-        toggleAbTesting: _toggleAbTesting,
-        onDone: _onDone,
-      );
-
-  void _toggleLightAndDarkMode() => dispatch(ToggleLightAndDarkMode_Action());
-
-  void _toggleShowRunConfigInTheConfigScreen() {
-    var newRunConfig = RunConfig.instance.copy(
-        ifShowRunConfigInTheConfigScreen: !RunConfig.instance.ifShowRunConfigInTheConfigScreen);
-    RunConfig.setInstance(newRunConfig);
-  }
-
-  void _toggleAbTesting() {
-    var newRunConfig = RunConfig.instance.copy(abTesting: RunConfig.instance.abTesting.next);
-    RunConfig.setInstance(newRunConfig);
-  }
-
-  void _onDone() => dispatch(NavigateToPortfolioAndCashBalanceScreen_Action());
-}
-
-class _Vm extends Vm {
-  //
-  final bool isDarkMode;
-  final VoidCallback toggleLightAndDarkMode,
-      toggleShowRunConfigInTheConfigScreen,
-      toggleAbTesting,
-      onDone;
-
-  _Vm({
-    required this.isDarkMode,
-    required this.toggleLightAndDarkMode,
-    required this.toggleShowRunConfigInTheConfigScreen,
-    required this.toggleAbTesting,
-    required this.onDone,
-  }) : super(equals: [isDarkMode]);
-}
-
-class ConfigurationScreen extends StatefulWidget {
-  //
-  final bool isDarkMode;
-  final VoidCallback toggleLightAndDarkMode,
-      toggleShowRunConfigInTheConfigScreen,
-      toggleAbTesting,
-      onDone;
-
-  ConfigurationScreen({
-    super.key,
-    required this.isDarkMode,
-    required this.toggleLightAndDarkMode,
-    required this.toggleShowRunConfigInTheConfigScreen,
-    required this.toggleAbTesting,
-    required this.onDone,
-  });
-
-  @override
-  State<ConfigurationScreen> createState() => _ConfigurationScreenState();
-}
-
-class _ConfigurationScreenState extends State<ConfigurationScreen> {
+class _ConfigurationScreen_ConnectorState
+    extends State<ConfigurationScreen_Connector> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: ValueKey(widget.isDarkMode),
+      key: ValueKey(context.state.ui.isDarkMode),
       appBar: SimpleAppBar(title: 'Configuration'.i18n),
       backgroundColor: AppColor.bkgGray,
       body: Column(
@@ -110,11 +36,23 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                _option1(),
-                _option2(),
-                if (RunConfig.instance.ifShowRunConfigInTheConfigScreen) _runConfigOptions(),
-                if (Translations.missingKeys.isNotEmpty) _missingTranslationKeys(),
-                if (Translations.missingTranslations.isNotEmpty) _missingTranslations(),
+                // Choice between light mode and dark mode.
+                _optionLightOrDarkMode(),
+                //
+                // Choice between English and Spanish.
+                _optionLangEnglishOrSpanish(),
+                //
+                // Shows run-configuration options, if requested.
+                if (RunConfig.instance.ifShowRunConfigInTheConfigScreen)
+                  _runConfigOptions(),
+                //
+                // Shows missing translation keys and translations, if any.
+                if (Translations.missingKeys.isNotEmpty)
+                  _missingTranslationKeys(),
+                //
+                // Missing translations, if any.
+                if (Translations.missingTranslations.isNotEmpty)
+                  _missingTranslations(),
               ],
             ),
           ),
@@ -126,7 +64,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               padding: const EdgeInsets.all(16),
               color: Colors.green,
               child: Text('Done'.i18n, style: Font.small + AppColor.white),
-              onPressed: widget.onDone,
+              onPressed: () =>
+                  context.dispatch(NavigateToPortfolioAndCashBalanceScreen()),
             ),
           ),
         ],
@@ -141,7 +80,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         space16,
         const ThinDivider(),
         space16,
-        Text('Missing translation keys'.i18n, style: Font.small + AppColor.textDimmed),
+        Text('Missing translation keys'.i18n,
+            style: Font.small + AppColor.textDimmed),
         space12,
         for (TranslatedString ts in Translations.missingKeys)
           Text('${ts.locale}: "${ts.key}"', style: Font.small)
@@ -156,7 +96,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         space16,
         const ThinDivider(),
         space16,
-        Text('Missing translations'.i18n, style: Font.small + AppColor.textDimmed),
+        Text('Missing translations'.i18n,
+            style: Font.small + AppColor.textDimmed),
         space12,
         for (TranslatedString ts in Translations.missingTranslations)
           Text('${ts.locale}: "${ts.key}"', style: Font.small)
@@ -164,21 +105,23 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget _option1() {
+  Widget _optionLightOrDarkMode() {
+    final isDarkMode = context.state.ui.isDarkMode;
+
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child:
-                Text(widget.isDarkMode ? 'Dark mode'.i18n : 'Light mode'.i18n, style: Font.medium),
+            child: Text(isDarkMode ? 'Dark mode'.i18n : 'Light mode'.i18n,
+                style: Font.medium),
           ),
           Switch(
-            activeColor: AppColor.blue,
-            value: widget.isDarkMode,
+            activeThumbColor: AppColor.blue,
+            value: isDarkMode,
             onChanged: (_) {
               setState(() {
-                widget.toggleLightAndDarkMode();
+                context.dispatch(ToggleLightAndDarkMode());
               });
             },
           ),
@@ -187,8 +130,8 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget _option2() {
-    bool isSpanish = (I18n.language == 'sp');
+  Widget _optionLangEnglishOrSpanish() {
+    bool isSpanish = (I18n.of(context).locale.languageCode == 'es');
 
     return Item(
       child: Row(
@@ -198,11 +141,13 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             child: Text(isSpanish ? 'Español' : 'English', style: Font.medium),
           ),
           Switch(
-            activeColor: AppColor.blue,
+            activeThumbColor: AppColor.blue,
             value: isSpanish,
             onChanged: (_) {
               setState(() {
-                var newLocale = isSpanish ? const Locale("en", "US") : const Locale("sp", "ES");
+                var newLocale = isSpanish
+                    ? const Locale('en', 'US')
+                    : const Locale('es', 'ES');
                 print('Changing locale to $newLocale.');
 
                 I18n.of(context).locale = newLocale;
@@ -223,14 +168,14 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         space16,
         Text('Run Configuration'.i18n, style: Font.small + AppColor.textDimmed),
         space12,
-        _runConfigOption1(),
-        _runConfigOption3(),
-        _runConfigOption4(),
+        _optionShowRunConfig(),
+        _optionAOrBTesting(),
+        _optionsSimulationOnOrOff(),
       ],
     );
   }
 
-  Widget _runConfigOption1() {
+  Widget _optionShowRunConfig() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -239,11 +184,15 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             child: Text('Show Run Configuration'.i18n, style: Font.medium),
           ),
           Switch(
-            activeColor: AppColor.blue,
+            activeThumbColor: AppColor.blue,
             value: RunConfig.instance.ifShowRunConfigInTheConfigScreen,
             onChanged: (_) {
               setState(() {
-                widget.toggleShowRunConfigInTheConfigScreen();
+                RunConfig.setInstance(
+                  RunConfig.instance.copy(
+                      ifShowRunConfigInTheConfigScreen:
+                          !RunConfig.instance.ifShowRunConfigInTheConfigScreen),
+                );
               });
             },
           ),
@@ -252,7 +201,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget _runConfigOption3() {
+  Widget _optionAOrBTesting() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -269,7 +218,10 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             ),
             onPressed: () {
               setState(() {
-                widget.toggleAbTesting();
+                RunConfig.setInstance(
+                  RunConfig.instance
+                      .copy(abTesting: RunConfig.instance.abTesting.next),
+                );
               });
             },
           ),
@@ -278,7 +230,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  Widget _runConfigOption4() {
+  Widget _optionsSimulationOnOrOff() {
     return Item(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -298,7 +250,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
 class Item extends StatelessWidget {
   final Widget child;
 
-  const Item({super.key, required this.child});
+  const Item({required this.child});
 
   @override
   Widget build(BuildContext context) {

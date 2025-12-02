@@ -17,5 +17,5 @@ Future<void> startApp(RunConfig runConfig) async {
     Client.init(), // Client layer, like Flutter widgets and screens.
   ]);
 
-  runApp(const AppHomePage());
+  runApp(const App());
 }

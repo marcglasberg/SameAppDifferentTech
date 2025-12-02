@@ -28,17 +28,22 @@ class CashBalance {
     return CashBalance(newAmount);
   }
 
+  bool isZero() => amount == 0;
+
   @override
   String toString() => 'US\$ ${amount.toStringAsFixed(2)}';
 
   Json toJson() => {'amount': amount};
 
-  factory CashBalance.fromJson(Json json) => CashBalance(json.asDouble('amount')!);
+  factory CashBalance.fromJson(Json json) =>
+      CashBalance(json.asDouble('amount')!);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CashBalance && runtimeType == other.runtimeType && amount == other.amount;
+      other is CashBalance &&
+          runtimeType == other.runtimeType &&
+          amount == other.amount;
 
   @override
   int get hashCode => amount.hashCode;

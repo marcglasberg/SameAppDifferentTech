@@ -17,7 +17,7 @@ class Business {
   /// 3. If no state is found in the local device disk, it creates a new state and then saves it.
   /// 4. Creates the Redux "store" which holds the app state in memory.
   /// 5. Initializes the DAO (Data Access Object) which fetches data from the backend.
-  /// 6. Runs a Redux action called `InitApp_Action` with stuff the Store needs to do as soon as the
+  /// 6. Runs a Redux action called `InitApp` with stuff the Store needs to do as soon as the
   /// app opens.
   static Future<void> init(RunConfig runConfig) async {
     //
@@ -47,7 +47,7 @@ class Business {
     await DAO.init();
 
     // 6. Do stuff that needs to be done as soon as the app opens.
-    store.dispatch(InitApp_Action());
+    store.dispatch(InitApp());
   }
 }
 
@@ -78,6 +78,6 @@ class AppWrapReduce extends WrapReduce<AppState> {
 class AppObserver extends ConsoleActionObserver<AppState> {
   @override
   void observe(ReduxAction<AppState> action, int dispatchCount, {required bool ini}) {
-    if (ini && action is! SetStockPrice_Action) super.observe(action, dispatchCount, ini: ini);
+    if (ini && action is! SetStockPrice) super.observe(action, dispatchCount, ini: ini);
   }
 }

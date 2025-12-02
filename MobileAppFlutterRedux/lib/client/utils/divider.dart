@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 
 class ThinDivider extends StatelessWidget {
-  const ThinDivider({super.key});
+  const ThinDivider();
 
   @override
   Widget build(BuildContext context) {

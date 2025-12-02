@@ -24,7 +24,8 @@ class Ui {
       );
 
   @override
-  String toString() => 'Ui{isDarkMode: $isDarkMode, screenChoice: $screenChoice}';
+  String toString() =>
+      'Ui{isDarkMode: $isDarkMode, screenChoice: $screenChoice}';
 
   /// Don't include [screenChoice].
   Json toJson() => {

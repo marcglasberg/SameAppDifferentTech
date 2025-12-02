@@ -7,9 +7,9 @@ import '../run_config/run_config.dart';
 void main() async {
   //
 
-  /// A run-configuration let us change some of the app characteristics at compile time.
-  /// We can have multiple main methods with different run-configurations, or we can create
-  /// the run-configuration programmatically.
+  /// Run configurations let you change app behavior at compile time. You can
+  /// provide different `main` entry points with distinct configurations, or
+  /// create a `RunConfig` instance programmatically and pass it to `startApp`.
   var runConfig = RunConfig(
     //
     /// If we inject the REAL dao, it will connect to the real backend service.

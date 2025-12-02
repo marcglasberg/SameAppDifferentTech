@@ -28,7 +28,7 @@ class Client {
 
   static void initNavigationCapabilities() {
     //
-    Navigate_Action.init(
+    Navigate.init(
       //
       navigatorKey: navigatorKey,
       //

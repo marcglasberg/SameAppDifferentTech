@@ -1,17 +1,30 @@
+import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/stock_and_buy_sell_buttons.dart';
-import 'package:mobile_app_flutter_redux/models/available_stocks.dart';
+import 'ACTION_fluctuate_stock_price.dart';
+import 'ACTION_read_available_stocks.dart';
 
-class AvailableStocksPanel extends StatelessWidget {
-  //
-  static const style = TextStyle(fontSize: 20, color: Colors.black);
+class AvailableStocksPanel extends StatefulWidget {
+  const AvailableStocksPanel();
 
-  final AvailableStocks availableStocks;
+  @override
+  State<AvailableStocksPanel> createState() => _AvailableStocksPanelState();
+}
 
-  const AvailableStocksPanel({
-    super.key,
-    required this.availableStocks,
-  });
+class _AvailableStocksPanelState extends State<AvailableStocksPanel> {
+  @override
+  void initState() {
+    super.initState();
+    context.dispatch(ReadAvailableStocks());
+    context.dispatch(FluctuateStockPrice(true));
+  }
+
+  @override
+  void dispose() {
+    context.dispatch(FluctuateStockPrice(false));
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,8 +34,8 @@ class AvailableStocksPanel extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (var availableStock in availableStocks.list)
-              StockAndBuySellButtons_Connector(availableStock: availableStock),
+            for (var availableStock in context.state.availableStocks.list)
+              StockAndBuySellButtonsConnector(availableStock: availableStock),
           ],
         ),
       ),

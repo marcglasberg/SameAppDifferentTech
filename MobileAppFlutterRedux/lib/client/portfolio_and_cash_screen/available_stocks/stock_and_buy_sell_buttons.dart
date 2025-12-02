@@ -2,7 +2,6 @@ import 'package:assorted_layout_widgets/assorted_layout_widgets.dart';
 import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
-import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/infra/run_config/run_config.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/available_stocks/ACTION_buy_stock.dart';
@@ -13,64 +12,23 @@ import 'package:themed/themed.dart';
 
 import '../portfolio_and_cash_screen.i18n.dart';
 
-class StockAndBuySellButtons_Connector extends StatelessWidget {
-  //
+class StockAndBuySellButtonsConnector extends StatelessWidget {
+  const StockAndBuySellButtonsConnector({required this.availableStock});
+
   final AvailableStock availableStock;
 
-  const StockAndBuySellButtons_Connector({
-    super.key,
-    required this.availableStock,
-  });
-
   @override
-  Widget build(BuildContext context) => StoreConnector<AppState, _Vm>(
-        vm: () => Factory(this),
-        builder: (context, vm) {
-          return StockAndBuySellButtons(
-            availableStock: availableStock,
-            onBuy: vm.onBuy,
-            onSell: vm.onSell,
-            ifBuyDisabled: vm.ifBuyDisabled,
-            ifSellDisabled: vm.ifSellDisabled,
-          );
-        },
-      );
-}
+  Widget build(BuildContext context) {
+    final portfolio = context.select((AppState state) => state.portfolio);
 
-class Factory extends AppVmFactory<_Vm, StockAndBuySellButtons_Connector> {
-  Factory(StockAndBuySellButtons_Connector? connector) : super(connector);
-
-  @override
-  _Vm fromStore() => _Vm(
-        onBuy: _onBuy,
-        onSell: _onSell,
-        ifBuyDisabled: !state.portfolio.hasMoneyToBuyStock(widget.availableStock),
-        ifSellDisabled: !state.portfolio.hasStock(widget.availableStock),
-      );
-
-  void _onBuy() => dispatch(
-        BuyStock_Action(connector.availableStock, howMany: 1),
-      );
-
-  void _onSell() => dispatch(
-        SellStock_Action(connector.availableStock, howMany: 1),
-      );
-}
-
-class _Vm extends Vm {
-  //
-  final VoidCallback onBuy, onSell;
-  final bool ifBuyDisabled, ifSellDisabled;
-
-  _Vm({
-    required this.onBuy,
-    required this.onSell,
-    required this.ifBuyDisabled,
-    required this.ifSellDisabled,
-  }) : super(equals: [
-          ifBuyDisabled,
-          ifSellDisabled,
-        ]);
+    return StockAndBuySellButtons(
+      availableStock: availableStock,
+      onBuy: () => context.dispatch(BuyStock(availableStock, howMany: 1)),
+      onSell: () => context.dispatch(SellStock(availableStock, howMany: 1)),
+      ifBuyDisabled: !portfolio.hasMoneyToBuyStock(availableStock),
+      ifSellDisabled: !portfolio.hasStock(availableStock),
+    );
+  }
 }
 
 class StockAndBuySellButtons extends StatelessWidget {
@@ -101,7 +59,6 @@ class StockAndBuySellButtons extends StatelessWidget {
   final bool ifBuyDisabled, ifSellDisabled;
 
   const StockAndBuySellButtons({
-    super.key,
     required this.availableStock,
     required this.onBuy,
     required this.onSell,

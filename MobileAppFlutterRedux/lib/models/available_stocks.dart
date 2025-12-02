@@ -32,7 +32,10 @@ class AvailableStocks {
     bool isPresent = list.any((s) => s.ticker == newAvailableStock.ticker);
 
     IList<AvailableStock> newList = isPresent
-        ? list.map((s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s).toIList()
+        ? list
+            .map((s) =>
+                s.ticker == newAvailableStock.ticker ? newAvailableStock : s)
+            .toIList()
         : list.add(newAvailableStock);
 
     return AvailableStocks(newList);
@@ -41,8 +44,10 @@ class AvailableStocks {
   /// Updates the available stock with the new available stock.
   /// If the stock is not found, it is NOT added to the list.
   AvailableStocks withUpdatedAvailableStock(AvailableStock newAvailableStock) {
-    final newList =
-        list.map((s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s).toIList();
+    final newList = list
+        .map(
+            (s) => s.ticker == newAvailableStock.ticker ? newAvailableStock : s)
+        .toIList();
 
     return AvailableStocks(newList);
   }
@@ -55,7 +60,9 @@ class AvailableStocks {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AvailableStocks && runtimeType == other.runtimeType && list == other.list;
+      other is AvailableStocks &&
+          runtimeType == other.runtimeType &&
+          list == other.list;
 
   @override
   int get hashCode => list.hashCode;

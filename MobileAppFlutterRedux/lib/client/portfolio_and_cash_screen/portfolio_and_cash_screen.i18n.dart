@@ -1,29 +1,29 @@
 import 'package:i18n_extension/i18n_extension.dart';
 
 extension Localization on String {
-  static final _t = Translations.byText("en_us") +
+  static final _t = Translations.byText("en-US") +
       {
-        "en_us": "Buy",
-        "sp_es": "Comprar",
+        "en-US": "Buy",
+        "es-ES": "Comprar",
       } +
       {
-        "en_us": "Sell",
-        "sp_es": "Vender",
+        "en-US": "Sell",
+        "es-ES": "Vender",
       } +
       {
-        "en_us": "shares".one("share"),
-        "sp_es": "acciones".one("acción"),
+        "en-US": "shares".one("share"),
+        "es-ES": "acciones".one("acción"),
       } +
       {
-        "en_us": "Cash Balance:",
-        "sp_es": "Efectivo:",
+        "en-US": "Cash Balance:",
+        "es-ES": "Efectivo:",
       } +
       {
-        "en_us": "Portfolio:",
-        "sp_es": "Cartera:",
+        "en-US": "Portfolio:",
+        "es-ES": "Cartera:",
       };
 
   String get i18n => localize(this, _t);
 
-  String plural(value) => localizePlural(value, this, _t);
+  String plural(int value) => localizePlural(value, this, _t);
 }

@@ -9,8 +9,9 @@ typedef JsonList = List<dynamic>;
 extension MapDeserializeExtension on Json {
   //
 
-  /// If you don't provide [T] you'll get a dynamic List. That's fast, but that almost never
-  /// what you want. So you should use it if you are going to transform the result anyway.
+  /// If you don't provide [T] you'll get a dynamic List. That's fast, but that
+  /// almost never what you want. So you should use it if you are going to
+  /// transform the result anyway.
   ///
   /// If you write json.asList(key) you will get a List<dynamic>
   /// If you write json.asList<String>(key) you will get a List<String>
@@ -28,8 +29,9 @@ extension MapDeserializeExtension on Json {
     return value;
   }
 
-  /// If you don't provide [T] you'll get a dynamic List. That's fast, but that almost never
-  /// what you want. So you should use it if you are going to transform the result anyway.
+  /// If you don't provide [T] you'll get a dynamic List. That's fast, but that
+  /// almost never what you want. So you should use it if you are going to
+  /// transform the result anyway.
   ///
   /// If you write json.asList(key) you will get a List<dynamic>
   /// If you write json.asList<String>(key) you will get a List<String>
@@ -38,11 +40,11 @@ extension MapDeserializeExtension on Json {
   IList<T> asIList<T>(String key) => asList<T>(key).lockUnsafe;
 
   /// The source in [key] must be a List<Json>. It will be converted to IList of [T] by [fromJson].
-  IList<T> asIListOf<T>(String key, T fromJson(Json json)) =>
+  IList<T> asIListOf<T>(String key, T Function(Json json) fromJson) =>
       asListOfJson(key).map(fromJson).toIList();
 
   /// The source in [key] must be a List<Json>. It will be converted to List of [T] by [fromJson].
-  List<T> asListOf<T>(String key, T fromJson(Json json)) =>
+  List<T> asListOf<T>(String key, T Function(Json json) fromJson) =>
       asListOfJson(key).map(fromJson).toList();
 
   /// If possible, prefer using [asIListOf] or [asListOf].

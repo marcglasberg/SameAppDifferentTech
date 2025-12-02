@@ -4,12 +4,12 @@ import 'package:mobile_app_flutter_redux/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_redux/client/utils/connectivity.dart';
 import 'package:mobile_app_flutter_redux/models/available_stock.dart';
 
-class BuyStock_Action extends AppAction with CheckInternet, RespectRunConfig {
+class BuyStock extends AppAction with CheckInternet, RespectRunConfig {
   //
   final AvailableStock availableStock;
   final int howMany;
 
-  BuyStock_Action(
+  BuyStock(
     this.availableStock, {
     required this.howMany,
   });
@@ -17,10 +17,13 @@ class BuyStock_Action extends AppAction with CheckInternet, RespectRunConfig {
   @override
   Future<AppState?> reduce() async {
     // Simulates some waiting.
-    await Future.delayed(const Duration(milliseconds: 10));
+    await Future.delayed(const Duration(milliseconds: 50));
 
     return state.copy(
       portfolio: state.portfolio.buy(availableStock, howMany: howMany),
     );
   }
+
+  @override
+  String toString() => 'BuyStock(${availableStock.ticker}, howMany: $howMany)';
 }

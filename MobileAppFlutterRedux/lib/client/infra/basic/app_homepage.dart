@@ -13,56 +13,66 @@ import 'package:themed/themed.dart';
 
 import 'business.dart';
 
-class AppHomePage extends StatelessWidget {
-  const AppHomePage();
+class App extends StatelessWidget {
+  const App();
 
   static const I18nWidgetId = "I18nWidget";
+
+  @override
+  Widget build(BuildContext context) {
+    return StoreProvider<AppState>(
+      store: Business.store,
+      child: const _HomePage(),
+    );
+  }
+}
+
+class _HomePage extends StatelessWidget {
+  const _HomePage();
 
   @override
   Widget build(BuildContext context) {
     //
     var navigatorRoutesWrapper = (BuildContext context, Widget? child) {
       return MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-        child: Box(
-          child: I18n(
-            id: I18nWidgetId,
-            // initialLocale: const Locale("en", "US"),
-            child: (child == null) //
-                ? const Box()
-                :
-                // This dialog gets error messages from AsyncRedux, and shows a dialog.
-                UserExceptionDialog<AppState>(child: child),
-          ),
+        data: MediaQuery.of(context).copyWith(
+          textScaler: const TextScaler.linear(1.0),
+        ),
+        child: I18n(
+          initialLocale: const Locale("en", "US"),
+          child: (child == null) //
+              ? const Box()
+              :
+              // Get errors messages from AsyncRedux, and show a dialog.
+              UserExceptionDialog<AppState>(child: child),
         ),
       );
     };
 
-    return Themed(
-      currentTheme: Business.store.state.ui.isDarkMode ? darkTheme : null,
-      child: StoreProvider<AppState>(
-        store: Business.store,
-        child: AppLifecycleManager(
-          child: MaterialApp(
-            theme: ThemeData(
-              primaryColor: Colors.green.shade800,
-              colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.green.shade600),
-            ),
-            title: "Demo App",
-            navigatorKey: Client.navigatorKey,
-            debugShowCheckedModeBanner: false,
-            builder: navigatorRoutesWrapper,
-            initialRoute: '/',
-            navigatorObservers: [
-              Client.routeObserver,
-              //
-              // TODO: Hook for analytics.
-              // FirebaseAnalyticsObserver(analytics: Dao.firebaseAnalytics),
-            ],
-            localizationsDelegates: AppLocalizations.delegates,
-            supportedLocales: AppLocalizations.supportedLocales(),
-            onGenerateRoute: AppRoutes.onGenerateRoute,
+    return AppLifecycleManager(
+      child: Themed(
+        currentTheme: context.read().ui.isDarkMode ? darkTheme : null,
+        child: MaterialApp(
+          theme: ThemeData(
+            primaryColor: Colors.green.shade800,
+            colorScheme: ThemeData()
+                .colorScheme
+                .copyWith(secondary: Colors.green.shade600),
           ),
+          title: "Demo App",
+          navigatorKey: Client.navigatorKey,
+          debugShowCheckedModeBanner: false,
+          builder: navigatorRoutesWrapper,
+          initialRoute: '/',
+          navigatorObservers: [
+            Client.routeObserver,
+            //
+            // TODO: Hook for analytics.
+            // FirebaseAnalyticsObserver(analytics: Dao.firebaseAnalytics),
+          ],
+          localizationsDelegates: AppLocalizations.delegates,
+          supportedLocales: AppLocalizations.supportedLocales(),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
         ),
       ),
     );
@@ -74,7 +84,6 @@ class AppLifecycleManager extends StatefulWidget {
   final Widget child;
 
   const AppLifecycleManager({
-    super.key,
     required this.child,
   });
 
@@ -82,7 +91,8 @@ class AppLifecycleManager extends StatefulWidget {
   _AppLifecycleManagerState createState() => _AppLifecycleManagerState();
 }
 
-class _AppLifecycleManagerState extends State<AppLifecycleManager> with WidgetsBindingObserver {
+class _AppLifecycleManagerState extends State<AppLifecycleManager>
+    with WidgetsBindingObserver {
   //
   @override
   void initState() {
@@ -98,7 +108,7 @@ class _AppLifecycleManagerState extends State<AppLifecycleManager> with WidgetsB
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
-    Business.store.dispatch(ProcessLifecycleChange_Action(lifecycle));
+    Business.store.dispatch(ProcessLifecycleChange(lifecycle));
   }
 
   @override
@@ -117,7 +127,7 @@ class AppLocalizations {
   static List<Locale> supportedLocales() {
     return [
       const Locale('en', 'US'),
-      const Locale('sp', 'ES'),
+      const Locale('es', 'ES'),
     ];
   }
 }

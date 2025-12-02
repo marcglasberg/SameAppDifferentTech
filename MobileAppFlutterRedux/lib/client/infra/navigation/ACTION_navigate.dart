@@ -6,7 +6,7 @@ import '../basic/routes_transitions.dart';
 import '../basic/screen.dart';
 import '../run_config/run_config.dart';
 
-class Navigate_Action extends NavigateAction<AppState> {
+class Navigate extends NavigateAction<AppState> {
   //
   static late VoidCallback _closeKeyboardFunction;
 
@@ -20,22 +20,22 @@ class Navigate_Action extends NavigateAction<AppState> {
 
   // ---
 
-  Navigate_Action.push(Screen screen) : super.push(SmartRoute.choose(screen));
+  Navigate.push(Screen screen) : super.push(SmartRoute.choose(screen));
 
-  Navigate_Action.pushNamed(String routeName) : super.pushNamed(routeName);
+  Navigate.pushNamed(String routeName) : super.pushNamed(routeName);
 
-  Navigate_Action.pop([Object? result]) : super.pop(result);
+  Navigate.pop([Object? result]) : super.pop(result);
 
-  Navigate_Action.pushAndRemoveAll(Screen screen)
+  Navigate.pushAndRemoveAll(Screen screen)
       : super.pushAndRemoveUntil(SmartRoute.choose(screen), (_) => false);
 
   /// Same as [pushAndRemoveAll] but forces DelayedNoAnimationRoute.
-  Navigate_Action.pushAndRemoveAll_DelayedNoAnimationRoute(Screen screen)
+  Navigate.pushAndRemoveAll_DelayedNoAnimationRoute(Screen screen)
       : super.pushAndRemoveUntil(DelayedNoAnimationRoute(screen), (_) => false);
 
-  Navigate_Action.pushReplacement(Screen screen) : super.pushReplacement(SmartRoute.choose(screen));
+  Navigate.pushReplacement(Screen screen) : super.pushReplacement(SmartRoute.choose(screen));
 
-  Navigate_Action.pushAndRemoveUntil(Screen screen, RoutePredicate predicate)
+  Navigate.pushAndRemoveUntil(Screen screen, RoutePredicate predicate)
       : super.pushAndRemoveUntil(SmartRoute.choose(screen), predicate);
 
   /// Replaces a screen on the navigator that most tightly encloses the given
@@ -51,7 +51,7 @@ class Navigate_Action extends NavigateAction<AppState> {
   /// The removed screen is removed without being completed, so this method does
   /// not take a return value argument.
   ///
-  Navigate_Action.replaceRouteBelow({
+  Navigate.replaceRouteBelow({
     required Screen anchorScreen,
     required Screen newScreen,
   }) : super.replaceRouteBelow(
@@ -59,25 +59,25 @@ class Navigate_Action extends NavigateAction<AppState> {
           newRoute: SmartRoute.choose(newScreen),
         );
 
-  Navigate_Action.pushNamedAndRemoveAll(String routeName) : super.pushNamedAndRemoveAll(routeName);
+  Navigate.pushNamedAndRemoveAll(String routeName) : super.pushNamedAndRemoveAll(routeName);
 
-  Navigate_Action.popUntil(Type screenRuntimeType)
+  Navigate.popUntil(Type screenRuntimeType)
       : super.popUntilRouteName(screenRuntimeType.toString());
 
-  Navigate_Action.popUntilRouteName(String routeName) : super.popUntilRouteName(routeName);
+  Navigate.popUntilRouteName(String routeName) : super.popUntilRouteName(routeName);
 
-  Navigate_Action.popUntil_Predicate(RoutePredicate predicate) : super.popUntil(predicate);
+  Navigate.popUntil_Predicate(RoutePredicate predicate) : super.popUntil(predicate);
 
-  Navigate_Action.popUntil_ScreenIsDifferentThan(List<Type> screenRuntimeType)
+  Navigate.popUntil_ScreenIsDifferentThan(List<Type> screenRuntimeType)
       : super.popUntil((Route<dynamic> route) {
           String? routeName = route.settings.name;
           return !screenRuntimeType.map((type) => type.toString()).contains(routeName);
         });
 
   /// Use this to find the route name only.
-  /// Then you can use [Navigate_Action.popUntilRouteName].
+  /// Then you can use [Navigate.popUntilRouteName].
   @visibleForTesting
-  Navigate_Action.popAndPrintAllRouteNames()
+  Navigate.popAndPrintAllRouteNames()
       : this.popUntil_Predicate((route) {
           print('\n\nRoute name = ${route.settings.name}\n\n');
           return false;

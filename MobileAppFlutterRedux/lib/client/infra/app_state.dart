@@ -67,9 +67,18 @@ class AppState {
           ui == other.ui;
 
   @override
-  int get hashCode => portfolio.hashCode ^ availableStocks.hashCode ^ ui.hashCode;
+  int get hashCode =>
+      portfolio.hashCode ^ availableStocks.hashCode ^ ui.hashCode;
 }
 
 extension BuildContextExtension on BuildContext {
   AppState get state => getState<AppState>();
+
+  AppState read() => getRead<AppState>();
+
+  R select<R>(R Function(AppState state) selector) =>
+      getSelect<AppState, R>(selector);
+
+  R? event<R>(Evt<R> Function(AppState state) selector) =>
+      getEvent<AppState, R>(selector);
 }

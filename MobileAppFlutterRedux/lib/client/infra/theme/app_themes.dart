@@ -5,7 +5,7 @@ import 'package:themed/themed.dart';
 class Font {
   Font._();
 
-  static const fontFeatures = const <FontFeature>[
+  static const fontFeatures = <FontFeature>[
     FontFeature.tabularFigures(),
     FontFeature.liningFigures(),
     FontFeature.slashedZero(),
@@ -75,18 +75,18 @@ class Font {
 class AppColor {
   AppColor._();
 
-  static const text = ColorRef(const Color(0xF0000000), id: 'text');
-  static const textDimmed = ColorRef(const Color(0x60000000), id: 'dimmed');
-  static const bkg = ColorRef(const Color(0xFFFFFFFF), id: 'bkg');
-  static const bkgGray = ColorRef(const Color(0xFFE0E0E0), id: 'bkgGray');
-  static const blue = ColorRef(const Color(0xFF2196F3), id: 'blue');
-  static const darkBlue = ColorRef(const Color(0xFF263073), id: 'darkBlue');
-  static const green = ColorRef(const Color(0xFF309030), id: 'green');
-  static const buttonGreen = ColorRef(const Color(0xFF309030), id: 'buttonGreen');
-  static const darkGreen = ColorRef(const Color(0xFF306030), id: 'darkGreen');
-  static const red = ColorRef(const Color(0xFFAA2222), id: 'red');
-  static const buttonRed = ColorRef(const Color(0xFFAA2222), id: 'buttonRed');
-  static const white = ColorRef(const Color(0xFFFFFFFF), id: 'white');
+  static const text = ColorRef(Color(0xF0000000), id: 'text');
+  static const textDimmed = ColorRef(Color(0x60000000), id: 'dimmed');
+  static const bkg = ColorRef(Color(0xFFFFFFFF), id: 'bkg');
+  static const bkgGray = ColorRef(Color(0xFFE0E0E0), id: 'bkgGray');
+  static const blue = ColorRef(Color(0xFF2196F3), id: 'blue');
+  static const darkBlue = ColorRef(Color(0xFF263073), id: 'darkBlue');
+  static const green = ColorRef(Color(0xFF309030), id: 'green');
+  static const buttonGreen = ColorRef(Color(0xFF309030), id: 'buttonGreen');
+  static const darkGreen = ColorRef(Color(0xFF306030), id: 'darkGreen');
+  static const red = ColorRef(Color(0xFFAA2222), id: 'red');
+  static const buttonRed = ColorRef(Color(0xFFAA2222), id: 'buttonRed');
+  static const white = ColorRef(Color(0xFFFFFFFF), id: 'white');
 }
 
 Map<ThemeRef, Object> darkTheme = {

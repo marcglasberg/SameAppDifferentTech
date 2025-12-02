@@ -46,5 +46,6 @@ class Stock {
           averagePrice == other.averagePrice;
 
   @override
-  int get hashCode => ticker.hashCode ^ howManyShares.hashCode ^ averagePrice.hashCode;
+  int get hashCode =>
+      ticker.hashCode ^ howManyShares.hashCode ^ averagePrice.hashCode;
 }

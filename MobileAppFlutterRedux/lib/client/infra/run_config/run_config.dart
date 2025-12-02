@@ -62,7 +62,14 @@ class RunConfig {
 
     if (!RunConfig.instance.ifLogsMissingTranslations) {
       Translations.missingKeyCallback = (_, __) {};
-      Translations.missingTranslationCallback = (_, __) {};
+      Translations.missingTranslationCallback = ({
+        required Object? key,
+        required String locale,
+        required Translations translations,
+        required Iterable<String> supportedLocales,
+      }) {
+        return false;
+      };
     }
   }
 

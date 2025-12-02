@@ -2,7 +2,6 @@ import 'package:async_redux/async_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/configuration_screen/configuration_screen.dart';
 import 'package:mobile_app_flutter_redux/client/infra/app_state.dart';
-import 'package:mobile_app_flutter_redux/client/infra/basic/app_vm_factory.dart';
 import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/portfolio_and_cash_screen.dart';
 import 'package:mobile_app_flutter_redux/client/sign_up/sign_up_screen.dart';
 
@@ -27,28 +26,16 @@ enum ScreenChoice {
 /// when the settings-icon button is tapped in the app bar.
 ///
 class BaseScreenChooser extends StatelessWidget with Screen {
-  const BaseScreenChooser({super.key});
+  const BaseScreenChooser();
 
   @override
-  Widget build(BuildContext context) => StoreConnector<AppState, _Vm>(
-        vm: () => _Factory(),
-        builder: (context, vm) {
-          return switch (vm.screen) {
-            ScreenChoice.signup => const SignupScreen(),
-            ScreenChoice.configuration => const ConfigurationScreen_Connector(),
-            ScreenChoice.portfolioAndCashBalance => const PortfolioAndCashScreen(),
-          };
-        },
-      );
-}
+  Widget build(BuildContext context) {
+    final screenChoice = context.state.ui.screenChoice;
 
-class _Factory extends AppVmFactory<_Vm, BaseScreenChooser> {
-  @override
-  _Vm fromStore() => _Vm(screen: state.ui.screenChoice);
-}
-
-class _Vm extends Vm {
-  final ScreenChoice screen;
-
-  _Vm({required this.screen}) : super(equals: [screen]);
+    return switch (screenChoice) {
+      ScreenChoice.signup => const SignupScreen(),
+      ScreenChoice.configuration => const ConfigurationScreen_Connector(),
+      ScreenChoice.portfolioAndCashBalance => const PortfolioAndCashScreen(),
+    };
+  }
 }

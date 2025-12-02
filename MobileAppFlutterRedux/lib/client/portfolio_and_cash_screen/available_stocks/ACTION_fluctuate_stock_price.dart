@@ -4,12 +4,12 @@ import 'package:mobile_app_flutter_redux/client/infra/basic/ACTION_app.dart';
 import 'package:mobile_app_flutter_redux/client/infra/dao/dao.dart';
 import 'package:mobile_app_flutter_redux/client/utils/connectivity.dart';
 
-class FluctuateStockPrice_Action extends AppAction with CheckInternet, RespectRunConfig {
+class FluctuateStockPrice extends AppAction with CheckInternet, RespectRunConfig {
   //
   // Pass true to start the timer, false to stop it.
   final bool start;
 
-  FluctuateStockPrice_Action(this.start);
+  FluctuateStockPrice(this.start);
 
   @override
   AppState? reduce() {
@@ -26,16 +26,19 @@ class FluctuateStockPrice_Action extends AppAction with CheckInternet, RespectRu
     required String ticker,
     required double price,
   }) {
-    dispatch(SetStockPrice_Action(ticker, price));
+    dispatch(SetStockPrice(ticker, price));
   }
+
+  @override
+  String toString() => 'FluctuateStockPrice($start)';
 }
 
-class SetStockPrice_Action extends AppAction {
+class SetStockPrice extends AppAction {
   //
   final String ticker;
   final double price;
 
-  SetStockPrice_Action(this.ticker, this.price);
+  SetStockPrice(this.ticker, this.price);
 
   @override
   AppState? reduce() {
@@ -54,4 +57,7 @@ class SetStockPrice_Action extends AppAction {
       );
     }
   }
+
+  @override
+  String toString() => 'SetStockPrice($ticker, $price)';
 }

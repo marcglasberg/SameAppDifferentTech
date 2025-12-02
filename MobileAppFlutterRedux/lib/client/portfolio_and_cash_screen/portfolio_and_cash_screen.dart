@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter_redux/client/app_bar/stocks_app_bar.dart';
 import 'package:mobile_app_flutter_redux/client/infra/basic/screen.dart';
 import 'package:mobile_app_flutter_redux/client/infra/theme/app_themes.dart';
-import 'package:mobile_app_flutter_redux/client/portfolio_and_cash_screen/cash_balance/cash_balance_connector.dart';
 
-import 'available_stocks/available_stocks_panel_connector.dart';
-import 'portfolio/portfolio_connector.dart';
+import './portfolio/portfolio_widget.dart';
+import 'available_stocks/available_stocks_panel.dart';
+import 'cash_balance/cash_balance_widget.dart';
 
 class PortfolioAndCashScreen extends StatelessWidget with Screen {
-  const PortfolioAndCashScreen({super.key});
+  const PortfolioAndCashScreen();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class PortfolioAndCashScreen extends StatelessWidget with Screen {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage();
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -43,12 +43,12 @@ class _MyHomePageState extends State<MyHomePage> {
             color: AppColor.bkgGray,
             child: Column(
               children: [
-                CashBalance_Connector(),
-                Portfolio_Connector(),
+                CashBalanceWidget(),
+                PortfolioWidget(),
               ],
             ),
           ),
-          Expanded(child: AvailableStocksPanel_Connector()),
+          Expanded(child: AvailableStocksPanel()),
         ],
       ),
     );

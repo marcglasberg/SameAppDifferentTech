@@ -71,8 +71,8 @@ void main() {
     // When:
     await store.dispatchAndWait(
       buyOrSell.isBuy
-          ? BuyStock_Action(avbStock, howMany: how)
-          : SellStock_Action(avbStock, howMany: how),
+          ? BuyStock(avbStock, howMany: how)
+          : SellStock(avbStock, howMany: how),
     );
 
     // Then:

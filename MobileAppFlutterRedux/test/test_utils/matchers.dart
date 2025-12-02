@@ -23,7 +23,8 @@ class ThrowsWithMessage<T> extends Matcher {
 
   @override
   Description describe(Description description) => (msg != '')
-      ? description.add('Error of type "$T" that contains this text in its message: "$msg".')
+      ? description.add(
+          'Error of type "$T" that contains this text in its message: "$msg".')
       : description.add('Error of type "$T".');
 
   @override
@@ -38,8 +39,10 @@ class ThrowsWithMessage<T> extends Matcher {
   }
 
   String? getMsgActual(Object? error) {
-    if (error is AssertionError) return (error.message == null) ? null : error.message.toString();
-    if (error is AppError) return (error.message == null) ? null : error.message.toString();
+    if (error is AssertionError)
+      return (error.message == null) ? null : error.message.toString();
+    if (error is AppError)
+      return (error.message == null) ? null : error.message.toString();
     if (error is ValidateError) return error.msg;
     if (error is NotYetImplementedError) return error.msg.toString();
     if (error is UserException) return error.message;
@@ -55,14 +58,14 @@ class ThrowsWithMessage<T> extends Matcher {
     bool verbose,
   ) {
     if (item is! T)
-      return mismatchDescription
-          .add("Expected error of type '$T' but threw a '${item.runtimeType}'.");
+      return mismatchDescription.add(
+          "Expected error of type '$T' but threw a '${item.runtimeType}'.");
 
-    return mismatchDescription
-        .add("Correctly threw an error of type '$T', but the error message should contain:\n"
-            "  '$msg'\n"
-            "but the actual message was:\n"
-            "  '${getMsgActual(item)}'\n");
+    return mismatchDescription.add(
+        "Correctly threw an error of type '$T', but the error message should contain:\n"
+        "  '$msg'\n"
+        "but the actual message was:\n"
+        "  '${getMsgActual(item)}'\n");
   }
 }
 
@@ -173,11 +176,14 @@ class _IsNotIdentical<T> extends Matcher {
 
   @override
   Description describe(Description description) {
-    return description.add('$T with instance different than ').addDescriptionOf(obj);
+    return description
+        .add('$T with instance different than ')
+        .addDescriptionOf(obj);
   }
 }
 
-Matcher isUserExceptionWithHardCause(Object cause) => _IsUserExceptionWithHardCause(cause);
+Matcher isUserExceptionWithHardCause(Object cause) =>
+    _IsUserExceptionWithHardCause(cause);
 
 /// A hard-cause is the the first error cause which, recursively, is NOT a UserException.
 /// If not found, returns null.
@@ -190,14 +196,18 @@ class _IsUserExceptionWithHardCause extends Matcher {
   bool matches(item, Map matchState) {
     if (item is UserException) {
       final hardCause = item.hardCause;
-      return _cause is Type ? (hardCause.runtimeType == _cause) : (hardCause == _cause);
+      return _cause is Type
+          ? (hardCause.runtimeType == _cause)
+          : (hardCause == _cause);
     } else
       return false;
   }
 
   @override
   Description describe(Description description) {
-    return description.add('UserException containing cause ').addDescriptionOf(_cause);
+    return description
+        .add('UserException containing cause ')
+        .addDescriptionOf(_cause);
   }
 
   @override
@@ -210,6 +220,7 @@ class _IsUserExceptionWithHardCause extends Matcher {
     if (item is! UserException)
       return mismatchDescription.add('Is not UserException');
     else
-      return mismatchDescription.add('UserException that does NOT contain the expected hard-cause');
+      return mismatchDescription
+          .add('UserException that does NOT contain the expected hard-cause');
   }
 }

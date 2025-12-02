@@ -5,7 +5,7 @@ import 'package:mobile_app_flutter_redux/client/infra/dao/dao.dart';
 import 'package:mobile_app_flutter_redux/client/utils/connectivity.dart';
 import 'package:mobile_app_flutter_redux/models/available_stocks.dart';
 
-class ReadAvailableStocks_Action extends AppAction with CheckInternet, RespectRunConfig {
+class ReadAvailableStocks extends AppAction with CheckInternet, RespectRunConfig {
   //
   @override
   Future<AppState?> reduce() async {

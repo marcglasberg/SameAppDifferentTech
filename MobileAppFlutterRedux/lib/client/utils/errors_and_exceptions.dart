@@ -63,9 +63,10 @@ class NotYetImplementedError extends AssertionError {
   int get hashCode => 0;
 }
 
-/// Used to stop the control flow, interrupting a process and breaking out of the current code.
-/// This shouldn't be logged nor show any error messages. It also has no stacktrace.
-/// Use with care, only if you know what you are doing, because that's generally an anti-pattern.
+/// Used to stop the control flow, interrupting a process and breaking out of
+/// the current code. This shouldn't be logged nor show any error messages. It
+/// also has no stacktrace. Use with care, only if you know what you are doing,
+/// because that's generally an anti-pattern.
 class InterruptControlFlowException {
   const InterruptControlFlowException();
 

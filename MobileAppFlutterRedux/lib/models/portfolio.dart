@@ -62,7 +62,8 @@ class Portfolio {
       final stock = stocks[pos];
       final newShares = stock.howManyShares + howMany;
       final newAveragePrice = round(
-          ((stock.howManyShares * stock.averagePrice) + (howMany * availableStock.currentPrice)) /
+          ((stock.howManyShares * stock.averagePrice) +
+                  (howMany * availableStock.currentPrice)) /
               newShares);
 
       newStocks = [...stocks];
@@ -84,7 +85,8 @@ class Portfolio {
     final newStocks = stocks.where((stock) => stock.ticker != ticker).toList();
 
     if (quantity > 0) {
-      final newStock = Stock(ticker, howManyShares: quantity, averagePrice: averagePrice);
+      final newStock =
+          Stock(ticker, howManyShares: quantity, averagePrice: averagePrice);
       newStocks.add(newStock);
     }
 
@@ -116,7 +118,8 @@ class Portfolio {
     return cashBalance.amount >= availableStock.currentPrice;
   }
 
-  Portfolio buyOrSell(BuyOrSell buyOrSell, AvailableStock availableStock, int howMany) {
+  Portfolio buyOrSell(
+      BuyOrSell buyOrSell, AvailableStock availableStock, int howMany) {
     return (buyOrSell == BuyOrSell.buy)
         ? buy(availableStock, howMany: howMany)
         : sell(availableStock, howMany: howMany);
@@ -128,8 +131,8 @@ class Portfolio {
     if (cashBalance.amount < availableStock.currentPrice * howMany) {
       throw const UserException('Not enough money to buy stock');
     } else {
-      final newCashBalance =
-          CashBalance(cashBalance.amount - availableStock.currentPrice * howMany);
+      final newCashBalance = CashBalance(
+          cashBalance.amount - availableStock.currentPrice * howMany);
       final newPortfolio = withAddedStock(availableStock, howMany);
       return newPortfolio.copyWith(cashBalance: newCashBalance);
     }
@@ -147,11 +150,13 @@ class Portfolio {
       final stock = stocks[pos];
 
       if (stock.howManyShares < howMany) {
-        throw UserException('Cannot sell $howMany shares of stock you do not own');
+        throw UserException(
+            'Cannot sell $howMany shares of stock you do not own');
       } else {
         final newShares = stock.howManyShares - howMany;
         final newAveragePrice = round(
-            ((stock.howManyShares * stock.averagePrice) - (howMany * availableStock.currentPrice)) /
+            ((stock.howManyShares * stock.averagePrice) -
+                    (howMany * availableStock.currentPrice)) /
                 newShares);
 
         var newStocks = [...stocks];
@@ -162,11 +167,13 @@ class Portfolio {
         );
 
         if (newShares == 0) {
-          newStocks = newStocks.where((stock) => stock.ticker != availableStock.ticker).toList();
+          newStocks = newStocks
+              .where((stock) => stock.ticker != availableStock.ticker)
+              .toList();
         }
 
-        final newCashBalance =
-            CashBalance(cashBalance.amount + availableStock.currentPrice * howMany);
+        final newCashBalance = CashBalance(
+            cashBalance.amount + availableStock.currentPrice * howMany);
         return copyWith(stocks: newStocks, cashBalance: newCashBalance);
       }
     }
@@ -177,7 +184,8 @@ class Portfolio {
   }
 
   double get totalCostBasis {
-    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) + cashBalance.amount;
+    return stocks.fold(0.0, (sum, stock) => sum + stock.costBasis) +
+        cashBalance.amount;
   }
 
   @override
@@ -193,7 +201,8 @@ class Portfolio {
       return Portfolio.EMPTY;
     else {
       IList<Stock> stocks = json.asIListOf('stocks', Stock.fromJson);
-      CashBalance cashBalance = json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
+      CashBalance cashBalance =
+          json.asCashBalance('cashBalance') ?? CashBalance.ZERO;
       return Portfolio(stocks: stocks, cashBalance: cashBalance);
     }
   }

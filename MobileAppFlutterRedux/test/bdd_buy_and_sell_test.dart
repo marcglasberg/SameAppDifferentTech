@@ -27,22 +27,18 @@ void main() {
       .then('The user now has 1 IBM.')
       .and('The cash-balance is now 90 dollars.')
       .run((ctx) async {
+    //
     // Given:
-    var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30.00);
-
-    var state = AppState.from(
-      cashBalance: 120.00,
-      availableStocks: [ibm],
-    );
-
+    var ibm = AvailableStock('IBM', name: 'IBM corp', currentPrice: 30);
+    var state = AppState.from(cashBalance: 120, availableStocks: [ibm]);
     var store = Store(initialState: state);
 
     // When:
-    await store.dispatchAndWait(BuyStock_Action(ibm, howMany: 1));
+    await store.dispatchAndWait(BuyStock(ibm, howMany: 1));
 
     // Then:
     expect(store.state.portfolio.howManyStocks('IBM'), 1);
-    expect(store.state.portfolio.cashBalance, CashBalance(90.00));
+    expect(store.state.portfolio.cashBalance, CashBalance(90));
   });
 
   Bdd(feature)
@@ -101,7 +97,7 @@ void main() {
 
     // When:
     var ibm = state.availableStocks.findBySymbol('IBM');
-    await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    await store.dispatchAndWait(SellStock(ibm, howMany: 1));
 
     // Then:
     expect(store.state.portfolio.howManyStocks('IBM'), 2);
@@ -163,7 +159,7 @@ void main() {
     var store = Store(initialState: state);
 
     // When:
-    var status = await store.dispatchAndWait(SellStock_Action(ibm, howMany: 1));
+    var status = await store.dispatchAndWait(SellStock(ibm, howMany: 1));
 
     // Then:
     expect(status.originalError, isAError('Cannot sell stock you do not own'));

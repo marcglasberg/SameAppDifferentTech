@@ -66,10 +66,12 @@ class _IsPortfolioWithStock extends Matcher {
         if (stock == null) {
           if ((howManyShares != null && howManyShares != 0) ||
               (averagePrice != null && averagePrice != 0))
-            return description.add("Portfolio containing stock ${this.ticker}.");
+            return description
+                .add("Portfolio containing stock ${this.ticker}.");
         } else {
           if (howManyShares != null && howManyShares != stock.howManyShares)
-            return description.add("Portfolio with $howManyShares $ticker shares.");
+            return description
+                .add("Portfolio with $howManyShares $ticker shares.");
           if (averagePrice != null && averagePrice != stock.averagePrice)
             return description.add(
                 "Portfolio with $ticker shares with an average price of $averagePrice dollars.");
@@ -123,8 +125,10 @@ class _IsPortfolioWithStock extends Matcher {
           if (averagePrice != null && averagePrice != 0) return false;
           return true;
         } else {
-          if (howManyShares != null && howManyShares != stock.howManyShares) return false;
-          if (averagePrice != null && averagePrice != stock.averagePrice) return false;
+          if (howManyShares != null && howManyShares != stock.howManyShares)
+            return false;
+          if (averagePrice != null && averagePrice != stock.averagePrice)
+            return false;
           return true;
         }
       }

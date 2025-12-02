@@ -14,7 +14,6 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
   const SimpleAppBar({
-    super.key,
     required this.title,
   });
 
@@ -40,8 +39,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class StocksAppBar extends SimpleAppBar {
-  //
-  StocksAppBar({super.key}) : super(title: 'Stocks App Demo'.i18n);
+  StocksAppBar() : super(title: 'Stocks App Demo'.i18n);
 
   @override
   Widget iconButton(BuildContext context) {
@@ -49,8 +47,8 @@ class StocksAppBar extends SimpleAppBar {
       icon: const Icon(Icons.settings, color: AppColor.white),
       tooltip: 'Open configuration screen',
       onPressed: () {
-        print(context.state.availableStocks);
-        context.dispatch(NavigateToConfigScreen_Action());
+        print(context.read().availableStocks);
+        context.dispatch(NavigateToConfigScreen());
       },
     );
   }
