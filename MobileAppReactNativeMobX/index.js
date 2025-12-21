@@ -15,7 +15,7 @@ inject({
   // runConfig: anotherConfiguration,
 });
 
-StorageManager.init().then();
+StorageManager.init();
 
 // Enables layout animation feature which allows for smooth automatic animations during layout changes,
 // such as when new views are added or existing ones are removed. This is necessary because, by default,

@@ -1,9 +1,6 @@
 import AvailableStock from '../state/AvailableStock';
 import Portfolio from '../state/Portfolio';
 import { storage } from '../../inject';
-import CashBalance from '../state/CashBalance';
-import Stock from '../state/Stock';
-
 /**
  * The Data Access Object lets the app communicate with the backend.
  * You may access the Dao methods directly like so: `dao.readStocks();`
@@ -50,23 +47,24 @@ export abstract class Dao {
 
   /**
    * Load the user's portfolio from the local disk of the device.
-   * If there's no saved Portfolio, returns a new empty Portfolio.
+   * If there's no saved Portfolio, returns a new empty PortfolioDTO.
    * Throws an exception if the portfolio cannot be loaded.
    *
-   * Note: this demonstrates how to load some local state from the device,
+   * Note: this demonstrates how to load some local state from the device
    * when the app opens.
    */
-  async loadPortfolio(): Promise<Portfolio> {
-    const serializedPortfolio = await storage.getItem('portfolio');
-    if (serializedPortfolio === null) {
-      return new Portfolio();
-    } else {
-      const portfolioData = JSON.parse(serializedPortfolio);
-      const stocks = portfolioData.stocks.map((stock: any) => new Stock(stock.ticker, stock.howManyShares, stock.averagePrice));
-      const cashBalance = new CashBalance(portfolioData.cashBalance.amount);
-      return new Portfolio(stocks, cashBalance);
+  async loadPortfolio(): Promise<PortfolioDTO> {
+    const serialized = await storage.getItem('portfolio');
+    if (!serialized) {
+      return { stocks: [], cashBalance: { amount: 0 } };
     }
+    return JSON.parse(serialized) as PortfolioDTO;
   }
 }
+
+export type PortfolioDTO = {
+  stocks: { ticker: string; howManyShares: number; averagePrice: number }[];
+  cashBalance: { amount: number };
+};
 
 

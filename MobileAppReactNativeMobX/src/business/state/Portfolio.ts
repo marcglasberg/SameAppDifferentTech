@@ -5,6 +5,7 @@ import Stock from './Stock';
 import { StorageManager } from '../dao/StorageManager';
 import { round } from '../utils/utils';
 import { BuyOrSell } from './BuyOrSell';
+import {PortfolioDTO} from '../dao/Dao';
 
 class Portfolio {
   stocks: Stock[];
@@ -179,9 +180,9 @@ class Portfolio {
       + this.cashBalance.amount;
   }
 
-  copyFrom(other: Portfolio) {
-    this.stocks = other.stocks.map(stock => stock);
-    this.cashBalance = other.cashBalance;
+  copyFrom(dto: PortfolioDTO) {
+    this.stocks = dto.stocks.map(stock => new Stock(stock.ticker, stock.howManyShares, stock.averagePrice));
+    this.cashBalance.setAmount(dto.cashBalance.amount);
   }
 
   toString(): string {

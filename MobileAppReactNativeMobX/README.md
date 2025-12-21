@@ -55,7 +55,7 @@ This is the app:
 
 In the [index.js](index.js) file, we inject a few dependencies using the `inject` function.
 
-The inject function can be found in the [inject.tsx](src%2Finject.tsx) file.
+The inject function can be found in the [inject.tsx](src/inject.tsx) file.
 This simple function stores the injected dependencies in global variables,
 enabling access from anywhere within the app.
 
@@ -214,7 +214,7 @@ test('The cash balance starts as zero, and can be added.', (): void => {
 });
 ```
 
-When you use `inject({})` as shown above, it creates a new store (please check the [inject.tsx](src%2Finject.tsx) file).
+When you use `inject({})` as shown above, it creates a new store (please check the [inject.tsx](src/inject.tsx) file).
 This is the same as doing: `inject({ store: new Store() })`.
 
 If every test in a file needs the store to begin with a certain initial state,
@@ -255,7 +255,7 @@ Here's what it gives us:
   we can work on a specific app feature even if its backend isn't ready yet.
   We can also simulate different scenarios, such as network errors, to see how the app behaves.
 
-In the [Dao.ts](src%2Fbusiness%2Fdao%2FDao.ts) file, we define the `Dao` as an abstract class or interface:
+In the [Dao.ts](src/business/dao/Dao.ts) file, we define the `Dao` as an abstract class or interface:
 
 ```tsx
 export abstract class Dao {
@@ -277,15 +277,18 @@ by just importing it:
 ```tsx
 import {dao} from '../../inject';
 
-let portfolio: Portfolio = await dao.loadPortfolio();
+let portfolioDTO = await dao.loadPortfolio();
+store.portfolio.copyFrom(loadedPortfolio);
 ```
 
-In this code, the DAO returns the portfolio as an object of type `Portfolio`, and not as JSON.
-You should avoid returning JSON or any other specific transport data format from the DAO.
-Always return rich objects that are easy to use by the rest of the app.
+In this code, the DAO (`loadPortfolio`) returns a plain object with the `PortfolioDTO` shape. 
+In tests (`Dao.test.tsx`), we hydrate it into a MobX Portfolio via `portfolio.copyFrom(...)`, 
+which will throw if expected fields are missing. 
+For stricter, explicit validation, we can check the schema at the I/O boundary (`loadPortfolio`)
+so that bad data is caught before it reaches the domain layer.
 
-This makes it very easy to mock or simulate the DAO,
-because creating an object is simpler than composing JSON information.
+To mock or simulate the DAO, it needs to return plain JavaScript objects (like `PortfolioDTO`), 
+so tests can construct objects directly without composing serialized JSON.
 
 ## Difference between mocking and simulating the DAO
 
@@ -300,13 +303,15 @@ mocked one. The reason is that a simulated DAO is much more realistic, and there
 
 When you instantiate the app with a simulated DAO,
 you can open the app yourself and interact with it as if it were connected to a real backend.
-This is very useful for developing the app, as we don't have to worry whether the backend is ready or not.
+This is very useful for developing the app, as we don't have to worry whether the backend is ready or not
+(it uncouples frontend and backend development).
 
 But it also helps in automatic testing, as we don't need to create mocks for every single
 scenario. We can just use the simulated DAO, and it will behave very similarly to the real backend.
 
 When you are ready to switch to the real backend, you can just inject the "real DAO" in the app, instead of
 the "simulated DAO". This is very easy to do, as the rest of the app doesn't need to change at all.
+See file `inject.tsx`:
 
 ```tsx
 // Injecting the real DAO:
@@ -331,7 +336,7 @@ It can simply return data without worrying about all these issues.
 It doesn't need to be perfect, but just good enough to help us develop and test the app.
 
 Please use the app code as given, and try it out a little. It's using a simulated DAO.
-In file [SimulatedDao.ts](src%2Fbusiness%2Fdao%2FSimulatedDao.ts) you can see how it returns a list of available stocks,
+In file [SimulatedDao.ts](./src/business/dao/SimulatedDao.ts) you can see how it returns a list of available stocks,
 and generates random stock price updates every few milliseconds.
 
 We start by creating a `SimulatedDao` class that extends `Dao`:
@@ -362,7 +367,7 @@ export class SimulatedDao extends Dao {
 
 Note how the method waits for 500 milliseconds before returning the data. This is to simulate a network delay.
 
-In the same [SimulatedDao.ts](src%2Fbusiness%2Fdao%2FSimulatedDao.ts) file, look at the
+In the same [SimulatedDao.ts](src/business/dao/SimulatedDao.ts) file, look at the
 methods `listenToStockPriceUpdates()` and `stopStockPriceUpdates()` to
 see how we easily simulate the continuous streaming of stock price updates.
 
@@ -379,7 +384,7 @@ Please check the tests in the `__tests__` directory.
 # The RunConfig
 
 The `RunConfig` class is the "run configuration" which contains the configuration parameters for the app.
-It's defined in file [RunConfig.ts](src%2Fbusiness%2FRunConfig%2FRunConfig.ts).
+It's defined in file [RunConfig.ts](src/business/RunConfig/RunConfig.ts).
 
 You can set up distinct configurations for various environments, like development, staging, and production.
 You can also have different configurations for different developers. For example, you can have a configuration for John,
@@ -428,7 +433,7 @@ This method takes two parameters: `$priceA` (price style for A) and `$priceB` (p
 It returns the first parameter if the `RunConfig.abTesting` flag is set to `A`, and the second parameter if it's set
 to `B`.
 
-Check file [ABTesting.ts](src%2Fbusiness%2FRunConfig%2FABTesting.ts) to see how this is implemented.
+Check file [ABTesting.ts](src/business/RunConfig/ABTesting.ts) to see how this is implemented.
 
 ## Playground
 
@@ -436,7 +441,7 @@ Another feature I like to add to the run configuration is the `playground`.
 It lets you choose a specific component to display instead of the entire app.
 You can use it to develop and test that component in isolation.
 
-For instance, `anotherConfiguration` is defined in the [inject.tsx](src%2Finject.tsx) file like this:
+For instance, `anotherConfiguration` is defined in the [inject.tsx](src/inject.tsx) file like this:
 
 ```tsx
 import {Playground} from './ui/cashBalanceAndPortfolio/Playground';
@@ -462,7 +467,7 @@ inject({
 ```                        
 
 After hot reloading, you'll notice the app shows the `Playground` component
-(see [Playground.tsx](src%2Fui%2FcashBalanceAndPortfolio%2FPlayground.tsx)) instead of the usual app.
+(see [Playground.tsx](src/ui/cashBalanceAndPortfolio/Playground.tsx)) instead of the usual app.
 
 <div style="text-align: center;">
 <img src="readme_images/PlaygroundExample.png" alt="Alt text" width="350"/>
@@ -501,7 +506,7 @@ const serializedPortfolio = JSON.stringify(portfolio);
 storage.setItem('portfolio', serializedPortfolio);
 ```
 
-Please check the [Storage.ts](src%2Fbusiness%2Fdao%2FStorage.ts) file.
+Please check the [Storage.ts](src/business/dao/Storage.ts) file.
 When using the **disk** storage, it acts as a simple wrapper around the `AsyncStorage` API.
 When using the **in-memory** storage, it wraps an in-memory map.
 
@@ -548,7 +553,7 @@ Depending on the app, your storage needs will be different. For example:
 
 * Other apps may need to save some information locally, but don't need to continuously keep track of changes.
 
-The specific scenario which I have implemented in the [StorageManager.ts](src%2Fbusiness%2Fdao%2FStorageManager.ts)
+The specific scenario which I have implemented in the [StorageManager.ts](src/business/dao/StorageManager.ts)
 file is this:
 
 1. The `StorageManager` loads all the state from disk as soon as the app opens.
@@ -611,7 +616,7 @@ file is this:
       ... 
    ``` 
 
-5. In [App.tsx](src%2FApp.tsx) there is a mechanism implemented with the `handleAppShutdown()` function,
+5. In [App.tsx](src/App.tsx) there is a mechanism implemented with the `handleAppShutdown()` function,
    where a save is triggered immediately when the app is shutting down, ignoring the 2-second interval.
    This is important to make sure no state is lost.
 
@@ -643,8 +648,8 @@ const colors = useTheme().colors;
 
 While this approach is acceptable, given our use of MobX, we will adopt a different strategy to observe theme changes.
 
-Please check file [Color.ts](src%2Fui%2Ftheme%2FColor.ts).
-We first define a palette, containing all the colors defined by the designers in the app's design system:
+Please check file [Color.ts](src/ui/theme/Color.ts).
+We first define a palette containing all the colors defined by the designers in the app's design system:
 
 ```tsx
 const palette = {
@@ -751,7 +756,7 @@ const MyComponent = observer(() => {
 
 ## Fonts
 
-In file [Font.ts](src%2Fui%2Ftheme%2FFont.ts) we define the fonts that we use in the app, taken from the design system:
+In file [Font.ts](src/ui/theme/Font.ts) we define the fonts that we use in the app, taken from the design system:
 
 * Small: 16px font
 * Medium: 20px font
@@ -805,7 +810,7 @@ However, I think it is easier and more semantic to do it like this:
 <Text>Oranges</Text>
 ```
 
-In file [Space.tsx](src%2Fui%2Ftheme%2FSpace.tsx) we specify:
+In file [Space.tsx](src/ui/theme/Space.tsx) we specify:
 
 * `<Space.px4 />` for 4px of spacing
 * `<Space.px8 />` for 8px of spacing
@@ -829,7 +834,7 @@ For example:
 
 ## Simple layout components
 
-In file [Layout.tsx](src%2Fui%2Futils%2FLayout.tsx) I define a few simple components that substitute some of the uses
+In file [Layout.tsx](src/ui/utils/Layout.tsx) I define a few simple components that substitute some of the uses
 of `<View>`:
 
 * `<Row>` instead of `<View style={{ flexDirection: 'row'}>`
@@ -900,16 +905,16 @@ and [The Storage class](#the-storage-class).
 ### Testing business and utility classes
 
 The simplest tests are the unit tests that exercise the business classes and utility classes. For
-example, [Stock.test.tsx](__tests__%2FStock.test.tsx) and [utils.test.ts](__tests__%2Futils.test.ts).
+example, [Stock.test.tsx](__tests__/Stock.test.tsx) and [utils.test.ts](__tests__/utils.test.ts).
 
 <br>
 
 ### Testing the store
 
 Then, I test the sub-stores that are part of the main store,
-in [UiStore.test.ts](__tests__%2FUiStore.test.ts),
-[Portfolio.test.tsx](__tests__%2FPortfolio.test.tsx)
-and [AvailableStock.test.tsx](__tests__%2FAvailableStock.test.tsx):
+in [UiStore.test.ts](__tests__/UiStore.test.ts),
+[Portfolio.test.tsx](__tests__/Portfolio.test.tsx)
+and [AvailableStock.test.tsx](__tests__/AvailableStock.test.tsx):
 
 ```tsx
 export class Store {
@@ -922,10 +927,10 @@ export class Store {
 
 ### Testing the app infrastructure
 
-Then I test the infrastructure classes, in [RunConfig.test.tsx](__tests__%2FRunConfig.test.tsx),
-[Storage.test.tsx](__tests__%2FStorage.test.tsx),
-[StorageManager.test.tsx](__tests__%2FStorageManager.test.tsx)
-and [Dao.test.tsx](__tests__%2FDao.test.tsx).
+Then I test the infrastructure classes, in [RunConfig.test.tsx](__tests__/RunConfig.test.tsx),
+[Storage.test.tsx](__tests__/Storage.test.tsx),
+[StorageManager.test.tsx](__tests__/StorageManager.test.tsx)
+and [Dao.test.tsx](__tests__/Dao.test.tsx).
 
 
 <br>
@@ -936,10 +941,10 @@ Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` d
 
 It contains a `mixed` directory containing "mixed" components which are **not used** in the app:
 
-* [AvailableStock.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FAvailableStock.mixed.tsx)
-* [AvailableStocksList.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FAvailableStocksList.mixed.tsx)
-* [CashBalance.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FCashBalance.mixed.tsx)
-* [Portfolio.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FPortfolio.mixed.tsx)
+* [AvailableStock.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStock.mixed.tsx)
+* [AvailableStocksList.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStocksList.mixed.tsx)
+* [CashBalance.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/CashBalance.mixed.tsx)
+* [Portfolio.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/Portfolio.mixed.tsx)
 
 They are provided here as examples,
 for comparison with the "container/view" components we actually use in the app.
@@ -956,7 +961,7 @@ Here are two of them in a column:
 <img src="readme_images/AvailableStock.png" alt="Alt text" width="300"/>
 </div>     
 
-File [AvailableStock.mixed.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fmixed%2FAvailableStock.mixed.tsx)
+File [AvailableStock.mixed.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/mixed/AvailableStock.mixed.tsx)
 defines the `AvailableStock_Mixed` component,
 which accesses the store directly within the UI code, for example, here:
 
@@ -1002,7 +1007,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
 1. The Container
 
-   File [AvailableStock.container.tsx](src%2Fui%2FcashBalanceAndPortfolio%2FAvailableStock.container.tsx)
+   File [AvailableStock.container.tsx](src/ui/cashBalanceAndPortfolio/AvailableStock.container.tsx)
    contains `AvailableStockContainer`, which has no UI.
    Its goal is simply to access the store, create a data structure called the "view-model" with all the necessary
    information, and pass it down to the "view component".
@@ -1031,7 +1036,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    ```   
 
    Let's see how to test the **container** in
-   file [AvailableStocks.container.test.ts](__tests__%2FAvailableStocks.container.test.ts).
+   file [AvailableStocks.container.test.ts](__tests__/AvailableStocks.container.test.ts).
 
    Testing the container is basically testing that the view-model is correct. This is easy to do, as we can
    simply call the `viewModel()` function with different states, and check that the view-model properties
@@ -1060,8 +1065,8 @@ the separation of concerns is still useful, in my opinion, because it makes the 
    // Cash balance is 1000. There are no IBM stocks.
    expect(store.portfolio.howManyStocks(ibm.ticker)).toBe(0);
    store.portfolio.cashBalance.setAmount(1000);
-   
-   const vm = viewModel(ibm);
+
+   vm = viewModel(ibm);
    vm.onBuy(); // Buy 1 share of IBM stock.
    
    // Cash balance decreased by the price of 1 IBM stock. Portfolio now contains 1 IBM stock.
@@ -1072,7 +1077,7 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
 2. The View
 
-   File [AvailableStock.view.tsx](src%2Fui%2FcashBalanceAndPortfolio%2FAvailableStock.view.tsx)
+   File [AvailableStock.view.tsx](src/ui/cashBalanceAndPortfolio/AvailableStock.view.tsx)
    contains `AvailableStockView`, which does not access the store directly.
    Instead, it gets all information in its constructor.
 
@@ -1111,11 +1116,11 @@ the separation of concerns is still useful, in my opinion, because it makes the 
 
 Please check the `src\ui\cashBalanceAndPortfolio\alternative_implementations\` directory again.
 It contains a `hooks` directory containing
-file [AvailableStock.hook.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fhooks%2FAvailableStock.hook.tsx)
+file [AvailableStock.hook.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/hooks/AvailableStock.hook.tsx)
 which is **not used** in the app.
 
-Compare it with files [AvailableStock.container.tsx](src%2Fui%2FcashBalanceAndPortfolio%2FAvailableStock.container.tsx)
-and [AvailableStock.view.tsx](src%2Fui%2FcashBalanceAndPortfolio%2FAvailableStock.view.tsx).
+Compare it with files [AvailableStock.container.tsx](src/ui/cashBalanceAndPortfolio/AvailableStock.container.tsx)
+and [AvailableStock.view.tsx](src/ui/cashBalanceAndPortfolio/AvailableStock.view.tsx).
 
 Instead of defining a container component which returns a view component,
 the "hooks implementation" is a single component that gets its information from a hook. In this case:
@@ -1134,7 +1139,7 @@ One other difference when using hooks, is that some people like to have more tha
 For example, you may have one hook to read information from the store, another to serve as a "controller" for the UI,
 etc. I personally prefer to have a single hook, which gets all the information from the store, and then pass it down
 to the component, as seen in
-file [AvailableStock.hook.tsx](src%2Fui%2FcashBalanceAndPortfolio%2Falternative_implementations%2Fhooks%2FAvailableStock.hook.tsx).
+file [AvailableStock.hook.tsx](src/ui/cashBalanceAndPortfolio/alternative_implementations/hooks/AvailableStock.hook.tsx).
 
 Note that testing the hook itself is exactly the same as testing the previous `viewModel` function,
 as they are identical.
@@ -1151,8 +1156,8 @@ and that also serve as documentation.
 
 I won't go into details here, but I'm providing two files with BDD tests, to demonstrate how to create them:
 
-* [bdd.AveragePrice.test.ts](__tests__%2Fbdd.AveragePrice.test.ts)
-* [bdd.BuyAndSell.test.ts](__tests__%2Fbdd.BuyAndSell.test.ts)
+* [bdd.AveragePrice.test.ts](__tests__/bdd.AveragePrice.test.ts)
+* [bdd.BuyAndSell.test.ts](__tests__/bdd.BuyAndSell.test.ts)
 
 These BDD tests use a **<a href="https://www.npmjs.com/package/easy-bdd-tool-jest">BDD Framework For Jest</a>**,
 that I have developed myself.
@@ -1382,7 +1387,7 @@ src/
 │   │       └── Portfolio.view.tsx (UI code)
 ```
 
-     
+
 ---
 
 # What now?

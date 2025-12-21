@@ -34,7 +34,7 @@ const AppContent = observer(() => {
     const handleAppShutdown = async () => {
       try {
         console.log('Starting shutdown process...');
-        await StorageManager.stopTimerAndSaves().then();
+        await StorageManager.stopTimerAndSaves();
         console.log('Shutdown process completed.');
       } catch (error) {
         console.error('Error during shutdown:', error);
