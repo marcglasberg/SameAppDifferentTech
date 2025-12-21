@@ -5,16 +5,15 @@ This project contains the SAME MOBILE APP implemented with DIFFERENT TECH STACKS
 **React Native:**
 * <a href='./MobileAppReactNativeHooks/README.md'>React Native with no third-party state management (hooks only)</a>
 * <a href='./MobileAppReactNativeMobX/README.md'>React Native with MobX</a>
-* <a href='./MobileAppReactNativeKeystone/README.md'>React Native with MobX Keystone</a>
-* React Native with Redux Toolkit
+* React Native with Kiss State
 
 **Flutter:**
 * Flutter with no third-party state management
 * Flutter with Bloc
 * Flutter with Provider
 * Flutter with MobX
-* <a href='./MobileAppFlutterRedux/README.md'>Flutter with Redux</a>
-* <a href='./MobileAppFlutterCelest/README.md'>Flutter with Celest</a> (in development)
+* <a href='./MobileAppFlutterRedux/README.md'>Flutter with Async Redux</a>
+* <a href='./MobileAppFlutterCelest/README.md'>Flutter with Celest</a> (deprecated)
 
 **Native:**
 * Android Jetpack
